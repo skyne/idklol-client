@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "IdklolClientEditor Editor Win64 Development (IdklolClient)",
+            "compilerPath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "msvc-x64",
+            "compileCommands": [
+                "F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_IdklolClient.json"
+            ]
+        },
+        {
+            "name": "Win32",
+            "compilerPath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "msvc-x64",
+            "compileCommands": [
+                "F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default.json"
+            ]
+        }
+    ],
+    "version": 4
+}

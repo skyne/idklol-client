@@ -1,0 +1,450 @@
+[
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\GrpcMessageK2Node_JsonToMessage.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\GrpcMessageK2Node_MessageToJson.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\GrpcMessageTagsManager.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\GrpcMessageTagsManager.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\SGrpcMessageTagGraphPin.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\SGrpcMessageTagGraphPin.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\SGrpcMessageTagWidget.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\SGrpcMessageTagWidget.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Private\\TurboLinkEditorModule.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Public\\GrpcMessageK2Node_JsonToMessage.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Public\\GrpcMessageK2Node_MessageToJson.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\Public\\TurboLinkEditorModule.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkEditor\\TurboLinkEditor.Build.cs",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkEditor.30.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthClient.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthContext.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthContext.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthMarshaling.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthMarshaling.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthMessage.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthNode.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthService.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthService_Private.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\SAuth\\AuthService_Private.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcClient.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcConfig.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcContext.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcContext.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcManager.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcManager_Private.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcManager_Private.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcModule.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcService.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\TurboLinkGrpcUtilities.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\pb\\auth.grpc.pb.cc",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\pb\\auth.grpc.pb.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\pb\\auth.pb.cc",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Private\\pb\\auth.pb.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\SAuth\\AuthClient.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\SAuth\\AuthMessage.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\SAuth\\AuthNode.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\SAuth\\AuthService.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcClient.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcConfig.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcManager.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcMessage.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcModule.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcService.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\Public\\TurboLinkGrpcUtilities.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Plugins\\TurboLink\\Source\\TurboLinkGrpc\\TurboLinkGrpc.Build.cs",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\TurboLinkGrpc.29.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClient.Build.cs",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClient.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClient.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClientCharacter.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClientCharacter.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClientGameMode.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "F:\\idklol\\idklol-client\\IdklolClient\\Source\\IdklolClient\\IdklolClientGameMode.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\VC\\Tools\\MSVC\\14.50.35717\\bin\\Hostx64\\x64\\cl.exe",
+			"@F:\\idklol\\idklol-client\\IdklolClient\\.vscode\\compileCommands_Default\\IdklolClient.1.rsp"
+		],
+		"directory": "F:\\UE_5.5\\Engine\\Source"
+	}
+]
