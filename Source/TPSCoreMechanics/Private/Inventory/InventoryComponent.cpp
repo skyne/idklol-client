@@ -113,13 +113,14 @@ void UInventoryComponent::AddItem(const FGameplayTag& ItemTag, int32 NumItems)
 	{
 		InventoryTagMap.Emplace(ItemTag, NumItems);
 	}
-	
+
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
 	                                 FString::Printf(
 		                                 TEXT("Server - %d item added to inventory: %s"), NumItems,
 		                                 *ItemTag.ToString()));
 
 	PackageInventory(CachedInventory);
+	InventoryPackagedDelegate.Broadcast(CachedInventory);
 }
 
 void UInventoryComponent::UseItem(const FGameplayTag& ItemTag, int32 NumItems)
@@ -140,11 +141,20 @@ void UInventoryComponent::UseItem(const FGameplayTag& ItemTag, int32 NumItems)
 
 	// server side
 	const FMasterItemDefinition Item = GetItemDefinitionByTag(ItemTag);
-	
+
 	if (UAbilitySystemComponent* OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Owner))
 	{
 		if (IsValid(Item.ConsumableProps.ItemEffectClass))
 		{
+			if (!InventoryTagMap.Contains(Item.ItemTag))
+			{
+				return;
+			}
+			if (InventoryTagMap[Item.ItemTag] < 1)
+			{
+				InventoryTagMap.Remove(Item.ItemTag);
+				return;
+			}
 			const FGameplayEffectContextHandle ContextHandle = OwnerASC->MakeEffectContext();
 			const FGameplayEffectSpecHandle SpecHandle = OwnerASC->MakeOutgoingSpec(
 				Item.ConsumableProps.ItemEffectClass, Item.ConsumableProps.ItemEffectLevel, ContextHandle);
@@ -205,8 +215,13 @@ void UInventoryComponent::PackageInventory(FPackagedInventory& OutInventory)
 
 	for (const auto& Pair : InventoryTagMap)
 	{
-		if (Pair.Value > 0)
+		int32 ItemValue = Pair.Value;
+		if (ItemValue > 0)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+			                                 FString::Printf(
+				                                 TEXT("Server - item packaged: %s, %d"), *Pair.Key.ToString(),
+				                                 Pair.Value));
 			OutInventory.ItemTags.Add(Pair.Key);
 			OutInventory.ItemQuantities.Add(Pair.Value);
 		}
@@ -218,19 +233,28 @@ void UInventoryComponent::ReconstructInventoryMap(const FPackagedInventory& Inve
 	InventoryTagMap.Empty();
 	for (int32 i = 0; i < Inventory.ItemTags.Num(); ++i)
 	{
-		InventoryTagMap.Emplace(Inventory.ItemTags[i], Inventory.ItemQuantities[i]);
+		if (Inventory.ItemQuantities[i] > 0)
+		{
+			InventoryTagMap.Emplace(Inventory.ItemTags[i], Inventory.ItemQuantities[i]);
+		}
 	}
+}
+
+TMap<FGameplayTag, int32> UInventoryComponent::GetInventoryTagMap()
+{
+	return InventoryTagMap;
 }
 
 void UInventoryComponent::OnRep_CachedInventory()
 {
 	ReconstructInventoryMap(CachedInventory);
+	InventoryPackagedDelegate.Broadcast(CachedInventory);
 }
 
 bool FPackagedInventory::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
-	MySafeNetSerializeTArray_WithNetSerialize<MAX_INVENTORY_SIZE>(Ar, ItemTags, Map);
-	MySafeNetSerializeTArray_Default<MAX_INVENTORY_SIZE>(Ar, ItemQuantities, Map);
+	SafeNetSerializeTArray_WithNetSerialize<MAX_INVENTORY_SIZE>(Ar, ItemTags, Map);
+	SafeNetSerializeTArray_Default<MAX_INVENTORY_SIZE>(Ar, ItemQuantities);
 	bOutSuccess = true;
 	return true;
 }

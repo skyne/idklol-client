@@ -6,6 +6,9 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Inventory/InventoryComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/TPSCoreSystemsWidget.h"
+#include "UI/WidgetController/InventoryWidgetController.h"
+#include "UI/TPSCoreSystemsWidget.h"
 
 ATPSCorePlayerController::ATPSCorePlayerController()
 {
@@ -13,6 +16,11 @@ ATPSCorePlayerController::ATPSCorePlayerController()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
 	InventoryComponent->SetIsReplicated(true);
+}
+
+UInventoryComponent* ATPSCorePlayerController::GetInventoryComponent_Implementation()
+{
+	return InventoryComponent;
 }
 
 UAbilitySystemComponent* ATPSCorePlayerController::GetAbilitySystemComponent() const
@@ -25,4 +33,26 @@ void ATPSCorePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATPSCorePlayerController, InventoryComponent);
+}
+
+UInventoryWidgetController* ATPSCorePlayerController::GetInventoryWidgetController()
+{
+	if (!IsValid(InventoryWidgetController))
+	{
+		InventoryWidgetController = NewObject<UInventoryWidgetController>(this, InventoryWidgetControllerClass);
+		InventoryWidgetController->SetOwningActor(this);
+		InventoryWidgetController->BindCallbacksToDependencies();
+	}
+	return InventoryWidgetController;
+}
+
+void ATPSCorePlayerController::CreateInventoryWidget()
+{
+	if (UUserWidget* Widget = CreateWidget<UTPSCoreSystemsWidget>(this, InventoryWidgetClass))
+	{
+		InventoryWidget = Cast<UTPSCoreSystemsWidget>(Widget);
+		InventoryWidget->SetWidgetController(GetInventoryWidgetController());
+		InventoryWidgetController->BradcastInitialValues();
+		InventoryWidget->AddToViewport();
+	}
 }
