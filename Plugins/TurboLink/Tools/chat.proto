@@ -1,0 +1,16 @@
+syntax = "proto3";
+package chat;
+
+import "google/protobuf/empty.proto";
+
+message ChatMessage {
+   string timestamp = 1;
+   string sender = 2;
+   string message = 3;
+}
+
+service ChatService {
+    rpc Message (ChatMessage) returns (google.protobuf.Empty);
+    
+    rpc Stream (google.protobuf.Empty) returns (stream ChatMessage);
+}
