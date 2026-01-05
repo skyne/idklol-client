@@ -66,4 +66,4 @@ When encountering `EXCEPTION_ACCESS_VIOLATION` with gRPC usage:
 
 1. Delete `Binaries`, `Intermediate`, `Saved`
 2. This usually happens when the generated service is being created in the actor constructor, which is illegal
-3. Move the usage somewhere else, for example:
+3. Move the usage somewhere else, for example: `BeginPlay()`
