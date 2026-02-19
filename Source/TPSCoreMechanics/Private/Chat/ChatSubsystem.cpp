@@ -47,7 +47,7 @@ void UChatSubsystem::InitializeConnection()
 		SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
 		return;
 	}
-	
+
 	FGrpcContextHandle Context = Client->InitStream();
 
 	FGrpcGoogleProtobufEmpty Request = {};
@@ -159,7 +159,10 @@ void UChatSubsystem::NewChatMessage(FString Message)
 		ChatMessage.Timestamp = "NOW";
 		ChatMessage.Message = Message;
 		ChatMessage.Sender = "Me";
-		Client->Message(Context, ChatMessage);
+		FGrpcMetaData MetaData = FGrpcMetaData();
+		MetaData.MetaData.Add("authorization", "asdasd");
+		Client->Message(Context, ChatMessage,MetaData);
+	
 	}
 	else
 	{
