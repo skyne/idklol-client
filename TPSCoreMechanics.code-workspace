@@ -1,0 +1,879 @@
+{
+	"folders": [
+		{
+			"name": "TPSCoreMechanics",
+			"path": "."
+		},
+		{
+			"name": "UE5",
+			"path": "/mnt/data/UnrealEngine5.5.4"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off",
+		"npm.autoDetect": "off",
+		"terminal.integrated.env.linux": {
+			"PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
+			"DOTNET_ROOT": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
+			"DOTNET_HOST_PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
+			"DOTNET_MULTILEVEL_LOOKUP": "0",
+			"DOTNET_ROLL_FORWARD": "LatestMajor"
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"ms-dotnettools.csharp"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "TPSCoreMechanics Linux Debug Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics Linux Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics Linux DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics Linux Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Test Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Test",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Test Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Test",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics Linux Test Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Test Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Test",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Shipping Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Shipping",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Shipping Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Shipping",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics Linux Shipping Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics Linux Shipping Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"Linux",
+					"Shipping",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Debug Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics LinuxArm64 Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics LinuxArm64 DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics LinuxArm64 Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Test Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Test",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Test Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Test",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics LinuxArm64 Test Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Test Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Test",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Shipping Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Shipping",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Shipping Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Shipping",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanics LinuxArm64 Shipping Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanics LinuxArm64 Shipping Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanics",
+					"LinuxArm64",
+					"Shipping",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux Debug Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanicsEditor Linux Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"Debug",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanicsEditor Linux DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"DebugGame",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanicsEditor Linux Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsEditor Linux Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"TPSCoreMechanicsEditor",
+					"Linux",
+					"Development",
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/mnt/data/UnrealEngine5.5.4"
+				}
+			}
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Launch TPSCoreMechanics (Debug)",
+				"request": "launch",
+				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-Debug",
+				"preLaunchTask": "TPSCoreMechanics Linux Debug Build",
+				"args": [
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanics (DebugGame)",
+				"request": "launch",
+				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-DebugGame",
+				"preLaunchTask": "TPSCoreMechanics Linux DebugGame Build",
+				"args": [
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanics (Development)",
+				"request": "launch",
+				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame",
+				"preLaunchTask": "TPSCoreMechanics Linux Development Build",
+				"args": [
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanics (Test)",
+				"request": "launch",
+				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-Test",
+				"preLaunchTask": "TPSCoreMechanics Linux Test Build",
+				"args": [
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanics (Shipping)",
+				"request": "launch",
+				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-Shipping",
+				"preLaunchTask": "TPSCoreMechanics Linux Shipping Build",
+				"args": [
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanicsEditor (Debug)",
+				"request": "launch",
+				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
+				"preLaunchTask": "TPSCoreMechanicsEditor Linux Debug Build",
+				"args": [
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject"
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanicsEditor (DebugGame)",
+				"request": "launch",
+				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
+				"preLaunchTask": "TPSCoreMechanicsEditor Linux DebugGame Build",
+				"args": [
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject"
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch TPSCoreMechanicsEditor (Development)",
+				"request": "launch",
+				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/Linux/UnrealEditor",
+				"preLaunchTask": "TPSCoreMechanicsEditor Linux Development Build",
+				"args": [
+					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject"
+				],
+				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"type": "cppdbg",
+				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Generate Project Files",
+				"type": "coreclr",
+				"request": "launch",
+				"preLaunchTask": "UnrealBuildTool Linux Development Build",
+				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Build/BatchFiles/RunUBT.bat",
+				"args": [
+					"-projectfiles",
+					"-vscode",
+					"-project=/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-game",
+					"-engine",
+					"-dotnet"
+				],
+				"env": {
+					"PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
+					"DOTNET_ROOT": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
+					"DOTNET_HOST_PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
+					"DOTNET_MULTILEVEL_LOOKUP": "0",
+					"DOTNET_ROLL_FORWARD": "LatestMajor"
+				},
+				"console": "internalConsole",
+				"internalConsoleOptions": "openOnSessionStart",
+				"stopAtEntry": false,
+				"cwd": "/mnt/data/UnrealEngine5.5.4"
+			}
+		]
+	}
+}
