@@ -1,78 +1,33 @@
 #include "Chat/ChatSubsystem.h"
-#include "TurboLinkGrpcUtilities.h"
-#include "TurboLinkGrpcManager.h"
 
-void UChatSubsystem::SetChatConnectionStatus(EChatConnectionStatus NewStatus)
+void UChatSubsystem::OnServiceConnected(UObject* InService, UObject* InClient)
 {
-	if (ChatConnectionStatus != NewStatus)
+	UChatService* ChatService = GetService();
+	UChatServiceClient* ChatClient = GetClient();
+	
+	if (!ChatService || !ChatClient)
 	{
-		ChatConnectionStatus = NewStatus;
-		UE_LOG(LogTemp, Log, TEXT("Chat connection status changed to %d"), static_cast<int32>(ChatConnectionStatus));
-	}
-}
-
-void UChatSubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-	Collection.InitializeDependency(UTurboLinkGrpcManager::StaticClass());
-	Super::Initialize(Collection);
-
-	SetChatConnectionStatus(EChatConnectionStatus::Connecting);
-	InitializeConnection();
-}
-
-void UChatSubsystem::InitializeConnection()
-{
-	UTurboLinkGrpcManager* TurboLinkManager = UTurboLinkGrpcUtilities::GetTurboLinkGrpcManager(this);
-	if (!TurboLinkManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("TurboLinkGrpcManager not available"));
-		SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
+		UE_LOG(LogTemp, Error, TEXT("[ChatSubsystem] Invalid service or client"));
 		return;
 	}
 	
-	ChatService = Cast<UChatService>(TurboLinkManager->MakeService("ChatService"));
-	if (!IsValid(ChatService))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create ChatService"));
-		SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
-		return;
-	}
+	// Bind to stream responses
+	ChatClient->OnStreamResponse.AddUniqueDynamic(this, &UChatSubsystem::HandleStreamResponse);
 	
-	ChatService->Connect();
-	
-	Client = ChatService->MakeClient();
-	if (!IsValid(Client))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create Chat client"));
-		SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
-		return;
-	}
-
-	FGrpcContextHandle Context = Client->InitStream();
-
+	// Initialize and start the chat stream
+	FGrpcContextHandle Context = ChatClient->InitStream();
 	FGrpcGoogleProtobufEmpty Request = {};
-
-	ChatService->OnServiceStateChanged.AddUniqueDynamic(this, &UChatSubsystem::HandleGrpcStateChange);
-	Client->OnStreamResponse.AddUniqueDynamic(this, &UChatSubsystem::HandleStreamResponse);
-	Client->Stream(Context, Request);
+	ChatClient->Stream(Context, Request);
 	
-	SetChatConnectionStatus(EChatConnectionStatus::Connected);
+	UE_LOG(LogTemp, Log, TEXT("[ChatSubsystem] Chat stream started"));
 }
 
-void UChatSubsystem::Deinitialize()
+void UChatSubsystem::OnServiceDisconnected()
 {
-	if (IsValid(ChatService))
+	if (UChatServiceClient* ChatClient = GetClient())
 	{
-		ChatService->OnServiceStateChanged.RemoveDynamic(this, &UChatSubsystem::HandleGrpcStateChange);
+		ChatClient->OnStreamResponse.RemoveDynamic(this, &UChatSubsystem::HandleStreamResponse);
 	}
-	if (IsValid(Client))
-	{
-		Client->OnStreamResponse.RemoveDynamic(this, &UChatSubsystem::HandleStreamResponse);
-	}
-	
-	Client = nullptr;
-	ChatService = nullptr;
-	SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
 }
 
 void UChatSubsystem::HandleStreamResponse(FGrpcContextHandle Handle, const FGrpcResult& GrpcResult, const FGrpcChatChatMessage& Response)
@@ -88,7 +43,7 @@ void UChatSubsystem::HandleStreamResponse(FGrpcContextHandle Handle, const FGrpc
 		UE_LOG(
 			LogTemp,
 			Warning,
-			TEXT("Chat stream error. Code=%d, Message=%s"),
+			TEXT("[ChatSubsystem] Chat stream error. Code=%d, Message=%s"),
 			static_cast<int32>(GrpcResult.Code),
 			*GrpcResult.GetMessageString()
 		);
@@ -101,76 +56,57 @@ void UChatSubsystem::HandleStreamResponse(FGrpcContextHandle Handle, const FGrpc
 		case EGrpcResultCode::Internal:
 		case EGrpcResultCode::Unknown:
 		default:
-			SetChatConnectionStatus(EChatConnectionStatus::TransientError);
+			SetConnectionStatus(EGrpcConnectionStatus::TransientError);
 			break;
 		}
 
-		// Best-effort: cancel the errored context and let HandleGrpcStateChange
-		// (if/when fired) attempt reconnection.
-		if (IsValid(Client))
+		// Best-effort: cancel the errored context
+		if (UChatServiceClient* ChatClient = GetClient())
 		{
-			Client->TryCancel(Handle);
+			ChatClient->TryCancel(Handle);
 		}
 	}
 }
 
 void UChatSubsystem::HandleGrpcStateChange(EGrpcServiceState ServiceState)
 {
-	UE_LOG(LogTemp, Warning, TEXT("GrpcStateChange: %d"), ServiceState);
-	switch (ServiceState)
-	{
-	case EGrpcServiceState::TransientFailure:
-		SetChatConnectionStatus(EChatConnectionStatus::TransientError);
-		if (IsValid(ChatService))
-		{
-			// Try to reconnect the service when a transient error happens.
-			ChatService->Connect();
-		}
-		break;
-	case EGrpcServiceState::Shutdown:
-		SetChatConnectionStatus(EChatConnectionStatus::Shutdown);
-		// Attempt a clean reinitialization of the connection if the server comes back.
-		if (IsValid(this))
-		{
-			SetChatConnectionStatus(EChatConnectionStatus::Connecting);
-			InitializeConnection();
-		}
-		break;
-	case EGrpcServiceState::Ready:
-		SetChatConnectionStatus(EChatConnectionStatus::Connected);
-		break;
-	default:
-		SetChatConnectionStatus(EChatConnectionStatus::Unknown);
-		break;
-	}
+	// Call parent implementation for standard state handling
+	Super::HandleGrpcStateChange(ServiceState);
+	
+	// Add any chat-specific state handling here if needed
 }
 
 void UChatSubsystem::NewChatMessage(FString Message)
 {
-	UE_LOG(LogTemp, Warning, TEXT("NewChatMessage"));
+	UE_LOG(LogTemp, Log, TEXT("[ChatSubsystem] Sending new message"));
 	
 	// TurboLink / gRPC generally does not use C++ exceptions, so instead of try/catch
 	// we defensively check our tracked connection status and client validity before sending.
-	if (ChatConnectionStatus == EChatConnectionStatus::Connected
-		&& IsValid(Client))
+	if (IsConnected())
 	{
-		FGrpcContextHandle Context = Client->InitMessage();
+		UChatServiceClient* ChatClient = GetClient();
+		if (!ChatClient)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[ChatSubsystem] Client is not available"));
+			return;
+		}
+		
+		FGrpcContextHandle Context = ChatClient->InitMessage();
 		FGrpcChatChatMessage ChatMessage;
 		ChatMessage.Timestamp = "NOW";
 		ChatMessage.Message = Message;
 		ChatMessage.Sender = "Me";
 		FGrpcMetaData MetaData = FGrpcMetaData();
 		MetaData.MetaData.Add("authorization", "asdasd");
-		Client->Message(Context, ChatMessage,MetaData);
-	
+		ChatClient->Message(Context, ChatMessage, MetaData);
 	}
 	else
 	{
 		UE_LOG(
 			LogTemp,
 			Warning,
-			TEXT("Cannot send chat message: client invalid or chat not connected. ChatStatus=%d"),
-			static_cast<int32>(ChatConnectionStatus)
+			TEXT("[ChatSubsystem] Cannot send chat message: not connected. Status=%d"),
+			static_cast<int32>(ConnectionStatus)
 		);
 	}
 }

@@ -3,68 +3,41 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
+#include "GrpcHandlerSubsystem.h"
 #include "SChat/ChatService.h"
 #include "ChatSubsystem.generated.h"
-
-UENUM(BlueprintType)
-enum class EChatConnectionStatus : uint8
-{
-	Disconnected	UMETA(DisplayName = "Disconnected"),
-	Connecting		UMETA(DisplayName = "Connecting"),
-	Connected		UMETA(DisplayName = "Connected"),
-	TransientError	UMETA(DisplayName = "Transient Error"),
-	Shutdown		UMETA(DisplayName = "Shutdown"),
-	Unknown			UMETA(DisplayName = "Unknown")
-};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnNewMessageReceivedSignature, FString, Timestamp, FString, Sender, FString, Message);
 
 /**
- * 
+ * Chat subsystem - handles chat service gRPC connection and messaging
  */
 UCLASS()
-class TPSCOREMECHANICS_API UChatSubsystem : public UGameInstanceSubsystem
-
+class TPSCOREMECHANICS_API UChatSubsystem : public UGrpcHandlerSubsystem
 {
 	GENERATED_BODY()
 	
-private:
-	UPROPERTY()
-	UChatServiceClient* Client;
-	UPROPERTY()
-	UChatService* ChatService;
+protected:
+	DECLARE_GRPC_SUBSYSTEM_TYPES(ChatService)
 	
-	/** Current connection status exposed to Blueprints */
-	UPROPERTY(BlueprintReadOnly, Category = "Chat Subsystem", meta = (AllowPrivateAccess = "true"))
-	EChatConnectionStatus ChatConnectionStatus = EChatConnectionStatus::Disconnected;
+	// Override base class methods
+	virtual void OnServiceConnected(UObject* InService, UObject* InClient) override;
+	virtual void OnServiceDisconnected() override;
+	virtual void HandleGrpcStateChange(EGrpcServiceState ServiceState) override;
 	
-	/** Internal helper to update status consistently */
-	void SetChatConnectionStatus(EChatConnectionStatus NewStatus);
-	
-	void InitializeConnection();
-	
+	// Chat-specific stream response handler
 	UFUNCTION()
 	void HandleStreamResponse(FGrpcContextHandle Handle, const FGrpcResult& GrpcResult, const FGrpcChatChatMessage& Response);
 	
-	UFUNCTION()
-	void HandleGrpcStateChange(EGrpcServiceState ServiceState);
-	
 public:
-	void Initialize(FSubsystemCollectionBase& Collection) override;
-	void Deinitialize() override;
-	
-	UFUNCTION(BlueprintCallable)
+	// Chat-specific functionality
+	UFUNCTION(BlueprintCallable, Category = "Chat Subsystem")
 	void NewChatMessage(FString Message);
 	
-	// Call this from C++ to trigger the Blueprint event
+	/** Event broadcast when a new chat message is received */
 	UPROPERTY(BlueprintAssignable, Category = "Chat Subsystem")
 	FOnNewMessageReceivedSignature OnNewMessageReceived;
 	
 	UFUNCTION(BlueprintCallable, Category = "Chat Subsystem")
-	void TriggerNewMessageReceived(const FString& Timestamp,const FString& Sender,const FString& Message);
-	
-	/** Blueprint-friendly accessor for the current chat connection status */
-	UFUNCTION(BlueprintPure, Category = "Chat Subsystem")
-	EChatConnectionStatus GetChatConnectionStatus() const { return ChatConnectionStatus; }
+	void TriggerNewMessageReceived(const FString& Timestamp, const FString& Sender, const FString& Message);
 };

@@ -3,26 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "GrpcHandlerSubsystem.h"
 #include "SCharacters/CharactersService.h"
 #include "CharactersSubsystem.generated.h"
 
 /**
- * 
+ * Characters subsystem - handles character service gRPC connection
  */
 UCLASS()
-class TPSCOREMECHANICS_API UCharactersSubsystem : public UGameInstanceSubsystem
+class TPSCOREMECHANICS_API UCharactersSubsystem : public UGrpcHandlerSubsystem
 {
 	GENERATED_BODY()
 	
-private:
-	UPROPERTY()
-	UCharacterServiceClient* Client;
-	UPROPERTY()
-	UCharacterService* CharacterService;
+protected:
+	DECLARE_GRPC_SUBSYSTEM_TYPES(CharacterService)
 	
-	void InitializeConnection();
+	// Override base class methods
+	virtual void OnServiceConnected(UObject* InService, UObject* InClient) override;
+	virtual void OnServiceDisconnected() override;
 	
 public:
-	void Initialize(FSubsystemCollectionBase& Collection) override;
+	// Add character-specific RPC methods here
+	// Example:
+	// UFUNCTION(BlueprintCallable, Category = "Characters Subsystem")
+	// void CreateCharacter(const FString& CharacterName);
 };

@@ -1,48 +1,30 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Characters/CharactersSubsystem.h"
-#include "TurboLinkGrpcUtilities.h"
-#include "TurboLinkGrpcManager.h"
 
-
-void UCharactersSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UCharactersSubsystem::OnServiceConnected(UObject* InService, UObject* InClient)
 {
-	Collection.InitializeDependency(UTurboLinkGrpcManager::StaticClass());
-	Super::Initialize(Collection);
-
-	InitializeConnection();
+	UCharacterService* CharacterService = GetService();
+	UCharacterServiceClient* CharacterClient = GetClient();
+	
+	if (!CharacterService || !CharacterClient)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[CharactersSubsystem] Invalid service or client"));
+		return;
+	}
+	
+	// Bind to any character service events here
+	// Example: CharacterClient->OnSomeEvent.AddUniqueDynamic(this, &UCharactersSubsystem::HandleSomeEvent);
+	
+	UE_LOG(LogTemp, Log, TEXT("[CharactersSubsystem] Character service connected"));
 }
 
-void UCharactersSubsystem::InitializeConnection()
+void UCharactersSubsystem::OnServiceDisconnected()
 {
-	UTurboLinkGrpcManager* TurboLinkManager = UTurboLinkGrpcUtilities::GetTurboLinkGrpcManager(this);
-	if (!TurboLinkManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("TurboLinkGrpcManager not available"));
-		//SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
-		return;
-	}
-	
-	CharacterService = Cast<UCharacterService>(TurboLinkManager->MakeService("CharacterService"));
-	if (!IsValid(CharacterService))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterService"));
-		//SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
-		return;
-	}
-	
-	CharacterService->Connect();
-	
-	Client = CharacterService->MakeClient();
-	if (!IsValid(Client))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create Characters client"));
-		//SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
-		return;
-	}
-	
-	//CharactersService->OnServiceStateChanged.AddUniqueDynamic(this, &UCharactersSubsystem::HandleGrpcStateChange);
-	
-	//SetChatConnectionStatus(EChatConnectionStatus::Connected);
+	// Unbind from any character service events here
+	// Example:
+	// if (UCharacterServiceClient* CharacterClient = GetClient())
+	// {
+	//     CharacterClient->OnSomeEvent.RemoveDynamic(this, &UCharactersSubsystem::HandleSomeEvent);
+	// }
 }
