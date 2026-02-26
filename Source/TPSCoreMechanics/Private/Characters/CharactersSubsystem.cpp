@@ -11,7 +11,6 @@ void UCharactersSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Collection.InitializeDependency(UTurboLinkGrpcManager::StaticClass());
 	Super::Initialize(Collection);
 
-	SetChatConnectionStatus(EChatConnectionStatus::Connecting);
 	InitializeConnection();
 }
 
@@ -25,29 +24,25 @@ void UCharactersSubsystem::InitializeConnection()
 		return;
 	}
 	
-	ChatService = Cast<UChatService>(TurboLinkManager->MakeService("ChatService"));
-	if (!IsValid(ChatService))
+	CharacterService = Cast<UCharacterService>(TurboLinkManager->MakeService("CharacterService"));
+	if (!IsValid(CharacterService))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create ChatService"));
+		UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterService"));
 		//SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
 		return;
 	}
 	
-	CharactersService->Connect();
+	CharacterService->Connect();
 	
-	Client = CharactersService->MakeClient();
+	Client = CharacterService->MakeClient();
 	if (!IsValid(Client))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to create Characters client"));
 		//SetChatConnectionStatus(EChatConnectionStatus::Disconnected);
 		return;
 	}
-
-	FGrpcContextHandle Context = Client->InitStream();
-
-	FGrpcGoogleProtobufEmpty Request = {};
-
-	CharactersService->OnServiceStateChanged.AddUniqueDynamic(this, &UCharactersSubsystem::HandleGrpcStateChange);
+	
+	//CharactersService->OnServiceStateChanged.AddUniqueDynamic(this, &UCharactersSubsystem::HandleGrpcStateChange);
 	
 	//SetChatConnectionStatus(EChatConnectionStatus::Connected);
 }

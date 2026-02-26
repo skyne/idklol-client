@@ -30,7 +30,9 @@ class TPSCOREMECHANICS_API UChatSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 private:
+	UPROPERTY()
 	UChatServiceClient* Client;
+	UPROPERTY()
 	UChatService* ChatService;
 	
 	/** Current connection status exposed to Blueprints */
