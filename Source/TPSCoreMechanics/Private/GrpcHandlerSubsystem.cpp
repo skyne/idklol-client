@@ -4,6 +4,7 @@
 #include "TurboLinkGrpcUtilities.h"
 #include "TurboLinkGrpcManager.h"
 #include "TurboLinkGrpcService.h"
+#include "Misc/CommandLine.h"
 
 void UGrpcHandlerSubsystem::SetConnectionStatus(EGrpcConnectionStatus NewStatus)
 {
@@ -25,6 +26,10 @@ void UGrpcHandlerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Collection.InitializeDependency(UTurboLinkGrpcManager::StaticClass());
 	Super::Initialize(Collection);
+
+	// Resolve auth token from command line or use default
+	AuthToken = GetAuthTokenValue();
+	UE_LOG(LogTemp, Log, TEXT("[%s] Using auth token: %s"), *GetLogPrefix(), *AuthToken);
 
 	SetConnectionStatus(EGrpcConnectionStatus::Connecting);
 	InitializeConnection();
@@ -118,36 +123,64 @@ void UGrpcHandlerSubsystem::HandleGrpcStateChange(EGrpcServiceState ServiceState
 	{
 	case EGrpcServiceState::TransientFailure:
 		SetConnectionStatus(EGrpcConnectionStatus::TransientError);
-		if (UGrpcService* GrpcService = Cast<UGrpcService>(Service))
-		{
-			// Try to reconnect the service when a transient error happens
-			UE_LOG(LogTemp, Warning, TEXT("[%s] Attempting to reconnect after transient failure"), *GetLogPrefix());
-			GrpcService->Connect();
-		}
+		UE_LOG(LogTemp, Warning, TEXT("[%s] Scheduling reconnect after transient failure (delay: %.1fs)"), *GetLogPrefix(), CurrentReconnectDelay);
+		ScheduleReconnect();
 		break;
-		
+
 	case EGrpcServiceState::Shutdown:
 		SetConnectionStatus(EGrpcConnectionStatus::Shutdown);
-		// Attempt a clean reinitialization of the connection if the server comes back
-		if (IsValid(this))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[%s] Service shut down, reinitializing connection"), *GetLogPrefix());
-			SetConnectionStatus(EGrpcConnectionStatus::Connecting);
-			InitializeConnection();
-		}
+		UE_LOG(LogTemp, Warning, TEXT("[%s] Scheduling reconnect after shutdown (delay: %.1fs)"), *GetLogPrefix(), CurrentReconnectDelay);
+		ScheduleReconnect();
 		break;
-		
+
 	case EGrpcServiceState::Ready:
 		SetConnectionStatus(EGrpcConnectionStatus::Connected);
+		ResetReconnectDelay();
 		break;
-		
+
 	default:
 		SetConnectionStatus(EGrpcConnectionStatus::Unknown);
 		break;
 	}
 }
 
+void UGrpcHandlerSubsystem::ScheduleReconnect()
+{
+	if (GetWorld() && !GetWorld()->GetTimerManager().IsTimerActive(ReconnectTimerHandle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(ReconnectTimerHandle, this, &UGrpcHandlerSubsystem::PerformReconnect, CurrentReconnectDelay, false);
+		// Exponential backoff for next time
+		CurrentReconnectDelay = FMath::Min(CurrentReconnectDelay * 2.0f, MaxReconnectDelay);
+	}
+}
+
+void UGrpcHandlerSubsystem::PerformReconnect()
+{
+	UE_LOG(LogTemp, Log, TEXT("[%s] Performing scheduled reconnect..."), *GetLogPrefix());
+	SetConnectionStatus(EGrpcConnectionStatus::Connecting);
+	InitializeConnection();
+}
+
+void UGrpcHandlerSubsystem::ResetReconnectDelay()
+{
+	CurrentReconnectDelay = MinReconnectDelay;
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ReconnectTimerHandle);
+	}
+}
+
 FString UGrpcHandlerSubsystem::GetLogPrefix() const
 {
 	return GetClass()->GetName();
+}
+
+FString UGrpcHandlerSubsystem::GetAuthTokenValue() const
+{
+	FString CommandLineAuthToken;
+	if (FParse::Value(FCommandLine::Get(), TEXT("AuthToken="), CommandLineAuthToken))
+	{
+		return CommandLineAuthToken;
+	}
+	return DefaultAuthToken;
 }

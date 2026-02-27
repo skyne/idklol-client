@@ -10,7 +10,7 @@
 /**
  * Characters subsystem - handles character service gRPC connection
  */
-UCLASS()
+UCLASS(config=Game)
 class TPSCOREMECHANICS_API UCharactersSubsystem : public UGrpcHandlerSubsystem
 {
 	GENERATED_BODY()
@@ -23,6 +23,10 @@ protected:
 	virtual void OnServiceDisconnected() override;
 	
 public:
+	
+	// Get character creation catalog asynchronously (C++ only, not exposed to Blueprints)
+	TFuture<FGrpcCharactersCharacterCreationCatalog> GetCharacterCreationOptionCatalogAsync();
+	
 	// Add character-specific RPC methods here
 	// Example:
 	// UFUNCTION(BlueprintCallable, Category = "Characters Subsystem")

@@ -5,3 +5,5 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, TPSCoreMechanics, "TPSCoreMechanics" );
  
+// custom log category
+DEFINE_LOG_CATEGORY(Idklol);

@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnNewMessageReceivedSignature, F
 /**
  * Chat subsystem - handles chat service gRPC connection and messaging
  */
-UCLASS()
+UCLASS(config=Game)
 class TPSCOREMECHANICS_API UChatSubsystem : public UGrpcHandlerSubsystem
 {
 	GENERATED_BODY()
