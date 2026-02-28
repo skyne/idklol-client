@@ -16,13 +16,6 @@ class TPSCOREMECHANICS_API ACharacterSelectionCharacter : public ATPSCoreMechani
 	GENERATED_BODY()
 	
 public:
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Selection Character")
-	TSoftObjectPtr<USkeletalMesh>  FemaleMesh;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Selection Character")
-	TSoftObjectPtr<USkeletalMesh>  MaleMesh;
-
 	void HandleSkinColorUpdate(FCharacterCreatorTemplate& CharacterCreator, USkeletalMeshComponent* CharacterMesh);
 	void UpdateParameters(FCharacterCreatorTemplate& CharacterCreator);
 	

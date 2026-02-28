@@ -1,4 +1,5 @@
 #include "Chat/ChatSubsystem.h"
+#include "CharacterCreation/SelectedCharacterSubsystem.h"
 
 void UChatSubsystem::OnServiceConnected(UObject* InService, UObject* InClient)
 {
@@ -91,13 +92,27 @@ void UChatSubsystem::NewChatMessage(FString Message)
 			return;
 		}
 		
+		// Get character name from SelectedCharacterSubsystem
+		FString SenderName = TEXT("Unknown");
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (USelectedCharacterSubsystem* SelectedCharacterSubsystem = GameInstance->GetSubsystem<USelectedCharacterSubsystem>())
+			{
+				if (SelectedCharacterSubsystem->HasSelectedCharacter())
+				{
+					FGrpcCharactersCharacter SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
+					SenderName = SelectedCharacter.Name;
+				}
+			}
+		}
+		
 		FGrpcContextHandle Context = ChatClient->InitMessage();
 		FGrpcChatChatMessage ChatMessage;
 		ChatMessage.Timestamp = "NOW";
 		ChatMessage.Message = Message;
-		ChatMessage.Sender = "Me";
+		ChatMessage.Sender = SenderName;
 		FGrpcMetaData MetaData = FGrpcMetaData();
-		MetaData.MetaData.Add("authorization", GetCachedAuthToken());
+		MetaData.MetaData.Add("authorization", GetValidAuthToken());
 		ChatClient->Message(Context, ChatMessage, MetaData);
 	}
 	else

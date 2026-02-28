@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GrpcHandlerSubsystem.h"
+#include "Auth/KeycloakAuthService.h"
 #include "TurboLinkGrpcUtilities.h"
 #include "TurboLinkGrpcManager.h"
 #include "TurboLinkGrpcService.h"
@@ -27,11 +28,78 @@ void UGrpcHandlerSubsystem::SetConnectionStatus(EGrpcConnectionStatus NewStatus)
 void UGrpcHandlerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Collection.InitializeDependency(UTurboLinkGrpcManager::StaticClass());
+	Collection.InitializeDependency(UKeycloakAuthService::StaticClass());
 	Super::Initialize(Collection);
 
-	// Resolve auth token from command line or use default
-	AuthToken = GetAuthTokenValue();
-	UE_LOG(LogTemp, Log, TEXT("[%s] Using auth token: %s"), *GetLogPrefix(), *AuthToken);
+	// Get KeycloakAuthService for automatic token refresh
+	AuthService = GetGameInstance()->GetSubsystem<UKeycloakAuthService>();
+
+	// First, try to use tokens from KeycloakAuthService if already saved
+	if (AuthService && AuthService->HasValidTokens())
+	{
+		AuthToken = AuthService->GetValidAccessToken();
+		UE_LOG(LogTemp, Log, TEXT("[%s] Using saved tokens from KeycloakAuthService (with auto-refresh)"), *GetLogPrefix());
+		UE_LOG(LogTemp, Log, TEXT("[%s] Token expires in %d seconds"), 
+			*GetLogPrefix(), AuthService->GetTokenManager()->GetSecondsUntilExpiration());
+	}
+	else
+	{
+		// Load initial token from command line or INI file
+		// This uses aggressive cache avoidance to read directly from file
+		FString InitialTokenData = GetAuthTokenValue();
+		
+		// Try to parse as JSON (Keycloak token response with access_token and refresh_token)
+		bool bSetupAutoRefresh = false;
+		if (AuthService && InitialTokenData.Contains(TEXT("access_token")))
+		{
+			// Looks like JSON - try to parse it
+			UE_LOG(LogTemp, Log, TEXT("[%s] Detected JSON token response, setting up auto-refresh"), *GetLogPrefix());
+			if (AuthService->SetTokensFromJson(InitialTokenData))
+			{
+				AuthToken = AuthService->GetValidAccessToken();
+				bSetupAutoRefresh = true;
+				UE_LOG(LogTemp, Log, TEXT("[%s] ===== AUTO-REFRESH ENABLED ====="), *GetLogPrefix());
+				UE_LOG(LogTemp, Log, TEXT("[%s] Token will auto-refresh before expiry"), *GetLogPrefix());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("[%s] Failed to parse JSON token response"), *GetLogPrefix());
+				AuthToken = InitialTokenData; // Fallback to using as-is
+			}
+		}
+		else
+		{
+			// Plain JWT token - store it but can't auto-refresh without refresh token
+			AuthToken = InitialTokenData;
+			
+			// Try to parse JWT expiration for tracking (but no auto-refresh possible)
+			if (AuthService && !AuthToken.IsEmpty())
+			{
+				FString TokenOnly = AuthToken.Replace(TEXT("Bearer "), TEXT(""));
+				
+				int64 ExpiresAt = 0;
+				if (AuthService->GetTokenManager()->ParseJWTExpiration(TokenOnly, ExpiresAt))
+				{
+					int64 CurrentTime = FDateTime::UtcNow().ToUnixTimestamp();
+					int32 ExpiresIn = static_cast<int32>(ExpiresAt - CurrentTime);
+					
+					// Set token without refresh token
+					AuthService->GetTokenManager()->SetTokens(TokenOnly, TEXT(""), ExpiresIn);
+					
+					UE_LOG(LogTemp, Warning, TEXT("[%s] Using access token only (no refresh token)"), *GetLogPrefix());
+					UE_LOG(LogTemp, Warning, TEXT("[%s] Token expires in %d seconds - NO AUTO-REFRESH"), *GetLogPrefix(), ExpiresIn);
+					UE_LOG(LogTemp, Warning, TEXT("[%s] To enable auto-refresh, provide Keycloak JSON response with refresh_token"), *GetLogPrefix());
+				}
+			}
+		}
+		
+		if (!bSetupAutoRefresh)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[%s] ===== AUTO-REFRESH NOT AVAILABLE ====="), *GetLogPrefix());
+			UE_LOG(LogTemp, Log, TEXT("[%s] Provide full Keycloak JSON response to enable auto-refresh"), *GetLogPrefix());
+			UE_LOG(LogTemp, Log, TEXT("[%s] Example: {\"access_token\":\"...\",\"refresh_token\":\"...\",\"expires_in\":36000}"), *GetLogPrefix());
+		}
+	}
 
 	// Register console command for reloading auth token
 	FString CommandName = FString::Printf(TEXT("%s.ReloadAuthToken"), *GetServiceName());
@@ -199,9 +267,19 @@ FString UGrpcHandlerSubsystem::GetAuthTokenValue() const
 	FString CommandLineAuthToken;
 	if (FParse::Value(FCommandLine::Get(), TEXT("AuthToken="), CommandLineAuthToken))
 	{
-		FString BearerToken = FString::Printf(TEXT("Bearer %s"), *CommandLineAuthToken);
 		UE_LOG(LogTemp, Log, TEXT("[%s] Using command line auth token"), *GetLogPrefix());
-		return BearerToken;
+		
+		// Check if it's JSON (contains access_token) or plain JWT
+		if (CommandLineAuthToken.Contains(TEXT("access_token")))
+		{
+			// Return raw JSON for parsing
+			return CommandLineAuthToken;
+		}
+		else
+		{
+			// Plain token - add Bearer prefix
+			return FString::Printf(TEXT("Bearer %s"), *CommandLineAuthToken);
+		}
 	}
 	
 	// Read DIRECTLY from the file on disk to bypass all UE config caching
@@ -238,10 +316,20 @@ FString UGrpcHandlerSubsystem::GetAuthTokenValue() const
 				FString TokenValue;
 				if (TrimmedLine.Split(TEXT("="), nullptr, &TokenValue))
 				{
-					FString BearerToken = FString::Printf(TEXT("Bearer %s"), *TokenValue);
 					UE_LOG(LogTemp, Log, TEXT("[%s] Loaded auth token from file (first 50 chars): %s..."), 
 						*GetLogPrefix(), *TokenValue.Left(50));
-					return BearerToken;
+					
+					// Check if it's JSON (contains access_token) or plain JWT
+					if (TokenValue.Contains(TEXT("access_token")))
+					{
+						// Return raw JSON for parsing
+						return TokenValue;
+					}
+					else
+					{
+						// Plain token - add Bearer prefix
+						return FString::Printf(TEXT("Bearer %s"), *TokenValue);
+					}
 				}
 			}
 		}
@@ -255,18 +343,95 @@ FString UGrpcHandlerSubsystem::GetAuthTokenValue() const
 
 void UGrpcHandlerSubsystem::ReloadAuthToken()
 {
-	// Get the fresh token value directly from file
-	FString NewToken = GetAuthTokenValue();
+	// Get the fresh token value directly from file (bypasses all UE config caching)
+	FString TokenData = GetAuthTokenValue();
 	
-	if (NewToken != AuthToken)
+	UE_LOG(LogTemp, Warning, TEXT("[%s] ===== AUTH TOKEN RELOAD INITIATED ====="), *GetLogPrefix());
+	
+	// Check if this is a JSON token response (Keycloak format)
+	if (TokenData.Contains(TEXT("access_token")))
 	{
-		AuthToken = NewToken;
-		UE_LOG(LogTemp, Warning, TEXT("[%s] ===== AUTH TOKEN RELOADED AND CHANGED! ====="), *GetLogPrefix());
-		UE_LOG(LogTemp, Log, TEXT("[%s] New token (first 50 chars): %s..."), 
-			*GetLogPrefix(), *AuthToken.Replace(TEXT("Bearer "), TEXT("")).Left(50));
+		UE_LOG(LogTemp, Log, TEXT("[%s] Detected JSON token format, parsing..."), *GetLogPrefix());
+		
+		if (AuthService)
+		{
+			if (AuthService->SetTokensFromJson(TokenData))
+			{
+				// Extract just the access token for AuthToken cache
+				FString AccessToken = AuthService->GetValidAccessToken();
+				if (!AccessToken.IsEmpty())
+				{
+					AuthToken = FString::Printf(TEXT("Bearer %s"), *AccessToken);
+					UE_LOG(LogTemp, Warning, TEXT("[%s] AUTO-REFRESH ENABLED (refresh token loaded)"), *GetLogPrefix());
+					UE_LOG(LogTemp, Log, TEXT("[%s] Access token (first 50 chars): %s..."), 
+						*GetLogPrefix(), *AccessToken.Left(50));
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("[%s] Failed to parse JSON token format"), *GetLogPrefix());
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[%s] Cannot parse JSON token - KeycloakAuthService not available"), *GetLogPrefix());
+		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("[%s] Auth token reloaded (no change detected)"), *GetLogPrefix());
+		// Plain JWT token (already has "Bearer " prefix from GetAuthTokenValue)
+		if (TokenData != AuthToken)
+		{
+			AuthToken = TokenData;
+			UE_LOG(LogTemp, Warning, TEXT("[%s] Token reloaded (plain JWT format)"), *GetLogPrefix());
+			UE_LOG(LogTemp, Log, TEXT("[%s] New token (first 50 chars): %s..."), 
+				*GetLogPrefix(), *AuthToken.Replace(TEXT("Bearer "), TEXT("")).Left(50));
+			
+			// Also update KeycloakAuthService if available
+			// Parse the new token to track expiration (even without refresh token)
+			if (AuthService && !AuthToken.IsEmpty())
+			{
+				FString TokenOnly = AuthToken.Replace(TEXT("Bearer "), TEXT(""));
+				
+				int64 ExpiresAt = 0;
+				if (AuthService->GetTokenManager()->ParseJWTExpiration(TokenOnly, ExpiresAt))
+				{
+					int64 CurrentTime = FDateTime::UtcNow().ToUnixTimestamp();
+					int32 ExpiresIn = static_cast<int32>(ExpiresAt - CurrentTime);
+					
+					// Update token in manager (without refresh token)
+					AuthService->GetTokenManager()->SetTokens(TokenOnly, TEXT(""), ExpiresIn);
+					
+					UE_LOG(LogTemp, Log, TEXT("[%s] Updated token in KeycloakAuthService. Expires in %d seconds"), 
+						*GetLogPrefix(), ExpiresIn);
+					UE_LOG(LogTemp, Warning, TEXT("[%s] NOTE: No refresh token - auto-refresh not available"), *GetLogPrefix());
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("[%s] Auth token reloaded (no change detected)"), *GetLogPrefix());
+		}
 	}
+}
+
+FString UGrpcHandlerSubsystem::GetValidAuthToken()
+{
+	// If KeycloakAuthService is available, use it for automatic token refresh
+	if (AuthService && AuthService->HasValidTokens())
+	{
+		FString ValidToken = AuthService->GetValidAccessToken();
+		
+		// Update our cached token if it changed
+		if (!ValidToken.IsEmpty() && ValidToken != AuthToken)
+		{
+			AuthToken = ValidToken;
+			UE_LOG(LogTemp, Log, TEXT("[%s] Auth token updated from KeycloakAuthService"), *GetLogPrefix());
+		}
+		
+		return ValidToken;
+	}
+	
+	// Fallback to cached token if auth service not available or no refresh token
+	return GetCachedAuthToken();
 }

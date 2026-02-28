@@ -6,6 +6,10 @@
 #include "CharacterCreation/CharacterSelection.h"
 #include "CharacterCreation/CharacterCreationHUD.h"
 #include "CharacterCreation/CharacterSelectionHUD.h"
+#include "CharacterCreation/CharacterCreationGameModeBase.h"
+#include "CharacterCreation/SelectedCharacterSubsystem.h"
+#include "Characters/CharactersSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 
 ACharacterCreationOrchestrator::ACharacterCreationOrchestrator()
@@ -192,7 +196,74 @@ void ACharacterCreationOrchestrator::HandleCharacterSelectedForPlay(FString Char
 {
 	LOG("[CharacterCreationOrchestrator] Character selected for play: %s", *CharacterId);
 	
-	// TODO: Transition to game world with selected character
-	// For now, just log the event
-	LOG("[CharacterCreationOrchestrator] TODO: Enter game world with character %s", *CharacterId);
+	// Get the character data from the CharactersSubsystem
+	UCharactersSubsystem* CharactersSubsystem = GetGameInstance()->GetSubsystem<UCharactersSubsystem>();
+	if (!CharactersSubsystem || !CharactersSubsystem->IsConnected())
+	{
+		LOG("[CharacterCreationOrchestrator] Cannot get character data - not connected to service");
+		return;
+	}
+	
+	// Get the character list from the selection actor
+	if (!CharacterSelectionActor)
+	{
+		LOG("[CharacterCreationOrchestrator] CharacterSelectionActor is null");
+		return;
+	}
+	
+	// Find the selected character in the cached list
+	FGrpcCharactersCharacter SelectedCharacterData;
+	bool bFoundCharacter = false;
+	
+	// We need to get the character list - it's cached in the actor but not exposed
+	// Let's request it from the server
+	auto Future = CharactersSubsystem->ListCreatedCharactersAsync();
+	
+	Future.Next([this, CharacterId](const FGrpcCharactersListCreatedCharactersResponse& Response)
+	{
+		AsyncTask(ENamedThreads::GameThread, [this, CharacterId, Response]()
+		{
+			// Find the character with matching ID
+			const FGrpcCharactersCharacter* FoundCharacter = Response.Characters.FindByPredicate(
+				[&CharacterId](const FGrpcCharactersCharacter& Character)
+				{
+					return Character.CharacterId == CharacterId;
+				}
+			);
+			
+			if (!FoundCharacter)
+			{
+				LOG("[CharacterCreationOrchestrator] Could not find character with ID: %s", *CharacterId);
+				return;
+			}
+			
+			// Store the selected character in the subsystem
+			USelectedCharacterSubsystem* SelectedCharacterSubsystem = GetGameInstance()->GetSubsystem<USelectedCharacterSubsystem>();
+			if (SelectedCharacterSubsystem)
+			{
+				SelectedCharacterSubsystem->SetSelectedCharacter(*FoundCharacter);
+				LOG("[CharacterCreationOrchestrator] Stored selected character: %s", *FoundCharacter->Name);
+			}
+			
+			// Get the game world map from the game mode
+			ACharacterCreationGameModeBase* GameMode = Cast<ACharacterCreationGameModeBase>(GetWorld()->GetAuthGameMode());
+			if (!GameMode)
+			{
+				LOG("[CharacterCreationOrchestrator] GameMode is not ACharacterCreationGameModeBase");
+				return;
+			}
+			
+			FString TransitionURL = GameMode->GetGameWorldTransitionURL();
+			if (TransitionURL.IsEmpty())
+			{
+				LOG("[CharacterCreationOrchestrator] GameWorldMap is not set in GameMode");
+				return;
+			}
+			
+			LOG("[CharacterCreationOrchestrator] Transitioning to game world with URL: %s", *TransitionURL);
+			
+			// Load the game world map with game mode override
+			UGameplayStatics::OpenLevel(this, FName(*TransitionURL));
+		});
+	});
 }

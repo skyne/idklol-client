@@ -6,60 +6,13 @@
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
+#include "Helpers/CharacterAppearanceHelper.h"
 
 void ACharacterSelectionCharacter::HandleSkinColorUpdate(FCharacterCreatorTemplate& CharacterCreator, USkeletalMeshComponent* CharacterMesh)
 {
-	// PALE=1,
-	// FAIR=2,
-	// TAN=3,
-	// BROWN=4,
-	// DARK=5,
-	// GREEN=6,
-	// GRAY=7,
-	FLinearColor newColor;
-	switch (CharacterCreator.SkinColor)
-	{
-	case 1:
-		newColor = {1.0f, 0.8f, 0.6f, 1.0f};
-		break;
-	case 2:
-		newColor = {0.9f, 0.7f, 0.5f, 1.0f};
-		break;
-	case 3:
-		newColor = {0.8f, 0.6f, 0.4f, 1.0f};
-		break;
-	case 4:
-		newColor = {0.6f, 0.4f, 0.2f, 1.0f};
-		break;
-	case 5:
-		newColor = {0.4f, 0.3f, 0.1f, 1.0f};
-		break;
-	case 6:
-		newColor = {0.3f, 0.5f, 0.3f, 1.0f};
-		break;
-	case 7:
-		newColor = {0.5f, 0.5f, 0.5f, 1.0f};
-		break;
-	default:
-		newColor = FLinearColor::White;
-		break;
-	}
-    
-	if (CharacterMesh)
-	{
-		const int MaterialsCount = CharacterMesh->GetNumMaterials();
-		
-		for (int MaterialIndex = 0; MaterialIndex < MaterialsCount; MaterialIndex++)
-		{
-			UMaterialInstanceDynamic* DynamicMat = CharacterMesh->CreateDynamicMaterialInstance(MaterialIndex);
-
-			if (DynamicMat)
-			{
-				// 3. Set your parameters immediately
-				DynamicMat->SetVectorParameterValue(TEXT("Tint"), newColor);
-			}
-		}
-	}
+	// Convert uint8 to enum
+	EGrpcCharactersSkinColor SkinColor = static_cast<EGrpcCharactersSkinColor>(CharacterCreator.SkinColor);
+	UCharacterAppearanceHelper::ApplySkinColor(SkinColor, CharacterMesh);
 }
 
 void ACharacterSelectionCharacter::UpdateParameters(FCharacterCreatorTemplate& CharacterCreator)
@@ -69,19 +22,9 @@ void ACharacterSelectionCharacter::UpdateParameters(FCharacterCreatorTemplate& C
 	{
 		USkeletalMeshComponent* CharacterMesh = GetMesh();
 	
-		TSoftObjectPtr<USkeletalMesh> TargetMeshPtr;
-		
-		// MALE=1,
-		// FEMALE=2,
-		switch (CharacterCreator.Gender)
-		{
-		case 2:
-			TargetMeshPtr = FemaleMesh;
-			break;
-		case 1:
-		default:
-			TargetMeshPtr = MaleMesh;
-		}
+		// Convert uint8 to enum and use helper
+		EGrpcCharactersGender Gender = static_cast<EGrpcCharactersGender>(CharacterCreator.Gender);
+		TSoftObjectPtr<USkeletalMesh> TargetMeshPtr = UCharacterAppearanceHelper::GetMeshForGender(Gender, MaleMesh, FemaleMesh);
 
 		if (TargetMeshPtr.IsNull())
 		{

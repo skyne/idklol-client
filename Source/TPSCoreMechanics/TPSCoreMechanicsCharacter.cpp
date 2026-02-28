@@ -15,6 +15,10 @@
 #include "Public/Game/PlayerState/TPSCorePlayerState.h"
 #include "Public/AbilitySystem/TPSCoreAbilitySystemComponent.h"
 #include "Public/AbilitySystem/Attributes/TPSCoreAttributeSet.h"
+#include "Helpers/CharacterAppearanceHelper.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
+#include "CharacterCreation/SelectedCharacterSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -44,6 +48,29 @@ ATPSCoreMechanicsCharacter::ATPSCoreMechanicsCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+}
+
+void ATPSCoreMechanicsCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	// Check if there's a selected character to apply appearance
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (USelectedCharacterSubsystem* SelectedCharacterSubsystem = GameInstance->GetSubsystem<USelectedCharacterSubsystem>())
+		{
+			if (SelectedCharacterSubsystem->ShouldApplyAppearance())
+			{
+				FGrpcCharactersCharacter SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
+				UE_LOG(LogTemplateCharacter, Log, TEXT("Applying appearance for character: %s"), *SelectedCharacter.Name);
+				
+				InitializeFromCharacterData(SelectedCharacter);
+				
+				// Mark appearance as applied (but keep character data for other systems like chat)
+				SelectedCharacterSubsystem->MarkAppearanceApplied();
+			}
+		}
+	}
 }
 
 void ATPSCoreMechanicsCharacter::PossessedBy(AController* NewController)
@@ -200,5 +227,58 @@ void ATPSCoreMechanicsCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void ATPSCoreMechanicsCharacter::InitializeFromCharacterData(const FGrpcCharactersCharacter& CharacterData)
+{
+	ApplyCharacterAppearance(CharacterData.Gender, CharacterData.SkinColor);
+}
+
+void ATPSCoreMechanicsCharacter::ApplyCharacterAppearance(EGrpcCharactersGender Gender, EGrpcCharactersSkinColor SkinColor)
+{
+	TSoftObjectPtr<USkeletalMesh> TargetMeshPtr = UCharacterAppearanceHelper::GetMeshForGender(Gender, MaleMesh, FemaleMesh);
+	
+	if (TargetMeshPtr.IsNull())
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("Target mesh is null for gender %d"), static_cast<int32>(Gender));
+		
+		// Still apply skin color to current mesh if available
+		if (GetMesh())
+		{
+			UCharacterAppearanceHelper::ApplySkinColor(SkinColor, GetMesh());
+		}
+		return;
+	}
+	
+	// Get the global Streamable Manager
+	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+	
+	// Create a delegate that points to our callback function
+	FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(
+		this, 
+		&ATPSCoreMechanicsCharacter::OnCharacterMeshLoaded, 
+		TargetMeshPtr,
+		SkinColor
+	);
+	
+	// Start the asynchronous load
+	Streamable.RequestAsyncLoad(TargetMeshPtr.ToSoftObjectPath(), Delegate);
+}
+
+void ATPSCoreMechanicsCharacter::OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, EGrpcCharactersSkinColor SkinColor)
+{
+	USkeletalMesh* NewMesh = LoadedMeshPtr.Get();
+	
+	if (NewMesh && GetMesh())
+	{
+		GetMesh()->SetSkeletalMesh(NewMesh);
+		UCharacterAppearanceHelper::ApplySkinColor(SkinColor, GetMesh());
+		
+		UE_LOG(LogTemplateCharacter, Log, TEXT("Character mesh loaded and appearance applied"));
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("Failed to load character mesh or GetMesh() is null"));
 	}
 }

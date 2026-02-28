@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
+#include "SCharacters/CharactersMessage.h"
 #include "TPSCoreMechanicsCharacter.generated.h"
 
 class UTPSCoreAttributeSet;
@@ -16,6 +17,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+struct FGrpcCharactersCharacter;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -54,13 +56,27 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnManaChanged(float CurrentMana, float MaxMana);
+	
+	/**
+	 * Initialize character appearance from character data
+	 * @param CharacterData The character data from the server
+	 */
+	UFUNCTION(BlueprintCallable, Category="Character Appearance")
+	void InitializeFromCharacterData(const FGrpcCharactersCharacter& CharacterData);
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Appearance")
+	TSoftObjectPtr<USkeletalMesh> MaleMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character Appearance")
+	TSoftObjectPtr<USkeletalMesh> FemaleMesh;
 
 protected:
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void BeginPlay() override;
 
 	void Move(const FInputActionValue& Value);
 
@@ -82,4 +98,10 @@ private:
 
 	UFUNCTION(BlueprintCallable)
 	void BroadcastInitialValues();
+	
+	// Character appearance helpers
+	UFUNCTION()
+	void OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, EGrpcCharactersSkinColor SkinColor);
+	
+	void ApplyCharacterAppearance(EGrpcCharactersGender Gender, EGrpcCharactersSkinColor SkinColor);
 };

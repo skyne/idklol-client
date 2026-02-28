@@ -6,6 +6,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GrpcHandlerSubsystem.generated.h"
 
+class UKeycloakAuthService;
+
 UENUM(BlueprintType)
 enum class EGrpcConnectionStatus : uint8
 {
@@ -44,6 +46,9 @@ protected:
 
 	/** Resolved auth token (from command line or DefaultAuthToken) */
 	FString AuthToken;
+
+	/** Reference to KeycloakAuthService for automatic token refresh */
+	TObjectPtr<UKeycloakAuthService> AuthService;
 
 	/** Console command handle for reloading auth token */
 	IConsoleCommand* ReloadAuthTokenCommand = nullptr;
@@ -109,6 +114,9 @@ protected:
 
 	/** Get the current cached auth token value (use this for requests) */
 	FString GetCachedAuthToken() const { return AuthToken; }
+
+	/** Get a valid auth token, automatically refreshing if needed via KeycloakAuthService */
+	FString GetValidAuthToken();
 
 	/**
 	 * Type-safe helper to get the service cast to a specific type

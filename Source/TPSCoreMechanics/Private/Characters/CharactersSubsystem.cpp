@@ -44,7 +44,7 @@ TFuture<FGrpcCharactersCharacterCreationCatalog> UCharactersSubsystem::GetCharac
 	UCharacterService* CharacterService = GetService();
 	
 	FGrpcMetaData MetaData;
-	MetaData.MetaData.Add("authorization", GetCachedAuthToken());
+	MetaData.MetaData.Add("authorization", GetValidAuthToken());
 	
 	CharacterService->CallGetCharacterCreationCatalog(
 		{}, [Promise](const FGrpcResult& GrpcResult, const FGrpcCharactersCharacterCreationCatalog& Response)
@@ -82,7 +82,7 @@ TFuture<FGrpcCharactersCreateCharacterResponse> UCharactersSubsystem::CreateChar
 	
 	UCharacterService* CharacterService = GetService();
 	
-	FString AuthTokenValue = GetCachedAuthToken();
+	FString AuthTokenValue = GetValidAuthToken();
 	LOG("[CharactersSubsystem] Using auth token: %s", *AuthTokenValue);
 	
 	FGrpcMetaData MetaData;
@@ -125,7 +125,7 @@ TFuture<FGrpcCharactersListCreatedCharactersResponse> UCharactersSubsystem::List
 	UCharacterService* CharacterService = GetService();
 	
 	FGrpcMetaData MetaData;
-	MetaData.MetaData.Add("authorization", GetCachedAuthToken());
+	MetaData.MetaData.Add("authorization", GetValidAuthToken());
 	
 	CharacterService->CallListCreatedCharacters(
 		{}, [Promise](const FGrpcResult& GrpcResult, const FGrpcCharactersListCreatedCharactersResponse& Response)

@@ -7,6 +7,7 @@
 #include "TPSCoreGameMode.generated.h"
 
 class UCharacterClassInfo;
+class ATPSCoreMechanicsCharacter;
 
 UCLASS()
 class TPSCOREMECHANICS_API ATPSCoreGameMode : public AGameMode
@@ -14,6 +15,10 @@ class TPSCOREMECHANICS_API ATPSCoreGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	ATPSCoreGameMode();
+	
+	virtual void BeginPlay() override;
+	
 	UCharacterClassInfo* GetCharacterClassDefaultInfo() const;
 
 private:
