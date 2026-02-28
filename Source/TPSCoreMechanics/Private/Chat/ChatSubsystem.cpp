@@ -97,7 +97,7 @@ void UChatSubsystem::NewChatMessage(FString Message)
 		ChatMessage.Message = Message;
 		ChatMessage.Sender = "Me";
 		FGrpcMetaData MetaData = FGrpcMetaData();
-		MetaData.MetaData.Add("authorization", GetAuthTokenValue());
+		MetaData.MetaData.Add("authorization", GetCachedAuthToken());
 		ChatClient->Message(Context, ChatMessage, MetaData);
 	}
 	else

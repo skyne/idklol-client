@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CommonTypes.h"
+#include "SCharacters/CharactersMessage.h"
 
 /**
  * Helper class for mapping gRPC character creation catalog data to UI-friendly formats
@@ -143,4 +144,10 @@ public:
 		
 		return Result;
 	}
+	
+	// Enum to string conversion helpers for UI display
+	static FString RaceEnumToString(EGrpcCharactersRace Race);
+	static FString GenderEnumToString(EGrpcCharactersGender Gender);
+	static FString ClassEnumToString(EGrpcCharactersCharacterClass CharacterClass);
+	static FString SkinColorEnumToString(EGrpcCharactersSkinColor SkinColor);
 };

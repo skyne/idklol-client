@@ -45,6 +45,9 @@ protected:
 	/** Resolved auth token (from command line or DefaultAuthToken) */
 	FString AuthToken;
 
+	/** Console command handle for reloading auth token */
+	IConsoleCommand* ReloadAuthTokenCommand = nullptr;
+
 	/** Timer handle for reconnection attempts */
 	FTimerHandle ReconnectTimerHandle;
 
@@ -97,8 +100,15 @@ protected:
 	/** Get a friendly name for logging (defaults to class name) */
 	virtual FString GetLogPrefix() const;
 
-	/** Get the resolved auth token value (from command line or default config) */
+	/** 
+	 * Get the resolved auth token value by reading directly from file (bypasses all caching)
+	 * This is only used during initialization and when explicitly reloading.
+	 * Regular requests should use the cached AuthToken member variable.
+	 */
 	FString GetAuthTokenValue() const;
+
+	/** Get the current cached auth token value (use this for requests) */
+	FString GetCachedAuthToken() const { return AuthToken; }
 
 	/**
 	 * Type-safe helper to get the service cast to a specific type
@@ -140,6 +150,14 @@ public:
 	/** Check if the service is connected and ready to use */
 	UFUNCTION(BlueprintPure, Category = "gRPC Subsystem")
 	bool IsConnected() const { return ConnectionStatus == EGrpcConnectionStatus::Connected; }
+
+	/** 
+	 * Reload the auth token from the config file and update the cached value
+	 * This allows you to change the token in DefaultGame.ini without restarting the editor
+	 * Console command: ReloadAuthToken
+	 */
+	UFUNCTION(BlueprintCallable, Category = "gRPC Subsystem")
+	void ReloadAuthToken();
 };
 
 /**

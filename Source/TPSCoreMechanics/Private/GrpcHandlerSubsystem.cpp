@@ -5,6 +5,8 @@
 #include "TurboLinkGrpcManager.h"
 #include "TurboLinkGrpcService.h"
 #include "Misc/CommandLine.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 
 void UGrpcHandlerSubsystem::SetConnectionStatus(EGrpcConnectionStatus NewStatus)
 {
@@ -30,6 +32,15 @@ void UGrpcHandlerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	// Resolve auth token from command line or use default
 	AuthToken = GetAuthTokenValue();
 	UE_LOG(LogTemp, Log, TEXT("[%s] Using auth token: %s"), *GetLogPrefix(), *AuthToken);
+
+	// Register console command for reloading auth token
+	FString CommandName = FString::Printf(TEXT("%s.ReloadAuthToken"), *GetServiceName());
+	ReloadAuthTokenCommand = IConsoleManager::Get().RegisterConsoleCommand(
+		*CommandName,
+		TEXT("Reload the auth token from the config file without restarting the editor"),
+		FConsoleCommandDelegate::CreateUObject(this, &UGrpcHandlerSubsystem::ReloadAuthToken),
+		ECVF_Default
+	);
 
 	SetConnectionStatus(EGrpcConnectionStatus::Connecting);
 	InitializeConnection();
@@ -107,6 +118,13 @@ void UGrpcHandlerSubsystem::Deinitialize()
 		GrpcService->OnServiceStateChanged.RemoveDynamic(this, &UGrpcHandlerSubsystem::HandleGrpcStateChange);
 	}
 	
+	// Unregister console command
+	if (ReloadAuthTokenCommand)
+	{
+		IConsoleManager::Get().UnregisterConsoleObject(ReloadAuthTokenCommand);
+		ReloadAuthTokenCommand = nullptr;
+	}
+	
 	// Clear references
 	Client = nullptr;
 	Service = nullptr;
@@ -177,10 +195,78 @@ FString UGrpcHandlerSubsystem::GetLogPrefix() const
 
 FString UGrpcHandlerSubsystem::GetAuthTokenValue() const
 {
+	// Check command line first
 	FString CommandLineAuthToken;
 	if (FParse::Value(FCommandLine::Get(), TEXT("AuthToken="), CommandLineAuthToken))
 	{
-		return CommandLineAuthToken;
+		FString BearerToken = FString::Printf(TEXT("Bearer %s"), *CommandLineAuthToken);
+		UE_LOG(LogTemp, Log, TEXT("[%s] Using command line auth token"), *GetLogPrefix());
+		return BearerToken;
 	}
-	return DefaultAuthToken;
+	
+	// Read DIRECTLY from the file on disk to bypass all UE config caching
+	FString ConfigFilePath = FPaths::ProjectConfigDir() / TEXT("DefaultGame.ini");
+	FString FileContent;
+	
+	if (FFileHelper::LoadFileToString(FileContent, *ConfigFilePath))
+	{
+		// Parse the file content line by line
+		TArray<FString> Lines;
+		FileContent.ParseIntoArrayLines(Lines);
+		
+		bool InCorrectSection = false;
+		for (const FString& Line : Lines)
+		{
+			FString TrimmedLine = Line.TrimStartAndEnd();
+			
+			// Check if we're entering the correct section
+			if (TrimmedLine == TEXT("[/Script/TPSCoreMechanics.GrpcHandlerSubsystem]"))
+			{
+				InCorrectSection = true;
+				continue;
+			}
+			
+			// Check if we've entered a different section
+			if (TrimmedLine.StartsWith(TEXT("[")) && InCorrectSection)
+			{
+				break;
+			}
+			
+			// Look for DefaultAuthToken in the correct section
+			if (InCorrectSection && TrimmedLine.StartsWith(TEXT("DefaultAuthToken=")))
+			{
+				FString TokenValue;
+				if (TrimmedLine.Split(TEXT("="), nullptr, &TokenValue))
+				{
+					FString BearerToken = FString::Printf(TEXT("Bearer %s"), *TokenValue);
+					UE_LOG(LogTemp, Log, TEXT("[%s] Loaded auth token from file (first 50 chars): %s..."), 
+						*GetLogPrefix(), *TokenValue.Left(50));
+					return BearerToken;
+				}
+			}
+		}
+	}
+	
+	// Fallback to default
+	FString BearerToken = FString::Printf(TEXT("Bearer %s"), *DefaultAuthToken);
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Using fallback default token"), *GetLogPrefix());
+	return BearerToken;
+}
+
+void UGrpcHandlerSubsystem::ReloadAuthToken()
+{
+	// Get the fresh token value directly from file
+	FString NewToken = GetAuthTokenValue();
+	
+	if (NewToken != AuthToken)
+	{
+		AuthToken = NewToken;
+		UE_LOG(LogTemp, Warning, TEXT("[%s] ===== AUTH TOKEN RELOADED AND CHANGED! ====="), *GetLogPrefix());
+		UE_LOG(LogTemp, Log, TEXT("[%s] New token (first 50 chars): %s..."), 
+			*GetLogPrefix(), *AuthToken.Replace(TEXT("Bearer "), TEXT("")).Left(50));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("[%s] Auth token reloaded (no change detected)"), *GetLogPrefix());
+	}
 }

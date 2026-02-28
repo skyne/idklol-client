@@ -34,8 +34,16 @@ void ACharacterCreation::BeginPlay()
 		HandleServiceConnectionStatusChanged(EGrpcConnectionStatus::Connected);
 	}
 
-	if (ACharacterCreationHUD* HUD = GetCharacterCreationHUD()) {
+	if (ACharacterCreationHUD* HUD = GetCharacterCreationHUD())
+	{
 		HUD->OnNameChanged.AddUniqueDynamic(this, &ACharacterCreation::HandleNameChanged);
+		
+		// Bind to create character button
+		if (HUD->CharacterCreationUI)
+		{
+			HUD->CharacterCreationUI->OnCreateCharacter.AddUniqueDynamic(this, &ACharacterCreation::HandleCreateCharacter);
+			HUD->CharacterCreationUI->OnBackToSelection.AddUniqueDynamic(this, &ACharacterCreation::HandleBackToSelection);
+		}
 	}
 }
 
@@ -141,6 +149,93 @@ void ACharacterCreation::HandleServiceConnectionStatusChanged(EGrpcConnectionSta
 void ACharacterCreation::HandleNameChanged(const FString& NewText)
 {
 	CurrentCharacter.Name = NewText;
+}
+
+void ACharacterCreation::HandleCreateCharacter()
+{
+	LOG("[CharacterCreation] Create character button clicked");
+	
+	ACharacterCreationHUD* HUD = GetCharacterCreationHUD();
+	if (!HUD)
+	{
+		LOG("[CharacterCreation] Cannot create character - HUD not found");
+		return;
+	}
+	
+	// Validate all fields are filled
+	if (CurrentCharacter.Race == 0)
+	{
+		HUD->ShowError("Please select a race");
+		return;
+	}
+	
+	if (CurrentCharacter.Gender == 0)
+	{
+		HUD->ShowError("Please select a gender");
+		return;
+	}
+	
+	if (CurrentCharacter.CharacterClass == 0)
+	{
+		HUD->ShowError("Please select a class");
+		return;
+	}
+	
+	if (CurrentCharacter.SkinColor == 0)
+	{
+		HUD->ShowError("Please select a skin color");
+		return;
+	}
+	
+	// Validate name using strict validation
+	FValidationResult NameValidation = UInputBoxWidget::ValidateCharacterName(CurrentCharacter.Name);
+	if (!NameValidation.bIsValid)
+	{
+		HUD->ShowError(NameValidation.ErrorMessage);
+		return;
+	}
+	
+	// Check connection status
+	UCharactersSubsystem* CharactersSubsystem = GetGameInstance()->GetSubsystem<UCharactersSubsystem>();
+	if (!CharactersSubsystem || !CharactersSubsystem->IsConnected())
+	{
+		HUD->ShowError("Not connected to server. Please wait and try again.");
+		return;
+	}
+	
+	// Build the request
+	FGrpcCharactersCreateCharacterRequest Request;
+	Request.Name = CurrentCharacter.Name;
+	Request.Race = static_cast<EGrpcCharactersRace>(CurrentCharacter.Race);
+	Request.Gender = static_cast<EGrpcCharactersGender>(CurrentCharacter.Gender);
+	Request.CharacterClass = static_cast<EGrpcCharactersCharacterClass>(CurrentCharacter.CharacterClass);
+	Request.SkinColor = static_cast<EGrpcCharactersSkinColor>(CurrentCharacter.SkinColor);
+	
+	LOG("[CharacterCreation] Creating character - Name: %s, Race: %d, Gender: %d, Class: %d, SkinColor: %d",
+		*Request.Name, CurrentCharacter.Race, CurrentCharacter.Gender, CurrentCharacter.CharacterClass, CurrentCharacter.SkinColor);
+	
+	// Call the async create method
+	auto Future = CharactersSubsystem->CreateCharacterAsync(Request);
+	
+	Future.Next([this, HUD](const FGrpcCharactersCreateCharacterResponse& Response)
+	{
+		AsyncTask(ENamedThreads::GameThread, [this, Response, HUD]()
+		{
+			if (Response.CharacterId.IsEmpty())
+			{
+				LOG("[CharacterCreation] Failed to create character - empty response");
+				HUD->ShowError("Failed to create character. Please try again.");
+			}
+			else
+			{
+				LOG("[CharacterCreation] Character created successfully! ID: %s, Name: %s",
+					*Response.CharacterId, *Response.Name);
+				
+				// Notify orchestrator that character creation is complete
+				OnCharacterCreationComplete.Broadcast();
+			}
+		});
+	});
 }
 
 void ACharacterCreation::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -321,6 +416,12 @@ ACharacterCreationHUD* ACharacterCreation::GetCharacterCreationHUD() const
 	}
 	
 	return Cast<ACharacterCreationHUD>(PC->GetHUD());
+}
+
+void ACharacterCreation::HandleBackToSelection()
+{
+	LOG("[CharacterCreation] Back to selection requested - canceling character creation");
+	OnCancelCharacterCreation.Broadcast();
 }
 
 // Called every frame

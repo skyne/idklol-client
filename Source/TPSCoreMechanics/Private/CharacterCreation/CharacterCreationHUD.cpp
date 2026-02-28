@@ -225,6 +225,12 @@ void ACharacterCreationHUD::HandleNameChanged(const FString& NewText)
 	OnNameChanged.Broadcast(NewText);
 }
 
+void ACharacterCreationHUD::ShowError(const FString& ErrorMessage)
+{
+	LOG("[CharacterCreationHUD] Error: %s", *ErrorMessage);
+	OnShowError.Broadcast(ErrorMessage);
+}
+
 void ACharacterCreationHUD::BeginPlay()
 {
 	LOG("BeginPlay called on HUD: %s", *GetClass()->GetName());
@@ -250,6 +256,11 @@ void ACharacterCreationHUD::BeginPlay()
 				UInputBoxWidget* NameInputBox = CreateWidget<UInputBoxWidget>(GetWorld(), NameInputBoxWidgetClass);
 				if (NameInputBox)				{
 					NameInputBox->SetPlaceholder("Enter character name");
+					NameInputBox->SetMaxLength(20);
+					
+					// Bind validation function (using BindUFunction for static UFUNCTION)
+					NameInputBox->OnValidateText.BindUFunction(NameInputBox, FName("ValidateCharacterName"));
+					
 					InputBoxContainer->AddChild(NameInputBox);
 					NameInputBoxWidget = NameInputBox;
 					NameInputBoxWidget->OnTextChanged.AddUniqueDynamic(this, &ACharacterCreationHUD::HandleNameChanged);
@@ -274,6 +285,13 @@ void ACharacterCreationHUD::BeginPlay()
 
 void ACharacterCreationHUD::BeginDestroy()
 {
+	// Clean up UI widget
+	if (CharacterCreationUI)
+	{
+		CharacterCreationUI->RemoveFromParent();
+		CharacterCreationUI = nullptr;
+	}
+	
 	// Unbind widget event handlers
 	if (RaceSelectorWidget)
 	{

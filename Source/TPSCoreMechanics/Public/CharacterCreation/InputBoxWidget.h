@@ -46,6 +46,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input Box Widget")
 	bool Validate();
 	
+	// Static validation method for character names
+	// Rules: 3-20 characters, alphanumeric + spaces/hyphens, no leading/trailing spaces, no consecutive spaces
+	UFUNCTION(BlueprintCallable, Category = "Input Box Widget")
+	static FValidationResult ValidateCharacterName(const FString& Name);
+	
 	UPROPERTY(BlueprintAssignable, Category = "Input Box Widget")
 	FOnInputTextChanged OnTextChanged;
 	

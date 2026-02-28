@@ -9,6 +9,9 @@
 #include "GrpcHandlerSubsystem.h"
 #include "CharacterCreation.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterCreationComplete);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCancelCharacterCreation);
+
 USTRUCT(BlueprintType)
 struct FCharacterCreatorTemplate
 {
@@ -29,6 +32,14 @@ class TPSCOREMECHANICS_API ACharacterCreation : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ACharacterCreation();
+	
+	// Delegate broadcast when character creation is successfully completed
+	UPROPERTY(BlueprintAssignable, Category="Character Creation")
+	FOnCharacterCreationComplete OnCharacterCreationComplete;
+	
+	// Delegate broadcast when user cancels character creation to go back to selection
+	UPROPERTY(BlueprintAssignable, Category="Character Creation")
+	FOnCancelCharacterCreation OnCancelCharacterCreation;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Character Creation")
 	UUserWidget* CharacterCreationUI = nullptr;
@@ -72,8 +83,16 @@ private:
 protected:
 	UFUNCTION()
 	void HandleServiceConnectionStatusChanged(EGrpcConnectionStatus NewStatus);
+	
 	UFUNCTION()
 	void HandleNameChanged(const FString& NewText);
+	
+	UFUNCTION()
+	void HandleCreateCharacter();
+	
+	UFUNCTION()
+	void HandleBackToSelection();
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

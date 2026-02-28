@@ -27,8 +27,9 @@ public:
 	// Get character creation catalog asynchronously (C++ only, not exposed to Blueprints)
 	TFuture<FGrpcCharactersCharacterCreationCatalog> GetCharacterCreationOptionCatalogAsync();
 	
-	// Add character-specific RPC methods here
-	// Example:
-	// UFUNCTION(BlueprintCallable, Category = "Characters Subsystem")
-	// void CreateCharacter(const FString& CharacterName);
+	// Create a new character asynchronously
+	TFuture<FGrpcCharactersCreateCharacterResponse> CreateCharacterAsync(const FGrpcCharactersCreateCharacterRequest& Request);
+	
+	// List all created characters for the current user
+	TFuture<FGrpcCharactersListCreatedCharactersResponse> ListCreatedCharactersAsync();
 };

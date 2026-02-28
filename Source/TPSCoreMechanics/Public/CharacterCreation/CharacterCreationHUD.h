@@ -12,6 +12,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectorChanged, uint8, Value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNameChanged, const FString&, NewText);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowError, const FString&, ErrorMessage);
 
 UCLASS()
 class TPSCOREMECHANICS_API ACharacterCreationHUD : public AHUD
@@ -45,6 +46,10 @@ public:
 
 	void UpdateAvailableSkinColors(const TArray<FStringByteKVP>& AvailableSkinColors);
 	
+	// Show an error message to the user
+	UFUNCTION(BlueprintCallable, Category="Character Creation")
+	void ShowError(const FString& ErrorMessage);
+	
 	UPROPERTY(BlueprintAssignable, Category="Character Creation")
 	FOnSelectorChanged OnSelectedRaceChanged;
 	
@@ -60,9 +65,13 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Character Creation")
 	FOnNameChanged OnNameChanged;
 	
-private:
+	UPROPERTY(BlueprintAssignable, Category="Character Creation")
+	FOnShowError OnShowError;
+	
 	UPROPERTY()
 	UCharacterCreationUI* CharacterCreationUI = nullptr;
+	
+private:
 	
 	UPROPERTY()
 	UToggleWidget* RaceSelectorWidget = nullptr;
