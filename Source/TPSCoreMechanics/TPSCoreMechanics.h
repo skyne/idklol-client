@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 // custom log category
-DECLARE_LOG_CATEGORY_EXTERN(Idklol, Log, All);
+TPSCOREMECHANICS_API DECLARE_LOG_CATEGORY_EXTERN(Idklol, Log, All);
 
 // custom log macro
 #define LOG(x, ...) UE_LOG(Idklol, Log, TEXT(x), ##__VA_ARGS__)

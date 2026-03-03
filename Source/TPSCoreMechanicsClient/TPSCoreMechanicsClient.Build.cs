@@ -24,8 +24,6 @@ public class TPSCoreMechanicsClient : ModuleRules
 			"UMG",
 		});
 
-		CircularlyReferencedDependentModules.Add("TPSCoreMechanics");
-
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"InputCore",

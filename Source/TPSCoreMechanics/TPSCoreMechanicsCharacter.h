@@ -21,7 +21,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class ATPSCoreMechanicsCharacter : public ACharacter, public IAbilitySystemInterface
+class TPSCOREMECHANICS_API ATPSCoreMechanicsCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 

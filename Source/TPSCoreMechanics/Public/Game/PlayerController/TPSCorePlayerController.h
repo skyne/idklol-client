@@ -5,11 +5,10 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "Interfaces/InventoryInterface.h"
 #include "TPSCorePlayerController.generated.h"
 
-class UTPSCoreSystemsWidget;
-class UInventoryWidgetController;
 class UInventoryComponent;
 
 
@@ -28,7 +27,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UInventoryWidgetController* GetInventoryWidgetController();
+	UObject* GetInventoryWidgetController();
 
 	UFUNCTION(BlueprintCallable)
 	void CreateInventoryWidget();
@@ -38,14 +37,14 @@ private:
 	TObjectPtr<UInventoryComponent> InventoryComponent;
 
 	UPROPERTY()
-	TObjectPtr<UInventoryWidgetController> InventoryWidgetController;
+	TObjectPtr<UObject> InventoryWidgetController;
 
 	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Widgets")
-	TSubclassOf<UInventoryWidgetController> InventoryWidgetControllerClass;
+	TSubclassOf<UObject> InventoryWidgetControllerClass;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
-	TObjectPtr<UTPSCoreSystemsWidget> InventoryWidget;
+	TObjectPtr<UUserWidget> InventoryWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Widgets")
-	TSubclassOf<UTPSCoreSystemsWidget> InventoryWidgetClass;
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
 };

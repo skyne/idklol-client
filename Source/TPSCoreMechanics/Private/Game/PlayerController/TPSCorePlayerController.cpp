@@ -6,9 +6,6 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Inventory/InventoryComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/TPSCoreSystemsWidget.h"
-#include "UI/WidgetController/InventoryWidgetController.h"
-#include "UI/TPSCoreSystemsWidget.h"
 
 ATPSCorePlayerController::ATPSCorePlayerController()
 {
@@ -35,24 +32,54 @@ void ATPSCorePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ATPSCorePlayerController, InventoryComponent);
 }
 
-UInventoryWidgetController* ATPSCorePlayerController::GetInventoryWidgetController()
+UObject* ATPSCorePlayerController::GetInventoryWidgetController()
 {
 	if (!IsValid(InventoryWidgetController))
 	{
-		InventoryWidgetController = NewObject<UInventoryWidgetController>(this, InventoryWidgetControllerClass);
-		InventoryWidgetController->SetOwningActor(this);
-		InventoryWidgetController->BindCallbacksToDependencies();
+		InventoryWidgetController = NewObject<UObject>(this, InventoryWidgetControllerClass);
+
+		if (UFunction* SetOwningActorFn = InventoryWidgetController->FindFunction(TEXT("SetOwningActor")))
+		{
+			struct FSetOwningActorParams
+			{
+				AActor* InOwningActor;
+			};
+			FSetOwningActorParams Params{ this };
+			InventoryWidgetController->ProcessEvent(SetOwningActorFn, &Params);
+		}
+
+		if (UFunction* BindCallbacksFn = InventoryWidgetController->FindFunction(TEXT("BindCallbacksToDependencies")))
+		{
+			InventoryWidgetController->ProcessEvent(BindCallbacksFn, nullptr);
+		}
 	}
 	return InventoryWidgetController;
 }
 
 void ATPSCorePlayerController::CreateInventoryWidget()
 {
-	if (UUserWidget* Widget = CreateWidget<UTPSCoreSystemsWidget>(this, InventoryWidgetClass))
+	if (UUserWidget* Widget = CreateWidget<UUserWidget>(this, InventoryWidgetClass))
 	{
-		InventoryWidget = Cast<UTPSCoreSystemsWidget>(Widget);
-		InventoryWidget->SetWidgetController(GetInventoryWidgetController());
-		InventoryWidgetController->BradcastInitialValues();
+		InventoryWidget = Widget;
+
+		if (UFunction* SetWidgetControllerFn = InventoryWidget->FindFunction(TEXT("SetWidgetController")))
+		{
+			struct FSetWidgetControllerParams
+			{
+				UObject* InWidgetController;
+			};
+			FSetWidgetControllerParams Params{ GetInventoryWidgetController() };
+			InventoryWidget->ProcessEvent(SetWidgetControllerFn, &Params);
+		}
+
+		if (IsValid(InventoryWidgetController))
+		{
+			if (UFunction* BroadcastInitialValuesFn = InventoryWidgetController->FindFunction(TEXT("BradcastInitialValues")))
+			{
+				InventoryWidgetController->ProcessEvent(BroadcastInitialValuesFn, nullptr);
+			}
+		}
+
 		InventoryWidget->AddToViewport();
 	}
 }
