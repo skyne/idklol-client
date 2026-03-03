@@ -74,6 +74,12 @@ jobs:
   build-and-package:
     name: Build & Package (Linux dedicated server)
     runs-on: [self-hosted, ue5-linux]
+    env:
+      DISPLAY: ""
+      WAYLAND_DISPLAY: ""
+      SDL_VIDEODRIVER: offscreen
+      SDL_AUDIODRIVER: dummy
+      XDG_RUNTIME_DIR: /tmp/xdg-runtime
 
     outputs:
       image-tag: ${{ steps.meta.outputs.version }}
@@ -94,7 +100,7 @@ jobs:
             echo "::error::Set the UE_ROOT repository variable or install UE at the default path."
             exit 1
           fi
-          echo "UE found: $($UE_ROOT/Engine/Binaries/Linux/UnrealEditor --version 2>/dev/null || echo 'version unknown')"
+          echo "UE found: $($UE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd --version 2>/dev/null || echo 'version unknown')"
 
       # ── Build config ─────────────────────────────────────────────────────
       - name: Resolve build configuration
@@ -108,7 +114,10 @@ jobs:
       # ── DerivedDataCache warm-up (speeds repeat builds significantly) ────
       # The DDC lives outside the workspace so it persists across runs.
       - name: Prepare DDC directory
-        run: mkdir -p "$HOME/.ue-ddc"
+        run: |
+          mkdir -p "$HOME/.ue-ddc"
+          mkdir -p "$XDG_RUNTIME_DIR"
+          chmod 700 "$XDG_RUNTIME_DIR" || true
 
       # ── Compile server target ────────────────────────────────────────────
       - name: Compile TPSCoreMechanicsServer
@@ -137,6 +146,7 @@ jobs:
             -archivedirectory="${{ github.workspace }}/LinuxServerPackage" \
             -DDC="$HOME/.ue-ddc" \
             -unattended \
+            -nullrhi \
             -nop4
 
       # ── Sanity-check the package output ──────────────────────────────────
