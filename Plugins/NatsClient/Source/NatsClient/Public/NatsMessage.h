@@ -34,5 +34,5 @@ struct NATSCLIENT_API FNatsMessage
 	}
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNatsMessage, const FNatsMessage&, Message);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnNatsReply, bool, bSuccess, const FNatsMessage&, Reply);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnNatsMessage, const FNatsMessage&, Message);
+DECLARE_DELEGATE_TwoParams(FOnNatsReply, bool, const FNatsMessage&);

@@ -72,7 +72,6 @@ public:
 	 * Send a request and invoke Callback with the reply on the game thread.
 	 * @param TimeoutSeconds  How long to wait before firing with bSuccess=false
 	 */
-	UFUNCTION(BlueprintCallable, Category = "NATS")
 	void RequestJson(
 		const FString& Subject,
 		const FString& JsonPayload,
