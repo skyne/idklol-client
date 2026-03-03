@@ -6,20 +6,20 @@
 		},
 		{
 			"name": "idklol-server",
-			"path": "/Users/skyne/Sources/idklol-server"
+			"path": "../idklol-server"
 		},
 		{
 			"name": "UE5",
-			"path": "/mnt/data/UnrealEngine5.5.4"
+			"path": "../../UnrealEngine5.5.4"
 		}
 	],
 	"settings": {
 		"typescript.tsc.autoDetect": "off",
 		"npm.autoDetect": "off",
 		"terminal.integrated.env.linux": {
-			"PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
-			"DOTNET_ROOT": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
-			"DOTNET_HOST_PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
+			"PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
+			"DOTNET_ROOT": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
+			"DOTNET_HOST_PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
 			"DOTNET_MULTILEVEL_LOOKUP": "0",
 			"DOTNET_ROLL_FORWARD": "LatestMajor"
 		}
@@ -41,13 +41,13 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -58,7 +58,7 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -67,7 +67,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -78,14 +78,14 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -96,13 +96,13 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -113,7 +113,7 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -122,7 +122,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -133,14 +133,14 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -151,13 +151,13 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -168,7 +168,7 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -177,7 +177,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -188,14 +188,14 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -206,13 +206,13 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Test",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -223,7 +223,7 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Test",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -232,7 +232,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -243,14 +243,14 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Test",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -261,13 +261,13 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Shipping",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -278,7 +278,7 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Shipping",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -287,7 +287,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -298,14 +298,14 @@
 					"TPSCoreMechanics",
 					"Linux",
 					"Shipping",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -316,13 +316,13 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -333,7 +333,7 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -342,7 +342,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -353,14 +353,14 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -371,13 +371,13 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -388,7 +388,7 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -397,7 +397,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -408,14 +408,14 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -426,13 +426,13 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -443,7 +443,7 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -452,7 +452,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -463,14 +463,14 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -481,13 +481,13 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Test",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -498,7 +498,7 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Test",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -507,7 +507,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -518,14 +518,14 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Test",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -536,13 +536,13 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Shipping",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -553,7 +553,7 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Shipping",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -562,7 +562,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -573,14 +573,14 @@
 					"TPSCoreMechanics",
 					"LinuxArm64",
 					"Shipping",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -591,13 +591,13 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -608,7 +608,7 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -617,7 +617,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -628,14 +628,14 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"Debug",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -646,13 +646,13 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -663,7 +663,7 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -672,7 +672,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -683,14 +683,14 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"DebugGame",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -701,13 +701,13 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -718,7 +718,7 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -727,7 +727,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			},
 			{
@@ -738,14 +738,14 @@
 					"TPSCoreMechanicsEditor",
 					"Linux",
 					"Development",
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "/mnt/data/UnrealEngine5.5.4"
+					"cwd": "${workspaceFolder:UE5}"
 				}
 			}
 		]
@@ -756,100 +756,100 @@
 			{
 				"name": "Launch TPSCoreMechanics (Debug)",
 				"request": "launch",
-				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-Debug",
+				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-Debug",
 				"preLaunchTask": "TPSCoreMechanics Linux Debug Build",
 				"args": [
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanics (DebugGame)",
 				"request": "launch",
-				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-DebugGame",
+				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-DebugGame",
 				"preLaunchTask": "TPSCoreMechanics Linux DebugGame Build",
 				"args": [
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanics (Development)",
 				"request": "launch",
-				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame",
+				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame",
 				"preLaunchTask": "TPSCoreMechanics Linux Development Build",
 				"args": [
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanics (Test)",
 				"request": "launch",
-				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-Test",
+				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-Test",
 				"preLaunchTask": "TPSCoreMechanics Linux Test Build",
 				"args": [
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanics (Shipping)",
 				"request": "launch",
-				"program": "/media/skyne/Data/Projects/idklol-client/Binaries/Linux/UnrealGame-Linux-Shipping",
+				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-Shipping",
 				"preLaunchTask": "TPSCoreMechanics Linux Shipping Build",
 				"args": [
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanicsEditor (Debug)",
 				"request": "launch",
-				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
+				"program": "${workspaceFolder:UE5}/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
 				"preLaunchTask": "TPSCoreMechanicsEditor Linux Debug Build",
 				"args": [
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject"
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject"
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanicsEditor (DebugGame)",
 				"request": "launch",
-				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
+				"program": "${workspaceFolder:UE5}/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
 				"preLaunchTask": "TPSCoreMechanicsEditor Linux DebugGame Build",
 				"args": [
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject"
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject"
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
 				"name": "Launch TPSCoreMechanicsEditor (Development)",
 				"request": "launch",
-				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/Linux/UnrealEditor",
+				"program": "${workspaceFolder:UE5}/Engine/Binaries/Linux/UnrealEditor",
 				"preLaunchTask": "TPSCoreMechanicsEditor Linux Development Build",
 				"args": [
-					"/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject"
+					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject"
 				],
-				"cwd": "/mnt/data/UnrealEngine5.5.4",
+				"cwd": "${workspaceFolder:UE5}",
 				"type": "cppdbg",
-				"visualizerFile": "/mnt/data/UnrealEngine5.5.4/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
 				"showDisplayString": true
 			},
 			{
@@ -857,26 +857,26 @@
 				"type": "coreclr",
 				"request": "launch",
 				"preLaunchTask": "UnrealBuildTool Linux Development Build",
-				"program": "/mnt/data/UnrealEngine5.5.4/Engine/Build/BatchFiles/RunUBT.bat",
+				"program": "${workspaceFolder:UE5}/Engine/Build/BatchFiles/RunUBT.bat",
 				"args": [
 					"-projectfiles",
 					"-vscode",
-					"-project=/media/skyne/Data/Projects/idklol-client/TPSCoreMechanics.uproject",
+					"-project=${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
 					"-game",
 					"-engine",
 					"-dotnet"
 				],
 				"env": {
-					"PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
-					"DOTNET_ROOT": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
-					"DOTNET_HOST_PATH": "/mnt/data/UnrealEngine5.5.4/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
+					"PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
+					"DOTNET_ROOT": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
+					"DOTNET_HOST_PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
 					"DOTNET_MULTILEVEL_LOOKUP": "0",
 					"DOTNET_ROLL_FORWARD": "LatestMajor"
 				},
 				"console": "internalConsole",
 				"internalConsoleOptions": "openOnSessionStart",
 				"stopAtEntry": false,
-				"cwd": "/mnt/data/UnrealEngine5.5.4"
+				"cwd": "${workspaceFolder:UE5}"
 			}
 		]
 	}
