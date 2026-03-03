@@ -69,6 +69,7 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/ue-server
   # Default UE install path — override via repo variable UE_ROOT
   UE_ROOT: ${{ vars.UE_ROOT || '/mnt/data/UnrealEngine5.5.4' }}
+  UE_USE_SYSTEM_DOTNET: "1"
 
 jobs:
   build-and-package:
@@ -91,6 +92,31 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: false   # No LFS in this repo; flip to true if you add binary assets
+
+      # ── Ensure system DotNet (prevents bundled SDK chmod on UE install) ──
+      - name: Ensure .NET SDK (user-space)
+        run: |
+          set -euo pipefail
+          NEED_INSTALL=1
+          if command -v dotnet >/dev/null 2>&1; then
+            if dotnet --list-sdks | grep -qE '^8\.|^7\.|^6\.|^5\.|^4\.|^3\.1'; then
+              NEED_INSTALL=0
+              echo "Using existing dotnet at $(command -v dotnet)"
+            fi
+          fi
+
+          if [ "$NEED_INSTALL" -eq 1 ]; then
+            DOTNET_DIR="${{ runner.temp }}/dotnet"
+            mkdir -p "$DOTNET_DIR"
+            curl -fsSL https://dot.net/v1/dotnet-install.sh -o "${{ runner.temp }}/dotnet-install.sh"
+            chmod +x "${{ runner.temp }}/dotnet-install.sh"
+            "${{ runner.temp }}/dotnet-install.sh" --channel 8.0 --install-dir "$DOTNET_DIR"
+            export DOTNET_ROOT="$DOTNET_DIR"
+            export PATH="$DOTNET_DIR:$PATH"
+            echo "$DOTNET_DIR" >> "$GITHUB_PATH"
+            echo "DOTNET_ROOT=$DOTNET_DIR" >> "$GITHUB_ENV"
+          fi
+          dotnet --info
 
       # ── Validate engine path ─────────────────────────────────────────────
       - name: Validate UE installation
@@ -119,10 +145,10 @@ jobs:
           mkdir -p "$XDG_RUNTIME_DIR"
           chmod 700 "$XDG_RUNTIME_DIR" || true
 
-      # ── Compile server target ────────────────────────────────────────────
+      # ── Compile server target (direct UBT, bypass SetupDotnet.sh) ───────
       - name: Compile TPSCoreMechanicsServer
         run: |
-          "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" \
+          dotnet "$UE_ROOT/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" \
             TPSCoreMechanicsServer \
             Linux \
             ${{ steps.cfg.outputs.config }} \
@@ -130,10 +156,11 @@ jobs:
             -waitmutex \
             -DDC="$HOME/.ue-ddc"
 
-      # ── Cook & Package with UAT ──────────────────────────────────────────
+      # ── Cook & Package with UAT (direct AutomationTool) ──────────────────
       - name: Package Linux dedicated server (UAT)
         run: |
-          "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun \
+          pushd "$UE_ROOT/Engine/Binaries/DotNET/AutomationTool" >/dev/null
+          dotnet AutomationTool.dll BuildCookRun \
             -project="${{ github.workspace }}/TPSCoreMechanics.uproject" \
             -platform=Linux \
             -serverconfig=${{ steps.cfg.outputs.config }} \
@@ -148,6 +175,7 @@ jobs:
             -unattended \
             -nullrhi \
             -nop4
+          popd >/dev/null
 
       # ── Sanity-check the package output ──────────────────────────────────
       - name: Verify package output
