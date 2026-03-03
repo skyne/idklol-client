@@ -1,0 +1,59 @@
+# syntax=docker/dockerfile:1
+#
+# UE Dedicated Server Docker image
+#
+# Prerequisites (run once from repo root on any Linux/CI host):
+#   ./Engine/Build/BatchFiles/Linux/Build.sh TPSCoreMechanicsServer Linux Development \
+#       /path/to/TPSCoreMechanics.uproject -waitmutex
+#   ./Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
+#       -project=/path/to/TPSCoreMechanics.uproject \
+#       -platform=Linux -serverconfig=Development \
+#       -server -noclient -cook -stage -pak -archive \
+#       -archivedirectory=$(pwd)/LinuxServerPackage
+#
+# The packaged output is expected at: ./LinuxServerPackage/LinuxServer/
+# (contains TPSCoreMechanicsServer.sh and the TPSCoreMechanicsServer/ folder)
+
+FROM ubuntu:22.04 AS runtime
+
+# UE server runtime deps (glibc, ssl, threads, libcurl)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libssl3 \
+        libcurl4 \
+        ca-certificates \
+        libc6 \
+        libstdc++6 \
+        libgcc-s1 && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /game
+
+# Copy the packaged Linux dedicated server
+COPY LinuxServerPackage/LinuxServer/ /game/
+
+# Make the launch script executable
+RUN chmod +x /game/TPSCoreMechanicsServer.sh 2>/dev/null || true && \
+    find /game -name "*.so" -exec chmod +x {} \;
+
+# Game port (UDP) — default UE port 7777. BeaconPort = 7787.
+EXPOSE 7777/udp
+EXPOSE 7778/udp
+EXPOSE 7787/udp
+
+# Environment-driven configuration
+ENV MAP_PATH="/Game/ThirdPerson/Maps/ThirdPersonMap"
+ENV GAME_PORT="7777"
+ENV NATS_URL="nats://nats:4222"
+ENV INSTANCE_ID=""
+ENV LOG_LEVEL="Log"
+
+CMD ["/bin/sh", "-c", \
+    "/game/TPSCoreMechanicsServer.sh \
+    ${MAP_PATH} \
+    -log \
+    -port=${GAME_PORT} \
+    -NATSUrl=${NATS_URL} \
+    ${INSTANCE_ID:+-InstanceId=${INSTANCE_ID}} \
+    -stdout \
+    -FullStdOutLogOutput"]

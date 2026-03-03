@@ -61,7 +61,7 @@ void ATPSCoreMechanicsCharacter::BeginPlay()
 		{
 			if (SelectedCharacterSubsystem->ShouldApplyAppearance())
 			{
-				FGrpcCharactersCharacter SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
+				FCharacterData SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
 				UE_LOG(LogTemplateCharacter, Log, TEXT("Applying appearance for character: %s"), *SelectedCharacter.Name);
 				
 				InitializeFromCharacterData(SelectedCharacter);
@@ -230,12 +230,12 @@ void ATPSCoreMechanicsCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ATPSCoreMechanicsCharacter::InitializeFromCharacterData(const FGrpcCharactersCharacter& CharacterData)
+void ATPSCoreMechanicsCharacter::InitializeFromCharacterData(const FCharacterData& CharacterData)
 {
 	ApplyCharacterAppearance(CharacterData.Gender, CharacterData.SkinColor);
 }
 
-void ATPSCoreMechanicsCharacter::ApplyCharacterAppearance(EGrpcCharactersGender Gender, EGrpcCharactersSkinColor SkinColor)
+void ATPSCoreMechanicsCharacter::ApplyCharacterAppearance(ECharacterGender Gender, ECharacterSkinColor SkinColor)
 {
 	TSoftObjectPtr<USkeletalMesh> TargetMeshPtr = UCharacterAppearanceHelper::GetMeshForGender(Gender, MaleMesh, FemaleMesh);
 	
@@ -266,7 +266,7 @@ void ATPSCoreMechanicsCharacter::ApplyCharacterAppearance(EGrpcCharactersGender 
 	Streamable.RequestAsyncLoad(TargetMeshPtr.ToSoftObjectPath(), Delegate);
 }
 
-void ATPSCoreMechanicsCharacter::OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, EGrpcCharactersSkinColor SkinColor)
+void ATPSCoreMechanicsCharacter::OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, ECharacterSkinColor SkinColor)
 {
 	USkeletalMesh* NewMesh = LoadedMeshPtr.Get();
 	

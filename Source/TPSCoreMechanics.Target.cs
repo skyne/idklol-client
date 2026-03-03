@@ -10,6 +10,6 @@ public class TPSCoreMechanicsTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
-		ExtraModuleNames.Add("TPSCoreMechanics");
+		ExtraModuleNames.AddRange(new string[] { "TPSCoreMechanics", "TPSCoreMechanicsClient" });
 	}
 }

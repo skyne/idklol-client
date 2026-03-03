@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "SCharacters/CharactersMessage.h"
+#include "Characters/CharacterTypes.h"
 #include "SelectedCharacterSubsystem.generated.h"
 
 /**
@@ -14,21 +14,23 @@ UCLASS()
 class TPSCOREMECHANICS_API USelectedCharacterSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
+
 public:
+	/** Only instantiate on non-dedicated-server processes. */
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	/**
 	 * Set the selected character data
 	 * @param CharacterData The character data to store
 	 */
 	UFUNCTION(BlueprintCallable, Category="Selected Character")
-	void SetSelectedCharacter(const FGrpcCharactersCharacter& CharacterData);
+	void SetSelectedCharacter(const FCharacterData& CharacterData);
 	
 	/**
 	 * Get the selected character data
 	 * @return The selected character data
 	 */
 	UFUNCTION(BlueprintCallable, Category="Selected Character")
-	FGrpcCharactersCharacter GetSelectedCharacter() const;
+	FCharacterData GetSelectedCharacter() const;
 	
 	/**
 	 * Check if there is a selected character
@@ -59,7 +61,7 @@ public:
 	
 private:
 	UPROPERTY()
-	FGrpcCharactersCharacter SelectedCharacter;
+	FCharacterData SelectedCharacter;
 	
 	UPROPERTY()
 	bool bHasSelectedCharacter = false;

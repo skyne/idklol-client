@@ -9,6 +9,7 @@
 #include "CharacterCreation/CharacterCreationGameModeBase.h"
 #include "CharacterCreation/SelectedCharacterSubsystem.h"
 #include "Characters/CharactersSubsystem.h"
+#include "Characters/CharacterGrpcMapper.h"
 #include "Kismet/GameplayStatics.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 
@@ -241,7 +242,7 @@ void ACharacterCreationOrchestrator::HandleCharacterSelectedForPlay(FString Char
 			USelectedCharacterSubsystem* SelectedCharacterSubsystem = GetGameInstance()->GetSubsystem<USelectedCharacterSubsystem>();
 			if (SelectedCharacterSubsystem)
 			{
-				SelectedCharacterSubsystem->SetSelectedCharacter(*FoundCharacter);
+				SelectedCharacterSubsystem->SetSelectedCharacter(FCharacterGrpcMapper::ToNative(*FoundCharacter));
 				LOG("[CharacterCreationOrchestrator] Stored selected character: %s", *FoundCharacter->Name);
 			}
 			

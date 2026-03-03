@@ -2,14 +2,19 @@
 
 #include "CharacterCreation/SelectedCharacterSubsystem.h"
 
-void USelectedCharacterSubsystem::SetSelectedCharacter(const FGrpcCharactersCharacter& CharacterData)
+bool USelectedCharacterSubsystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	return !IsRunningDedicatedServer();
+}
+
+void USelectedCharacterSubsystem::SetSelectedCharacter(const FCharacterData& CharacterData)
 {
 	SelectedCharacter = CharacterData;
 	bHasSelectedCharacter = true;
 	bAppearanceApplied = false; // Reset the flag when new character is selected
 }
 
-FGrpcCharactersCharacter USelectedCharacterSubsystem::GetSelectedCharacter() const
+FCharacterData USelectedCharacterSubsystem::GetSelectedCharacter() const
 {
 	return SelectedCharacter;
 }
@@ -21,7 +26,7 @@ bool USelectedCharacterSubsystem::HasSelectedCharacter() const
 
 void USelectedCharacterSubsystem::ClearSelectedCharacter()
 {
-	SelectedCharacter = FGrpcCharactersCharacter();
+	SelectedCharacter = FCharacterData();
 	bHasSelectedCharacter = false;
 	bAppearanceApplied = false;
 }

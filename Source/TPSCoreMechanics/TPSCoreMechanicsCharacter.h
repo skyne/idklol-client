@@ -7,7 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
-#include "SCharacters/CharactersMessage.h"
+#include "Characters/CharacterTypes.h"
 #include "TPSCoreMechanicsCharacter.generated.h"
 
 class UTPSCoreAttributeSet;
@@ -17,7 +17,6 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
-struct FGrpcCharactersCharacter;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -62,7 +61,7 @@ public:
 	 * @param CharacterData The character data from the server
 	 */
 	UFUNCTION(BlueprintCallable, Category="Character Appearance")
-	void InitializeFromCharacterData(const FGrpcCharactersCharacter& CharacterData);
+	void InitializeFromCharacterData(const FCharacterData& CharacterData);
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
@@ -101,7 +100,7 @@ private:
 	
 	// Character appearance helpers
 	UFUNCTION()
-	void OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, EGrpcCharactersSkinColor SkinColor);
-	
-	void ApplyCharacterAppearance(EGrpcCharactersGender Gender, EGrpcCharactersSkinColor SkinColor);
+	void OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, ECharacterSkinColor SkinColor);
+
+	void ApplyCharacterAppearance(ECharacterGender Gender, ECharacterSkinColor SkinColor);
 };

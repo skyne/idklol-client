@@ -1,0 +1,209 @@
+# ─── UE Dedicated Server — Build, Package & Docker Push ──────────────────────
+#
+# OVERVIEW
+# --------
+# This workflow runs on a SELF-HOSTED runner (label: ue5-linux).
+# The runner must have Unreal Engine 5.5 pre-installed (see .github/runner-setup.sh).
+#
+# The workflow:
+#   1. Compiles the TPSCoreMechanicsServer target for Linux
+#   2. Runs UAT BuildCookRun to produce a packaged dedicated server
+#   3. Builds a Docker image from Dockerfile.server
+#   4. Pushes the image to GitHub Container Registry (ghcr.io)
+#
+# REQUIRED RUNNER SETUP
+# ---------------------
+#   - Self-hosted GitHub Actions runner on Linux x86_64
+#   - Unreal Engine 5.5 installed (see .github/runner-setup.sh)
+#   - Docker Engine installed and runner user in `docker` group
+#   - Runner must be registered in this repo with label: ue5-linux
+#
+# REQUIRED GITHUB SECRETS / VARIABLES
+# ------------------------------------
+#   Variables (repo → Settings → Variables → Actions):
+#     UE_ROOT   Path to the UE install, e.g. /opt/unreal-engine/5.5
+#               Default: /mnt/data/UnrealEngine5.5.4  (matches Makefile)
+#
+# IMAGE TAG STRATEGY
+# ------------------
+#   push to main  →  ghcr.io/<owner>/ue-server:latest + :<short-sha>
+#   tag  v*.*.*   →  ghcr.io/<owner>/ue-server:<semver> + :latest
+
+name: UE Server — Build & Push
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+    paths:
+      # Only re-build when game source or packaging config changes
+      - "Source/**"
+      - "Config/**"
+      - "Plugins/**"
+      - "TPSCoreMechanics.uproject"
+      - "Dockerfile.server"
+      - ".github/workflows/ue-server.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "Source/**"
+      - "Config/**"
+      - "Plugins/**"
+      - "TPSCoreMechanics.uproject"
+  workflow_dispatch:
+    inputs:
+      config:
+        description: "Build configuration"
+        required: false
+        default: "Development"
+        type: choice
+        options: [Development, Shipping]
+      push_image:
+        description: "Push Docker image to ghcr.io"
+        required: false
+        default: true
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/ue-server
+  # Default UE install path — override via repo variable UE_ROOT
+  UE_ROOT: ${{ vars.UE_ROOT || '/mnt/data/UnrealEngine5.5.4' }}
+
+jobs:
+  build-and-package:
+    name: Build & Package (Linux dedicated server)
+    runs-on: [self-hosted, ue5-linux]
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+      should-push: ${{ steps.push-check.outputs.push }}
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: false   # No LFS in this repo; flip to true if you add binary assets
+
+      # ── Validate engine path ─────────────────────────────────────────────
+      - name: Validate UE installation
+        run: |
+          if [ ! -f "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ]; then
+            echo "::error::UE not found at UE_ROOT=$UE_ROOT"
+            echo "::error::Set the UE_ROOT repository variable or install UE at the default path."
+            exit 1
+          fi
+          echo "UE found: $($UE_ROOT/Engine/Binaries/Linux/UnrealEditor --version 2>/dev/null || echo 'version unknown')"
+
+      # ── Build config ─────────────────────────────────────────────────────
+      - name: Resolve build configuration
+        id: cfg
+        run: |
+          # workflow_dispatch override, otherwise always Development on push
+          CONFIG="${{ inputs.config || 'Development' }}"
+          echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
+          echo "Building: TPSCoreMechanicsServer Linux $CONFIG"
+
+      # ── DerivedDataCache warm-up (speeds repeat builds significantly) ────
+      # The DDC lives outside the workspace so it persists across runs.
+      - name: Prepare DDC directory
+        run: mkdir -p "$HOME/.ue-ddc"
+
+      # ── Compile server target ────────────────────────────────────────────
+      - name: Compile TPSCoreMechanicsServer
+        run: |
+          "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" \
+            TPSCoreMechanicsServer \
+            Linux \
+            ${{ steps.cfg.outputs.config }} \
+            "${{ github.workspace }}/TPSCoreMechanics.uproject" \
+            -waitmutex \
+            -DDC="$HOME/.ue-ddc"
+
+      # ── Cook & Package with UAT ──────────────────────────────────────────
+      - name: Package Linux dedicated server (UAT)
+        run: |
+          "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun \
+            -project="${{ github.workspace }}/TPSCoreMechanics.uproject" \
+            -platform=Linux \
+            -serverconfig=${{ steps.cfg.outputs.config }} \
+            -server \
+            -noclient \
+            -cook \
+            -stage \
+            -pak \
+            -archive \
+            -archivedirectory="${{ github.workspace }}/LinuxServerPackage" \
+            -DDC="$HOME/.ue-ddc" \
+            -unattended \
+            -nop4
+
+      # ── Sanity-check the package output ──────────────────────────────────
+      - name: Verify package output
+        run: |
+          LAUNCH_SCRIPT="${{ github.workspace }}/LinuxServerPackage/LinuxServer/TPSCoreMechanicsServer.sh"
+          if [ ! -f "$LAUNCH_SCRIPT" ]; then
+            echo "::error::Expected launch script not found: $LAUNCH_SCRIPT"
+            ls -la "${{ github.workspace }}/LinuxServerPackage/" || true
+            exit 1
+          fi
+          echo "Package OK — $(du -sh ${{ github.workspace }}/LinuxServerPackage/LinuxServer | cut -f1)"
+
+      # ── Docker metadata (tags + labels) ──────────────────────────────────
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      # ── Decide whether to push ────────────────────────────────────────────
+      - name: Should push image?
+        id: push-check
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "push=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ inputs.push_image }}" = "false" ]; then
+            echo "push=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "push=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Log in to GHCR ────────────────────────────────────────────────────
+      - name: Log in to GitHub Container Registry
+        if: steps.push-check.outputs.push == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Build (and optionally push) Docker image ─────────────────────────
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ github.workspace }}
+          file: ${{ github.workspace }}/Dockerfile.server
+          push: ${{ steps.push-check.outputs.push == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Layer cache stored locally on the runner
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # ── Rotate build cache (prevents unbounded growth) ───────────────────
+      - name: Rotate build cache
+        if: always()
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache 2>/dev/null || true
+
+      # ── Clean workspace artefacts ─────────────────────────────────────────
+      - name: Clean package output
+        if: always()
+        run: rm -rf "${{ github.workspace }}/LinuxServerPackage"

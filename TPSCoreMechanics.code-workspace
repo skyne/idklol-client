@@ -5,6 +5,10 @@
 			"path": "."
 		},
 		{
+			"name": "idklol-server",
+			"path": "/Users/skyne/Sources/idklol-server"
+		},
+		{
 			"name": "UE5",
 			"path": "/mnt/data/UnrealEngine5.5.4"
 		}

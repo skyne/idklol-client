@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SCharacters/CharactersMessage.h"
+#include "Characters/CharacterTypes.h"
 #include "CharacterAppearanceHelper.generated.h"
 
 /**
@@ -21,14 +21,14 @@ public:
 	 * @param SkinColor The skin color enum value
 	 * @param CharacterMesh The skeletal mesh component to apply the color to
 	 */
-	static void ApplySkinColor(EGrpcCharactersSkinColor SkinColor, USkeletalMeshComponent* CharacterMesh);
+	static void ApplySkinColor(ECharacterSkinColor SkinColor, USkeletalMeshComponent* CharacterMesh);
 	
 	/**
 	 * Get the linear color for a skin color enum
 	 * @param SkinColor The skin color enum value
 	 * @return The linear color for the skin color
 	 */
-	static FLinearColor GetSkinColorValue(EGrpcCharactersSkinColor SkinColor);
+	static FLinearColor GetSkinColorValue(ECharacterSkinColor SkinColor);
 	
 	/**
 	 * Get the skeletal mesh for a given gender
@@ -38,7 +38,7 @@ public:
 	 * @return The appropriate skeletal mesh for the gender
 	 */
 	static TSoftObjectPtr<USkeletalMesh> GetMeshForGender(
-		EGrpcCharactersGender Gender,
+		ECharacterGender Gender,
 		const TSoftObjectPtr<USkeletalMesh>& MaleMesh,
 		const TSoftObjectPtr<USkeletalMesh>& FemaleMesh
 	);

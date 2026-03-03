@@ -1,0 +1,25 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "NATS Client",
+	"Description": "Unreal Engine NATS client plugin wrapping nats.c. Provides UNatsClientSubsystem for publish/subscribe and request/reply messaging.",
+	"Category": "Networking",
+	"CreatedBy": "idklol",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/nats-io/nats.c",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "NatsClient",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": ["Win64", "Mac", "Linux"]
+		}
+	]
+}
