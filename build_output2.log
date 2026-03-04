@@ -1,0 +1,117 @@
+Setting up bundled DotNet SDK
+/Volumes/Untitled/Unreal Engine/UE_5.5/Engine/Build/BatchFiles/Mac/../../../Binaries/ThirdParty/DotNet/8.0.300/mac-x64
+Running dotnet Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll TPSCoreMechanicsEditor Mac Development /Users/skyne/Sources/idklol-client/TPSCoreMechanics.uproject -waitmutex
+Log file: /Users/skyne/Documents/Library/Application Support/Epic/UnrealBuildTool/Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (/Users/skyne/Sources/idklol-client).
+Creating makefile for TPSCoreMechanicsEditor (.uproject file is newer)
+Choosing MODERN XCODE based on .ini settings
+Parsing headers for TPSCoreMechanicsEditor
+  Running Internal UnrealHeaderTool /Users/skyne/Sources/idklol-client/TPSCoreMechanics.uproject /Users/skyne/Sources/idklol-client/Intermediate/Build/Mac/TPSCoreMechanicsEditor/Development/TPSCoreMechanicsEditor.uhtmanifest -WarningsAsErrors -installed
+Total of 63 written
+Reflection code generated for TPSCoreMechanicsEditor in 4.4292179 seconds
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/TPSCoreMechanicsEditor.target
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0097.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0133.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0536.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0546.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0740.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0848.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-0897.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1057.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1140.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1235.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1275.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1534.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1784.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1830.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-1968.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2094.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2127.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2144.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2184.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2375.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2610.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2953.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-2954.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-3245.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-3362.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-3545.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-3709.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-3874.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-4397.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-4958.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-4963.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-4967.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5151.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5338.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5351.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5377.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5386.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5720.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5797.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5832.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5869.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-5978.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-6086.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-6207.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-6513.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-6631.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-6828.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-7484.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-7648.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-7761.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8172.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8220.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8240.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8260.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8319.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8334.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8740.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8756.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8799.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8827.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-8848.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9007.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9068.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9244.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9330.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9343.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9368.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9495.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9518.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9873.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor-TPSCoreMechanics-9908.dylib
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Binaries/Mac/UnrealEditor.modules
+Deleted hot-reload file: /Users/skyne/Sources/idklol-client/Plugins/TurboLink/Binaries/Mac/UnrealEditor.modules
+Building TPSCoreMechanicsEditor...
+Determining max actions to execute in parallel (8 physical cores, 16 logical cores)
+  Executing up to 8 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 19 action(s)
+  Storage capacity 40Gb
+---- Starting trace ----
+UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+------ Building 19 action(s) started ------
+[1/19] Compile [Intel] SharedPCH.Engine.Project.ValApi.Cpp20.h (UBA disabled)
+[2/19] Compile [Intel] SharedPCH.UnrealEd.Project.ValApi.Cpp20.h (UBA disabled)
+[3/19] Compile [Intel] chat.pb.cc
+[4/19] Compile [Intel] characters.pb.cc
+[5/19] Compile [Intel] characters.grpc.pb.cc
+[6/19] Compile [Intel] chat.grpc.pb.cc
+[7/19] Compile [Intel] Module.TurboLinkGrpc.2.cpp
+[8/19] Compile [Intel] Module.TurboLinkGrpc.1.cpp
+[9/19] Compile [Intel] Module.NatsClient.cpp
+[10/19] Compile [Intel] Module.TurboLinkGrpc.3.cpp
+[11/19] Link [Intel] UnrealEditor-TurboLinkGrpc.dylib (UBA disabled)
+[12/19] Link [Intel] UnrealEditor-NatsClient.dylib (UBA disabled)
+[13/19] Compile [Intel] Module.TPSCoreMechanics.cpp
+[14/19] Link [Intel] UnrealEditor-TPSCoreMechanics.dylib (UBA disabled)
+[15/19] Compile [Intel] Module.TurboLinkEditor.cpp
+[16/19] Link [Intel] UnrealEditor-TurboLinkEditor.dylib (UBA disabled)
+[17/19] Compile [Intel] Module.TPSCoreMechanicsClient.cpp
+[18/19] Link [Intel] UnrealEditor-TPSCoreMechanicsClient.dylib (UBA disabled)
+[19/19] WriteMetadata TPSCoreMechanicsEditor.target (UBA disabled)
+Trace file written to /Users/skyne/Documents/Library/Application Support/Epic/UnrealBuildTool/Log.uba with size 8.3kb
+Total time in Unreal Build Accelerator local executor: 77.45 seconds
+Deploying TPSCoreMechanicsEditor Mac Development...
+Deploying now!
+Total execution time: 90.76 seconds

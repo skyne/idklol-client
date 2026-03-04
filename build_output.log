@@ -1,0 +1,8 @@
+Setting up bundled DotNet SDK
+/Volumes/Untitled/Unreal Engine/UE_5.5/Engine/Build/BatchFiles/Mac/../../../Binaries/ThirdParty/DotNet/8.0.300/mac-x64
+Running dotnet Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll TPSCoreMechanicsEditor Mac Development /Users/skyne/Sources/idklol-client/TPSCoreMechanics.uproject -waitmutex
+Log file: /Users/skyne/Documents/Library/Application Support/Epic/UnrealBuildTool/Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (/Users/skyne/Sources/idklol-client).
+Creating makefile for TPSCoreMechanicsEditor (.uproject file is newer)
+Total execution time: 2.28 seconds
+Platform Mac is not a valid platform to build. Check that the SDK is installed properly and that you have the necessary platform support files (DataDrivenPlatformInfo.ini, SDK.json, etc).

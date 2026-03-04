@@ -1,19 +1,59 @@
 # syntax=docker/dockerfile:1
 #
-# UE Dedicated Server Docker image
+# UE Dedicated Server Docker image - Multi-stage build
 #
-# Prerequisites (run once from repo root on any Linux/CI host):
-#   ./Engine/Build/BatchFiles/Linux/Build.sh TPSCoreMechanicsServer Linux Development \
-#       /path/to/TPSCoreMechanics.uproject -waitmutex
-#   ./Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
-#       -project=/path/to/TPSCoreMechanics.uproject \
-#       -platform=Linux -serverconfig=Development \
-#       -server -noclient -cook -stage -pak -archive \
-#       -archivedirectory=$(pwd)/LinuxServerPackage
-#
-# The packaged output is expected at: ./LinuxServerPackage/LinuxServer/
-# (contains TPSCoreMechanicsServer.sh and the TPSCoreMechanicsServer/ folder)
+# Stage 1: Build the dedicated server using Unreal Engine
+# Stage 2: Package into a lightweight runtime container
 
+# ===== BUILD STAGE =====
+FROM ghcr.io/epicgames/unreal-engine:dev-5.5 AS builder
+
+# The UE path in Epic's container - typically /home/ue4/UnrealEngine
+ENV UE_ROOT=/home/ue4/UnrealEngine
+
+WORKDIR /build
+
+# Copy the project files and set ownership to ue4 user
+COPY --chown=ue4:ue4 . /build/
+
+# Build the editor first (needed for cooking)
+RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \
+    TPSCoreMechanicsEditor Linux Development \
+    /build/TPSCoreMechanics.uproject \
+    -waitmutex
+
+# Build the dedicated server
+RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \
+    TPSCoreMechanicsServer Linux Development \
+    /build/TPSCoreMechanics.uproject \
+    -waitmutex
+
+# Cook, package, and archive the server
+# Use iterative cooking and skip DDC, disable shader compilation distributed builds
+RUN ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
+    -project=/build/TPSCoreMechanics.uproject \
+    -platform=Linux \
+    -serverconfig=Development \
+    -server \
+    -noclient \
+    -cook \
+    -stage \
+    -pak \
+    -archive \
+    -archivedirectory=/build/LinuxServerPackage \
+    -noP4 \
+    -nodebuginfo \
+    -allmaps \
+    -SkipCookingEditorContent \
+    -build \
+    -noxge \
+    -NoShaderDistrib \
+    -unattended \
+    -utf8output \
+    -ddc=Noshared \
+    -nullrhi
+
+# ===== RUNTIME STAGE =====
 FROM ubuntu:22.04 AS runtime
 
 # UE server runtime deps (glibc, ssl, threads, libcurl)
@@ -29,8 +69,8 @@ RUN apt-get update && \
 
 WORKDIR /game
 
-# Copy the packaged Linux dedicated server
-COPY LinuxServerPackage/LinuxServer/ /game/
+# Copy the packaged Linux dedicated server from build stage
+COPY --from=builder /build/LinuxServerPackage/LinuxServer/ /game/
 
 # Make the launch script executable
 RUN chmod +x /game/TPSCoreMechanicsServer.sh 2>/dev/null || true && \

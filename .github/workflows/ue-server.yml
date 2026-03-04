@@ -1,28 +1,26 @@
-# ─── UE Dedicated Server — Build, Package & Docker Push ──────────────────────
+# ─── UE Dedicated Server — Multi-stage Docker Build & Push ──────────────────
 #
 # OVERVIEW
 # --------
-# This workflow runs on a SELF-HOSTED runner (label: ue5-linux).
-# The runner must have Unreal Engine 5.5 pre-installed (see .github/runner-setup.sh).
+# This workflow builds the UE dedicated server using a multi-stage Dockerfile.
+# The build happens entirely within Docker using ghcr.io/epicgames/unreal-engine:dev-5.5
 #
 # The workflow:
-#   1. Compiles the TPSCoreMechanicsServer target for Linux
-#   2. Runs UAT BuildCookRun to produce a packaged dedicated server
-#   3. Builds a Docker image from Dockerfile.server
-#   4. Pushes the image to GitHub Container Registry (ghcr.io)
+#   1. Sets up Docker Buildx for efficient multi-stage builds
+#   2. Builds the Docker image (which compiles and packages the server internally)
+#   3. Pushes the image to GitHub Container Registry (ghcr.io)
 #
 # REQUIRED RUNNER SETUP
 # ---------------------
-#   - Self-hosted GitHub Actions runner on Linux x86_64
-#   - Unreal Engine 5.5 installed (see .github/runner-setup.sh)
-#   - Docker Engine installed and runner user in `docker` group
-#   - Runner must be registered in this repo with label: ue5-linux
+#   - Self-hosted or GitHub-hosted runner (Linux x86_64 recommended)
+#   - Docker Engine installed
+#   - Sufficient disk space for UE build (~50GB+ recommended)
+#   - Runner user in `docker` group
 #
-# REQUIRED GITHUB SECRETS / VARIABLES
-# ------------------------------------
-#   Variables (repo → Settings → Variables → Actions):
-#     UE_ROOT   Path to the UE install, e.g. /opt/unreal-engine/5.5
-#               Default: /mnt/data/UnrealEngine5.5.4  (matches Makefile)
+# REQUIRED PERMISSIONS
+# ---------------------
+#   - The workflow needs permission to pull ghcr.io/epicgames/unreal-engine:dev-5.5
+#   - You may need to authenticate with Epic Games' container registry
 #
 # IMAGE TAG STRATEGY
 # ------------------
@@ -52,12 +50,6 @@ on:
       - "TPSCoreMechanics.uproject"
   workflow_dispatch:
     inputs:
-      config:
-        description: "Build configuration"
-        required: false
-        default: "Development"
-        type: choice
-        options: [Development, Shipping]
       push_image:
         description: "Push Docker image to ghcr.io"
         required: false
@@ -67,24 +59,11 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/ue-server
-  # Default UE install path — override via repo variable UE_ROOT
-  UE_ROOT: ${{ vars.UE_ROOT || '/mnt/data/UnrealEngine5.5.4' }}
-  UE_USE_SYSTEM_DOTNET: "1"
 
 jobs:
-  build-and-package:
-    name: Build & Package (Linux dedicated server)
+  build-and-push:
+    name: Build & Push Docker Image
     runs-on: [self-hosted, ue5-linux]
-    env:
-      DISPLAY: ""
-      WAYLAND_DISPLAY: ""
-      SDL_VIDEODRIVER: offscreen
-      SDL_AUDIODRIVER: dummy
-      XDG_RUNTIME_DIR: /tmp/xdg-runtime
-
-    outputs:
-      image-tag: ${{ steps.meta.outputs.version }}
-      should-push: ${{ steps.push-check.outputs.push }}
 
     steps:
       # ── Checkout ────────────────────────────────────────────────────────────
@@ -93,100 +72,9 @@ jobs:
         with:
           lfs: false   # No LFS in this repo; flip to true if you add binary assets
 
-      # ── Ensure system DotNet (prevents bundled SDK chmod on UE install) ──
-      - name: Ensure .NET SDK (user-space)
-        run: |
-          set -euo pipefail
-          NEED_INSTALL=1
-          if command -v dotnet >/dev/null 2>&1; then
-            if dotnet --list-sdks | grep -qE '^8\.|^7\.|^6\.|^5\.|^4\.|^3\.1'; then
-              NEED_INSTALL=0
-              echo "Using existing dotnet at $(command -v dotnet)"
-            fi
-          fi
-
-          if [ "$NEED_INSTALL" -eq 1 ]; then
-            DOTNET_DIR="${{ runner.temp }}/dotnet"
-            mkdir -p "$DOTNET_DIR"
-            curl -fsSL https://dot.net/v1/dotnet-install.sh -o "${{ runner.temp }}/dotnet-install.sh"
-            chmod +x "${{ runner.temp }}/dotnet-install.sh"
-            "${{ runner.temp }}/dotnet-install.sh" --channel 8.0 --install-dir "$DOTNET_DIR"
-            export DOTNET_ROOT="$DOTNET_DIR"
-            export PATH="$DOTNET_DIR:$PATH"
-            echo "$DOTNET_DIR" >> "$GITHUB_PATH"
-            echo "DOTNET_ROOT=$DOTNET_DIR" >> "$GITHUB_ENV"
-          fi
-          dotnet --info
-
-      # ── Validate engine path ─────────────────────────────────────────────
-      - name: Validate UE installation
-        run: |
-          if [ ! -f "$UE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ]; then
-            echo "::error::UE not found at UE_ROOT=$UE_ROOT"
-            echo "::error::Set the UE_ROOT repository variable or install UE at the default path."
-            exit 1
-          fi
-          echo "UE found: $($UE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd --version 2>/dev/null || echo 'version unknown')"
-
-      # ── Build config ─────────────────────────────────────────────────────
-      - name: Resolve build configuration
-        id: cfg
-        run: |
-          # workflow_dispatch override, otherwise always Development on push
-          CONFIG="${{ inputs.config || 'Development' }}"
-          echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
-          echo "Building: TPSCoreMechanicsServer Linux $CONFIG"
-
-      # ── DerivedDataCache warm-up (speeds repeat builds significantly) ────
-      # The DDC lives outside the workspace so it persists across runs.
-      - name: Prepare DDC directory
-        run: |
-          mkdir -p "$HOME/.ue-ddc"
-          mkdir -p "$XDG_RUNTIME_DIR"
-          chmod 700 "$XDG_RUNTIME_DIR" || true
-
-      # ── Compile server target (direct UBT, bypass SetupDotnet.sh) ───────
-      - name: Compile TPSCoreMechanicsServer
-        run: |
-          dotnet "$UE_ROOT/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" \
-            TPSCoreMechanicsServer \
-            Linux \
-            ${{ steps.cfg.outputs.config }} \
-            "${{ github.workspace }}/TPSCoreMechanics.uproject" \
-            -waitmutex \
-            -DDC="$HOME/.ue-ddc"
-
-      # ── Cook & Package with UAT (direct AutomationTool) ──────────────────
-      - name: Package Linux dedicated server (UAT)
-        run: |
-          pushd "$UE_ROOT/Engine/Binaries/DotNET/AutomationTool" >/dev/null
-          dotnet AutomationTool.dll BuildCookRun \
-            -project="${{ github.workspace }}/TPSCoreMechanics.uproject" \
-            -platform=Linux \
-            -serverconfig=${{ steps.cfg.outputs.config }} \
-            -server \
-            -noclient \
-            -cook \
-            -stage \
-            -pak \
-            -archive \
-            -archivedirectory="${{ github.workspace }}/LinuxServerPackage" \
-            -DDC="$HOME/.ue-ddc" \
-            -unattended \
-            -nullrhi \
-            -nop4
-          popd >/dev/null
-
-      # ── Sanity-check the package output ──────────────────────────────────
-      - name: Verify package output
-        run: |
-          LAUNCH_SCRIPT="${{ github.workspace }}/LinuxServerPackage/LinuxServer/TPSCoreMechanicsServer.sh"
-          if [ ! -f "$LAUNCH_SCRIPT" ]; then
-            echo "::error::Expected launch script not found: $LAUNCH_SCRIPT"
-            ls -la "${{ github.workspace }}/LinuxServerPackage/" || true
-            exit 1
-          fi
-          echo "Package OK — $(du -sh ${{ github.workspace }}/LinuxServerPackage/LinuxServer | cut -f1)"
+      # ── Set up Docker Buildx ─────────────────────────────────────────────
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       # ── Docker metadata (tags + labels) ──────────────────────────────────
       - name: Docker metadata
@@ -222,15 +110,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Build (and optionally push) Docker image ─────────────────────────
+      # The Dockerfile handles both building UE server and packaging into runtime image
       - name: Build & push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ github.workspace }}
-          file: ${{ github.workspace }}/Dockerfile.server
+          context: .
+          file: ./Dockerfile.server
           push: ${{ steps.push-check.outputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Layer cache stored locally on the runner
+          # Layer cache stored locally on the runner for faster rebuilds
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
@@ -240,8 +129,3 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache 2>/dev/null || true
-
-      # ── Clean workspace artefacts ─────────────────────────────────────────
-      - name: Clean package output
-        if: always()
-        run: rm -rf "${{ github.workspace }}/LinuxServerPackage"
