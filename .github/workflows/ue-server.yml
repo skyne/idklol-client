@@ -12,10 +12,10 @@
 #
 # REQUIRED RUNNER SETUP
 # ---------------------
-#   - Uses ubuntu-latest GitHub-hosted runner
-#   - Disk space is reclaimed via jlumbroso/free-disk-space (~45GB available)
-#   - If builds fail due to disk pressure, switch to a GitHub larger runner
-#     (e.g. ubuntu-latest-16-cores with 150GB SSD) or self-hosted runner
+#   - Self-hosted Linux x86_64 runner with label "ue5-linux"
+#   - Docker Engine + docker-buildx-plugin installed
+#   - At least 150GB free disk space
+#   - Runner user in `docker` group
 #
 # REQUIRED SECRETS
 # ----------------
@@ -61,7 +61,7 @@ env:
 jobs:
   build-and-push:
     name: Build & Push Docker Image
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ue5-linux]
 
     steps:
       # ── Checkout ────────────────────────────────────────────────────────────
@@ -71,21 +71,10 @@ jobs:
           lfs: false   # No LFS in this repo; flip to true if you add binary assets
 
       # ── Free disk space ─────────────────────────────────────────────────
-      # Standard GitHub runners only have ~14GB free.  Removing pre-installed
-      # toolchains claws back ~30GB so the UE Docker build can fit.
       - name: Free disk space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: false
-
-      - name: Show available disk
-        run: df -h /
+        run: |
+          docker system prune -f --volumes || true
+          echo "Available disk: $(df -h / | tail -1 | awk '{print $4}')"
 
       # ── Set up Docker Buildx ─────────────────────────────────────────────
       - name: Set up Docker Buildx
