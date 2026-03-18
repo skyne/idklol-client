@@ -10,28 +10,40 @@ FROM ghcr.io/epicgames/unreal-engine:dev-5.5 AS builder
 
 # The UE path in Epic's container - typically /home/ue4/UnrealEngine
 ENV UE_ROOT=/home/ue4/UnrealEngine
+ENV PROJECT_ROOT=/home/ue4/project
 
-WORKDIR /build
+# Perform filesystem setup as root
+USER root
+
+WORKDIR ${PROJECT_ROOT}
+
+# Ensure build and trace directories are writable for the ue4 user
+RUN mkdir -p ${PROJECT_ROOT}/LinuxServerPackage \
+    /home/ue4/UnrealEngine/UnrealTrace/Store && \
+    chown -R ue4:ue4 ${PROJECT_ROOT} /home/ue4/UnrealEngine/UnrealTrace
+
+# Run Unreal build steps as ue4
+USER ue4
 
 # Copy the project files and set ownership to ue4 user
-COPY --chown=ue4:ue4 . /build/
+COPY --chown=ue4:ue4 . ${PROJECT_ROOT}/
 
 # Build the editor first (needed for cooking)
 RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \
     TPSCoreMechanicsEditor Linux Development \
-    /build/TPSCoreMechanics.uproject \
+    ${PROJECT_ROOT}/TPSCoreMechanics.uproject \
     -waitmutex
 
 # Build the dedicated server
 RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \
     TPSCoreMechanicsServer Linux Development \
-    /build/TPSCoreMechanics.uproject \
+    ${PROJECT_ROOT}/TPSCoreMechanics.uproject \
     -waitmutex
 
 # Cook, package, and archive the server
 # Use iterative cooking and skip DDC, disable shader compilation distributed builds
 RUN ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
-    -project=/build/TPSCoreMechanics.uproject \
+    -project=${PROJECT_ROOT}/TPSCoreMechanics.uproject \
     -platform=Linux \
     -serverconfig=Development \
     -server \
@@ -40,7 +52,7 @@ RUN ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
     -stage \
     -pak \
     -archive \
-    -archivedirectory=/build/LinuxServerPackage \
+    -archivedirectory=${PROJECT_ROOT}/LinuxServerPackage/LinuxServer \
     -noP4 \
     -nodebuginfo \
     -allmaps \
@@ -67,14 +79,20 @@ RUN apt-get update && \
         libgcc-s1 && \
     rm -rf /var/lib/apt/lists/*
 
+# Unreal server must not run as root
+RUN useradd -m -u 1000 -s /bin/bash ue4
+
 WORKDIR /game
 
 # Copy the packaged Linux dedicated server from build stage
-COPY --from=builder /build/LinuxServerPackage/LinuxServer/ /game/
+COPY --from=builder /home/ue4/project/LinuxServerPackage/LinuxServer/ /game/
 
 # Make the launch script executable
 RUN chmod +x /game/TPSCoreMechanicsServer.sh 2>/dev/null || true && \
-    find /game -name "*.so" -exec chmod +x {} \;
+    find /game -name "*.so" -exec chmod +x {} \; && \
+    chown -R ue4:ue4 /game
+
+USER ue4
 
 # Game port (UDP) — default UE port 7777. BeaconPort = 7787.
 EXPOSE 7777/udp
