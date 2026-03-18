@@ -41,13 +41,6 @@ on:
       - "TPSCoreMechanics.uproject"
       - "Dockerfile.server"
       - ".github/workflows/ue-server.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "Source/**"
-      - "Config/**"
-      - "Plugins/**"
-      - "TPSCoreMechanics.uproject"
   workflow_dispatch:
     inputs:
       push_image:
