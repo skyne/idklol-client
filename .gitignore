@@ -76,3 +76,5 @@ Plugins/**/Intermediate/*
 DerivedDataCache/*
 
 *.DS_Store
+# NATS third-party vendor artifacts are generated locally/in CI and must not be tracked.
+Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/
