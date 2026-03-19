@@ -11,6 +11,10 @@ FROM ghcr.io/epicgames/unreal-engine:dev-5.5 AS builder
 # The UE path in Epic's container - typically /home/ue4/UnrealEngine
 ENV UE_ROOT=/home/ue4/UnrealEngine
 ENV PROJECT_ROOT=/home/ue4/project
+ENV NATS_CLIENT_REQUIRED=1
+ARG COOK_MAPS="/Game/ThirdPerson/Maps/ThirdPersonMap"
+ARG NATS_C_VERSION=v3.8.2
+ARG TURBOLINK_LIBRARIES_URL=https://github.com/thejinchao/turbolink-libraries/releases/download/v1.3.1/turbolink-libraries.ue54.zip
 
 # Perform filesystem setup as root
 USER root
@@ -22,11 +26,107 @@ RUN mkdir -p ${PROJECT_ROOT}/LinuxServerPackage \
     /home/ue4/UnrealEngine/UnrealTrace/Store && \
     chown -R ue4:ue4 ${PROJECT_ROOT} /home/ue4/UnrealEngine/UnrealTrace
 
+# Ensure tools needed to build vendored nats.c inside this Linux builder exist.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    cmake \
+    build-essential \
+    pkg-config \
+    unzip \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 # Run Unreal build steps as ue4
 USER ue4
 
 # Copy the project files and set ownership to ue4 user
 COPY --chown=ue4:ue4 . ${PROJECT_ROOT}/
+
+# Fetch TurboLink third-party binaries only when the Linux static libs are absent.
+RUN set -eux; \
+        TURBOLINK_TP="${PROJECT_ROOT}/Plugins/TurboLink/Source/ThirdParty"; \
+        REQUIRED_LIBS="${TURBOLINK_TP}/grpc/lib/linux/Release/libgrpc++.a ${TURBOLINK_TP}/protobuf/lib/linux/Release/libprotobuf.a ${TURBOLINK_TP}/abseil/lib/linux/Release/libabsl_base.a ${TURBOLINK_TP}/re2/lib/linux/Release/libre2.a"; \
+        missing=0; \
+        for lib_path in ${REQUIRED_LIBS}; do \
+            if [ ! -f "${lib_path}" ]; then \
+                missing=1; \
+                break; \
+            fi; \
+        done; \
+        if [ "${missing}" -eq 1 ]; then \
+            archive_path="/tmp/turbolink-libraries.zip"; \
+            extract_root="/tmp/turbolink-libraries"; \
+            rm -rf "${archive_path}" "${extract_root}"; \
+            mkdir -p "${extract_root}"; \
+            curl -L --fail --retry 3 --retry-all-errors "${TURBOLINK_LIBRARIES_URL}" -o "${archive_path}"; \
+            unzip -q "${archive_path}" -d "${extract_root}"; \
+            marker_file=$(find "${extract_root}" -type f -path '*/grpc/lib/linux/Release/libgrpc++.a' -print -quit); \
+            if [ -z "${marker_file}" ]; then \
+                echo "ERROR: TurboLink dependency archive did not contain Linux grpc libraries"; \
+                exit 1; \
+            fi; \
+            source_root=$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "${marker_file}")")")")"); \
+            for dep_dir in abseil grpc protobuf re2; do \
+                if [ ! -d "${source_root}/${dep_dir}" ]; then \
+                    echo "ERROR: TurboLink dependency archive missing ${dep_dir}"; \
+                    exit 1; \
+                fi; \
+                mkdir -p "${TURBOLINK_TP}/${dep_dir}"; \
+                cp -a "${source_root}/${dep_dir}/." "${TURBOLINK_TP}/${dep_dir}/"; \
+            done; \
+            rm -rf "${archive_path}" "${extract_root}"; \
+        fi
+
+# Build Linux nats.c static library inside the Linux builder (host-independent).
+# Keep only include/lib afterwards so UBT does not try compiling duplicate
+# basenames from vendored source trees (sub.c/pub.c/msg.c/...).
+RUN set -eux; \
+        NATS_TP="${PROJECT_ROOT}/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c"; \
+        NATS_SRC="${NATS_TP}/src"; \
+        NATS_BUILD="${NATS_TP}/build/Linux"; \
+        NATS_LIB="${NATS_TP}/lib/Linux"; \
+        NATS_INCLUDE="${NATS_TP}/include"; \
+        mkdir -p "${NATS_LIB}" "${NATS_INCLUDE}/nats/adapters"; \
+        if [ ! -d "${NATS_SRC}" ]; then \
+            git clone --depth 1 --branch "${NATS_C_VERSION}" https://github.com/nats-io/nats.c.git "${NATS_SRC}"; \
+        fi; \
+        rm -rf "${NATS_BUILD}"; \
+        mkdir -p "${NATS_BUILD}"; \
+        cmake -S "${NATS_SRC}" -B "${NATS_BUILD}" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_C_FLAGS=-fPIC \
+            -DCMAKE_C_FLAGS_RELEASE=-fPIC \
+            -DCMAKE_CXX_FLAGS=-fPIC \
+            -DCMAKE_CXX_FLAGS_RELEASE=-fPIC \
+            -DNATS_BUILD_LIB_STATIC=ON \
+            -DNATS_BUILD_LIB_SHARED=OFF \
+            -DNATS_BUILD_EXAMPLES=OFF \
+            -DBUILD_TESTING=OFF \
+            -DNATS_BUILD_STREAMING=OFF \
+            -DNATS_BUILD_WITH_TLS=OFF; \
+        cmake --build "${NATS_BUILD}" --config Release --target nats_static; \
+        if [ -f "${NATS_BUILD}/libnats_static.a" ]; then \
+            cp "${NATS_BUILD}/libnats_static.a" "${NATS_LIB}/libnats_static.a"; \
+        elif [ -f "${NATS_BUILD}/src/libnats_static.a" ]; then \
+            cp "${NATS_BUILD}/src/libnats_static.a" "${NATS_LIB}/libnats_static.a"; \
+        else \
+            echo "ERROR: libnats_static.a not produced"; \
+            exit 1; \
+        fi; \
+        if [ -f "${NATS_SRC}/src/deprnats.h" ]; then \
+            cp "${NATS_SRC}/src/deprnats.h" "${NATS_INCLUDE}/nats.h"; \
+        else \
+            cp "${NATS_SRC}/src/nats.h" "${NATS_INCLUDE}/nats.h"; \
+        fi; \
+        cp "${NATS_SRC}/src/nats.h" "${NATS_INCLUDE}/nats/nats.h"; \
+        cp "${NATS_SRC}/src/status.h" "${NATS_INCLUDE}/nats/status.h"; \
+        cp "${NATS_SRC}/src/version.h" "${NATS_INCLUDE}/nats/version.h"; \
+        if [ -f "${NATS_SRC}/src/adapters/libevent.h" ]; then cp "${NATS_SRC}/src/adapters/libevent.h" "${NATS_INCLUDE}/nats/adapters/libevent.h"; fi; \
+        if [ -f "${NATS_SRC}/src/adapters/libuv.h" ]; then cp "${NATS_SRC}/src/adapters/libuv.h" "${NATS_INCLUDE}/nats/adapters/libuv.h"; fi; \
+        rm -rf "${NATS_SRC}" "${NATS_TP}/build"
 
 # Build the editor first (needed for cooking)
 RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \
@@ -42,28 +142,31 @@ RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \
 
 # Cook, package, and archive the server
 # Use iterative cooking and skip DDC, disable shader compilation distributed builds
-RUN ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
-    -project=${PROJECT_ROOT}/TPSCoreMechanics.uproject \
-    -platform=Linux \
-    -serverconfig=Development \
-    -server \
-    -noclient \
-    -cook \
-    -stage \
-    -pak \
-    -archive \
-    -archivedirectory=${PROJECT_ROOT}/LinuxServerPackage/LinuxServer \
-    -noP4 \
-    -nodebuginfo \
-    -allmaps \
-    -SkipCookingEditorContent \
-    -build \
-    -noxge \
-    -NoShaderDistrib \
-    -unattended \
-    -utf8output \
-    -ddc=Noshared \
-    -nullrhi
+RUN set -eux; \
+        ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
+        -project=${PROJECT_ROOT}/TPSCoreMechanics.uproject \
+        -platform=Linux \
+        -serverconfig=Development \
+        -server \
+        -noclient \
+        -cook \
+        -stage \
+        -pak \
+        -archive \
+        -archivedirectory=${PROJECT_ROOT}/LinuxServerPackage/LinuxServer \
+        -noP4 \
+        -nodebuginfo \
+        -map=${COOK_MAPS} \
+        -SkipCookingEditorContent \
+        -build \
+        -noxge \
+        -NoShaderDistrib \
+        -unattended \
+        -utf8output \
+        -ddc=Noshared \
+        -paralleltonoprocessorcount \
+        -noxge \
+        -nullrhi 
 
 # ===== RUNTIME STAGE =====
 FROM ubuntu:22.04 AS runtime
