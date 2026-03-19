@@ -59,6 +59,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/ue-server
+  TURBOLINK_LIBRARIES_URL: https://github.com/thejinchao/turbolink-libraries/releases/download/v1.3.1/turbolink-libraries.ue54.zip
 
 jobs:
   build-and-push:
@@ -95,6 +96,61 @@ jobs:
           else
             docker pull ghcr.io/epicgames/unreal-engine:dev-5.5
           fi
+
+      # ── Restore gitignored TurboLink third-party binaries ───────────────
+      - name: Ensure TurboLink third-party libraries are available
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          third_party_root="Plugins/TurboLink/Source/ThirdParty"
+          required_libs=(
+            "$third_party_root/grpc/lib/linux/Release/libgrpc++.a"
+            "$third_party_root/protobuf/lib/linux/Release/libprotobuf.a"
+            "$third_party_root/abseil/lib/linux/Release/libabsl_base.a"
+            "$third_party_root/re2/lib/linux/Release/libre2.a"
+          )
+
+          missing=0
+          for lib_path in "${required_libs[@]}"; do
+            if [[ ! -f "$lib_path" ]]; then
+              missing=1
+              break
+            fi
+          done
+
+          if [[ "$missing" -eq 0 ]]; then
+            echo "TurboLink Linux third-party libraries already present in workspace"
+            exit 0
+          fi
+
+          command -v curl >/dev/null 2>&1 || { echo "curl is required on the runner"; exit 1; }
+          command -v unzip >/dev/null 2>&1 || { echo "unzip is required on the runner"; exit 1; }
+
+          archive_path="$RUNNER_TEMP/turbolink-libraries.zip"
+          extract_root="$RUNNER_TEMP/turbolink-libraries"
+
+          rm -rf "$archive_path" "$extract_root"
+          mkdir -p "$extract_root"
+
+          curl -L --fail --retry 3 --retry-all-errors "$TURBOLINK_LIBRARIES_URL" -o "$archive_path"
+          unzip -q "$archive_path" -d "$extract_root"
+
+          marker_file=$(find "$extract_root" -type f -path '*/grpc/lib/linux/Release/libgrpc++.a' -print -quit)
+          if [[ -z "$marker_file" ]]; then
+            echo "TurboLink dependency archive did not contain Linux grpc libraries"
+            exit 1
+          fi
+
+          source_root=$(dirname "$(dirname "$(dirname "$(dirname "$(dirname "$marker_file")")")")")
+          for dep_dir in abseil grpc protobuf re2; do
+            if [[ ! -d "$source_root/$dep_dir" ]]; then
+              echo "TurboLink dependency archive missing $dep_dir"
+              exit 1
+            fi
+            mkdir -p "$third_party_root/$dep_dir"
+            cp -a "$source_root/$dep_dir/." "$third_party_root/$dep_dir/"
+          done
 
       # ── Docker metadata (tags + labels) ──────────────────────────────────
       - name: Docker metadata

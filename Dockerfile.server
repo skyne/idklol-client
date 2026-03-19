@@ -79,54 +79,9 @@ RUN set -eux; \
             rm -rf "${archive_path}" "${extract_root}"; \
         fi
 
-# Build Linux nats.c static library inside the Linux builder (host-independent).
-# Keep only include/lib afterwards so UBT does not try compiling duplicate
-# basenames from vendored source trees (sub.c/pub.c/msg.c/...).
-RUN set -eux; \
-        NATS_TP="${PROJECT_ROOT}/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c"; \
-        NATS_SRC="${NATS_TP}/src"; \
-        NATS_BUILD="${NATS_TP}/build/Linux"; \
-        NATS_LIB="${NATS_TP}/lib/Linux"; \
-        NATS_INCLUDE="${NATS_TP}/include"; \
-        mkdir -p "${NATS_LIB}" "${NATS_INCLUDE}/nats/adapters"; \
-        if [ ! -d "${NATS_SRC}" ]; then \
-            git clone --depth 1 --branch "${NATS_C_VERSION}" https://github.com/nats-io/nats.c.git "${NATS_SRC}"; \
-        fi; \
-        rm -rf "${NATS_BUILD}"; \
-        mkdir -p "${NATS_BUILD}"; \
-        cmake -S "${NATS_SRC}" -B "${NATS_BUILD}" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DCMAKE_C_FLAGS=-fPIC \
-            -DCMAKE_C_FLAGS_RELEASE=-fPIC \
-            -DCMAKE_CXX_FLAGS=-fPIC \
-            -DCMAKE_CXX_FLAGS_RELEASE=-fPIC \
-            -DNATS_BUILD_LIB_STATIC=ON \
-            -DNATS_BUILD_LIB_SHARED=OFF \
-            -DNATS_BUILD_EXAMPLES=OFF \
-            -DBUILD_TESTING=OFF \
-            -DNATS_BUILD_STREAMING=OFF \
-            -DNATS_BUILD_WITH_TLS=OFF; \
-        cmake --build "${NATS_BUILD}" --config Release --target nats_static; \
-        if [ -f "${NATS_BUILD}/libnats_static.a" ]; then \
-            cp "${NATS_BUILD}/libnats_static.a" "${NATS_LIB}/libnats_static.a"; \
-        elif [ -f "${NATS_BUILD}/src/libnats_static.a" ]; then \
-            cp "${NATS_BUILD}/src/libnats_static.a" "${NATS_LIB}/libnats_static.a"; \
-        else \
-            echo "ERROR: libnats_static.a not produced"; \
-            exit 1; \
-        fi; \
-        if [ -f "${NATS_SRC}/src/deprnats.h" ]; then \
-            cp "${NATS_SRC}/src/deprnats.h" "${NATS_INCLUDE}/nats.h"; \
-        else \
-            cp "${NATS_SRC}/src/nats.h" "${NATS_INCLUDE}/nats.h"; \
-        fi; \
-        cp "${NATS_SRC}/src/nats.h" "${NATS_INCLUDE}/nats/nats.h"; \
-        cp "${NATS_SRC}/src/status.h" "${NATS_INCLUDE}/nats/status.h"; \
-        cp "${NATS_SRC}/src/version.h" "${NATS_INCLUDE}/nats/version.h"; \
-        if [ -f "${NATS_SRC}/src/adapters/libevent.h" ]; then cp "${NATS_SRC}/src/adapters/libevent.h" "${NATS_INCLUDE}/nats/adapters/libevent.h"; fi; \
-        if [ -f "${NATS_SRC}/src/adapters/libuv.h" ]; then cp "${NATS_SRC}/src/adapters/libuv.h" "${NATS_INCLUDE}/nats/adapters/libuv.h"; fi; \
-        rm -rf "${NATS_SRC}" "${NATS_TP}/build"
+# Build Linux nats.c static library inside the Linux builder.
+RUN NATS_VERSION="${NATS_C_VERSION}" \
+    bash ${PROJECT_ROOT}/Plugins/NatsClient/Source/NatsClient/ThirdParty/fetch_nats.sh --platform Linux
 
 # Build the editor first (needed for cooking)
 RUN ${UE_ROOT}/Engine/Build/BatchFiles/Linux/Build.sh \

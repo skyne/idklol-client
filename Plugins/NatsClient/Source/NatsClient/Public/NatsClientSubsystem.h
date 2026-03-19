@@ -39,7 +39,7 @@ public:
 	/**
 	 * Connect to a NATS server.
 	 * @param Url            e.g. "nats://localhost:4222"
-	 * @param CredentialsOrNKey  NKey seed string or path to .creds file; empty for anonymous
+	 * @param CredentialsOrNKey  Path to a .creds/chained creds file; empty for anonymous
 	 */
 	UFUNCTION(BlueprintCallable, Category = "NATS")
 	void Connect(const FString& Url, const FString& CredentialsOrNKey = TEXT(""));

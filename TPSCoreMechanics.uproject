@@ -36,8 +36,28 @@
 			]
 		},
 		{
+			"Name": "MediaPlate",
+			"Enabled": true
+		},
+		{
 			"Name": "GameplayAbilities",
 			"Enabled": true
+		},
+		{
+			"Name": "OpenXR",
+			"Enabled": false
+		},
+		{
+			"Name": "OpenXREditMode",
+			"Enabled": false
+		},
+		{
+			"Name": "USDImporter",
+			"Enabled": false
+		},
+		{
+			"Name": "UnrealUSDWrapper",
+			"Enabled": false
 		}
 	]
 }

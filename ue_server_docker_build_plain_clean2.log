@@ -1,0 +1,1420 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.server
+#1 transferring dockerfile: 8.72kB done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.8s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4a43a54dd1fedceb30ba47e76cfcf2b47304f4161c0caeac2db1c61804ea3c91
+#3 resolve docker.io/docker/dockerfile:1@sha256:4a43a54dd1fedceb30ba47e76cfcf2b47304f4161c0caeac2db1c61804ea3c91 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for ghcr.io/epicgames/unreal-engine:dev-5.5
+#4 ...
+
+#5 [auth] epicgames/unreal-engine:pull token for ghcr.io
+#5 DONE 0.0s
+
+#6 [internal] load metadata for docker.io/library/ubuntu:22.04
+#6 DONE 0.5s
+
+#4 [internal] load metadata for ghcr.io/epicgames/unreal-engine:dev-5.5
+#4 DONE 1.3s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 DONE 0.0s
+
+#9 [builder 1/9] FROM ghcr.io/epicgames/unreal-engine:dev-5.5@sha256:3f7b292cda7f6066aeaea46fa95a520a0d26811810e0d082cfbf5dc85018bd82
+#9 resolve ghcr.io/epicgames/unreal-engine:dev-5.5@sha256:3f7b292cda7f6066aeaea46fa95a520a0d26811810e0d082cfbf5dc85018bd82 0.0s done
+#9 DONE 0.0s
+
+#10 [runtime 1/6] FROM docker.io/library/ubuntu:22.04@sha256:445586e41c1de7dfda82d2637f5ff688deea9eb5f5812f8c145afacc35b9f0db
+#10 resolve docker.io/library/ubuntu:22.04@sha256:445586e41c1de7dfda82d2637f5ff688deea9eb5f5812f8c145afacc35b9f0db 0.0s done
+#10 DONE 0.0s
+
+#11 [runtime 2/6] RUN apt-get update &&     apt-get install -y --no-install-recommends         libssl3         libcurl4         ca-certificates         libc6         libstdc++6         libgcc-s1 &&     rm -rf /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [runtime 3/6] RUN useradd -m -u 1000 -s /bin/bash ue4
+#12 CACHED
+
+#13 [runtime 4/6] WORKDIR /game
+#13 CACHED
+
+#8 [internal] load build context
+#8 transferring context: 661.95kB 0.6s done
+#8 DONE 0.7s
+
+#14 [builder 2/9] WORKDIR /home/ue4/project
+#14 CACHED
+
+#15 [builder 3/9] RUN mkdir -p /home/ue4/project/LinuxServerPackage     /home/ue4/UnrealEngine/UnrealTrace/Store &&     chown -R ue4:ue4 /home/ue4/project /home/ue4/UnrealEngine/UnrealTrace
+#15 CACHED
+
+#16 [builder 4/9] RUN apt-get update &&     apt-get install -y --no-install-recommends     git     cmake     build-essential     pkg-config     ca-certificates &&     rm -rf /var/lib/apt/lists/*
+#16 CACHED
+
+#17 [builder 5/9] COPY --chown=ue4:ue4 . /home/ue4/project/
+#17 DONE 33.0s
+
+#18 [builder 6/9] RUN set -eux;         NATS_TP="/home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c";         NATS_SRC="${NATS_TP}/src";         NATS_BUILD="${NATS_TP}/build/Linux";         NATS_LIB="${NATS_TP}/lib/Linux";         NATS_INCLUDE="${NATS_TP}/include";         mkdir -p "${NATS_LIB}" "${NATS_INCLUDE}/nats/adapters";         if [ ! -d "${NATS_SRC}" ]; then             git clone --depth 1 --branch "v3.8.2" https://github.com/nats-io/nats.c.git "${NATS_SRC}";         fi;         rm -rf "${NATS_BUILD}";         mkdir -p "${NATS_BUILD}";         cmake -S "${NATS_SRC}" -B "${NATS_BUILD}"             -DCMAKE_BUILD_TYPE=Release             -DCMAKE_POSITION_INDEPENDENT_CODE=ON             -DCMAKE_C_FLAGS=-fPIC             -DCMAKE_C_FLAGS_RELEASE=-fPIC             -DCMAKE_CXX_FLAGS=-fPIC             -DCMAKE_CXX_FLAGS_RELEASE=-fPIC             -DNATS_BUILD_LIB_STATIC=ON             -DNATS_BUILD_LIB_SHARED=OFF             -DNATS_BUILD_EXAMPLES=OFF             -DBUILD_TESTING=OFF             -DNATS_BUILD_STREAMING=OFF             -DNATS_BUILD_WITH_TLS=OFF;         cmake --build "${NATS_BUILD}" --config Release --target nats_static;         if [ -f "${NATS_BUILD}/libnats_static.a" ]; then             cp "${NATS_BUILD}/libnats_static.a" "${NATS_LIB}/libnats_static.a";         elif [ -f "${NATS_BUILD}/src/libnats_static.a" ]; then             cp "${NATS_BUILD}/src/libnats_static.a" "${NATS_LIB}/libnats_static.a";         else             echo "ERROR: libnats_static.a not produced";             exit 1;         fi;         if [ -f "${NATS_SRC}/src/deprnats.h" ]; then             cp "${NATS_SRC}/src/deprnats.h" "${NATS_INCLUDE}/nats.h";         else             cp "${NATS_SRC}/src/nats.h" "${NATS_INCLUDE}/nats.h";         fi;         cp "${NATS_SRC}/src/nats.h" "${NATS_INCLUDE}/nats/nats.h";         cp "${NATS_SRC}/src/status.h" "${NATS_INCLUDE}/nats/status.h";         cp "${NATS_SRC}/src/version.h" "${NATS_INCLUDE}/nats/version.h";         if [ -f "${NATS_SRC}/src/adapters/libevent.h" ]; then cp "${NATS_SRC}/src/adapters/libevent.h" "${NATS_INCLUDE}/nats/adapters/libevent.h"; fi;         if [ -f "${NATS_SRC}/src/adapters/libuv.h" ]; then cp "${NATS_SRC}/src/adapters/libuv.h" "${NATS_INCLUDE}/nats/adapters/libuv.h"; fi;         rm -rf "${NATS_SRC}" "${NATS_TP}/build"
+#18 0.340 + NATS_TP=/home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c
+#18 0.340 + NATS_SRC=/home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src
+#18 0.340 + NATS_BUILD=/home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux
+#18 0.340 + NATS_LIB=/home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/lib/Linux
+#18 0.340 + NATS_INCLUDE=/home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include
+#18 0.340 + mkdir -p /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/lib/Linux /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats/adapters
+#18 0.358 + [ ! -d /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src ]
+#18 0.358 + rm -rf /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux
+#18 0.361 + mkdir -p /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux
+#18 0.366 + cmake -S /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src -B /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=-fPIC -DCMAKE_C_FLAGS_RELEASE=-fPIC -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_CXX_FLAGS_RELEASE=-fPIC -DNATS_BUILD_LIB_STATIC=ON -DNATS_BUILD_LIB_SHARED=OFF -DNATS_BUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DNATS_BUILD_STREAMING=OFF -DNATS_BUILD_WITH_TLS=OFF
+#18 0.515 -- The C compiler identification is GNU 11.4.0
+#18 0.627 -- The CXX compiler identification is GNU 11.4.0
+#18 0.661 -- Detecting C compiler ABI info
+#18 0.795 -- Detecting C compiler ABI info - done
+#18 0.809 -- Check for working C compiler: /usr/bin/cc - skipped
+#18 0.810 -- Detecting C compile features
+#18 0.814 -- Detecting C compile features - done
+#18 0.822 -- Detecting CXX compiler ABI info
+#18 0.970 -- Detecting CXX compiler ABI info - done
+#18 0.986 -- Check for working CXX compiler: /usr/bin/c++ - skipped
+#18 0.986 -- Detecting CXX compile features
+#18 0.988 -- Detecting CXX compile features - done
+#18 1.016 -- Configuring done
+#18 1.040 -- Generating done
+#18 1.043 -- Build files have been written to: /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux
+#18 1.049 + cmake --build /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux --config Release --target nats_static
+#18 1.175 [  2%] Building C object src/CMakeFiles/nats_static.dir/asynccb.c.o
+#18 1.347 [  5%] Building C object src/CMakeFiles/nats_static.dir/buf.c.o
+#18 1.463 [  8%] Building C object src/CMakeFiles/nats_static.dir/comsock.c.o
+#18 1.597 [ 11%] Building C object src/CMakeFiles/nats_static.dir/conn.c.o
+#18 2.034 [ 14%] Building C object src/CMakeFiles/nats_static.dir/crypto.c.o
+#18 2.199 [ 17%] Building C object src/CMakeFiles/nats_static.dir/hash.c.o
+#18 2.380 [ 20%] Building C object src/CMakeFiles/nats_static.dir/js.c.o
+#18 2.804 [ 22%] Building C object src/CMakeFiles/nats_static.dir/jsm.c.o
+#18 3.404 [ 25%] Building C object src/CMakeFiles/nats_static.dir/kv.c.o
+#18 3.659 [ 28%] Building C object src/CMakeFiles/nats_static.dir/micro.c.o
+#18 3.833 [ 31%] Building C object src/CMakeFiles/nats_static.dir/micro_client.c.o
+#18 3.932 [ 34%] Building C object src/CMakeFiles/nats_static.dir/micro_endpoint.c.o
+#18 4.061 [ 37%] Building C object src/CMakeFiles/nats_static.dir/micro_error.c.o
+#18 4.170 [ 40%] Building C object src/CMakeFiles/nats_static.dir/micro_monitoring.c.o
+#18 4.309 [ 42%] Building C object src/CMakeFiles/nats_static.dir/micro_request.c.o
+#18 4.420 [ 45%] Building C object src/CMakeFiles/nats_static.dir/msg.c.o
+#18 4.592 [ 48%] Building C object src/CMakeFiles/nats_static.dir/nats.c.o
+#18 4.804 [ 51%] Building C object src/CMakeFiles/nats_static.dir/natstime.c.o
+#18 4.901 [ 54%] Building C object src/CMakeFiles/nats_static.dir/nkeys.c.o
+#18 5.010 [ 57%] Building C object src/CMakeFiles/nats_static.dir/nuid.c.o
+#18 5.120 [ 60%] Building C object src/CMakeFiles/nats_static.dir/opts.c.o
+#18 5.327 [ 62%] Building C object src/CMakeFiles/nats_static.dir/parser.c.o
+#18 5.464 [ 65%] Building C object src/CMakeFiles/nats_static.dir/pub.c.o
+#18 5.602 [ 68%] Building C object src/CMakeFiles/nats_static.dir/srvpool.c.o
+#18 5.733 [ 71%] Building C object src/CMakeFiles/nats_static.dir/stats.c.o
+#18 5.831 [ 74%] Building C object src/CMakeFiles/nats_static.dir/status.c.o
+#18 5.930 [ 77%] Building C object src/CMakeFiles/nats_static.dir/sub.c.o
+#18 6.144 [ 80%] Building C object src/CMakeFiles/nats_static.dir/timer.c.o
+#18 6.252 [ 82%] Building C object src/CMakeFiles/nats_static.dir/url.c.o
+#18 6.361 [ 85%] Building C object src/CMakeFiles/nats_static.dir/util.c.o
+#18 6.689 [ 88%] Building C object src/CMakeFiles/nats_static.dir/unix/cond.c.o
+#18 6.793 [ 91%] Building C object src/CMakeFiles/nats_static.dir/unix/mutex.c.o
+#18 6.893 [ 94%] Building C object src/CMakeFiles/nats_static.dir/unix/sock.c.o
+#18 6.994 [ 97%] Building C object src/CMakeFiles/nats_static.dir/unix/thread.c.o
+#18 7.096 [100%] Linking C static library libnats_static.a
+#18 7.194 [100%] Built target nats_static
+#18 7.215 + [ -f /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux/libnats_static.a ]
+#18 7.215 + [ -f /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux/src/libnats_static.a ]
+#18 7.215 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build/Linux/src/libnats_static.a /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/lib/Linux/libnats_static.a
+#18 7.222 + [ -f /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/deprnats.h ]
+#18 7.222 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/deprnats.h /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats.h
+#18 7.232 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/nats.h /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats/nats.h
+#18 7.237 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/status.h /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats/status.h
+#18 7.242 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/version.h /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats/version.h
+#18 7.246 + [ -f /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/adapters/libevent.h ]
+#18 7.246 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/adapters/libevent.h /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats/adapters/libevent.h
+#18 7.252 + [ -f /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/adapters/libuv.h ]
+#18 7.252 + cp /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src/src/adapters/libuv.h /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/include/nats/adapters/libuv.h
+#18 7.257 + rm -rf /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/src /home/ue4/project/Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/build
+#18 DONE 7.4s
+
+#19 [builder 7/9] RUN /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh     TPSCoreMechanicsEditor Linux Development     /home/ue4/project/TPSCoreMechanics.uproject     -waitmutex
+#19 0.292 Setting up bundled DotNet SDK
+#19 0.314 Running command : dotnet Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll TPSCoreMechanicsEditor Linux Development /home/ue4/project/TPSCoreMechanics.uproject -waitmutex
+#19 1.787 Log file: /home/ue4/.config/Epic/UnrealBuildTool/Log.txt
+#19 2.011 Using 'git status' to determine working set for adaptive non-unity build (/home/ue4/project).
+#19 2.245 Creating makefile for TPSCoreMechanicsEditor (no existing makefile)
+#19 12.01 Parsing headers for TPSCoreMechanicsEditor
+#19 12.01   Running Internal UnrealHeaderTool /home/ue4/project/TPSCoreMechanics.uproject /home/ue4/project/Intermediate/Build/Linux/TPSCoreMechanicsEditor/Development/TPSCoreMechanicsEditor.uhtmanifest -WarningsAsErrors -installed
+#19 18.84 Total of 140 written
+#19 18.84 Reflection code generated for TPSCoreMechanicsEditor in 6.8285085 seconds
+#19 19.94 ------- Build details --------
+#19 19.95 Using toolchain located at '/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu'.
+#19 19.95 Using clang (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/clang++) version 'clang version 18.1.0rc (github.com/llvm/llvm-project 461274b81d8641eab64d494accddc81d7db8a09e)
+#19 19.95 Target: x86_64-unknown-linux-gnu
+#19 19.95 Thread model: posix
+#19 19.95 InstalledDir: /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin' (string), 18 (major), 1 (minor), 0 (patch)
+#19 19.95 Using bundled libc++ standard C++ library.
+#19 19.95 Using lld linker
+#19 19.96 Using llvm-ar (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/llvm-ar) version 'LLVM (http://llvm.org/):
+#19 19.96   LLVM version 18.1.0rc
+#19 19.96   Optimized build. (string)'
+#19 19.96 Using fast way to relink  circularly dependent libraries (no FixDeps).
+#19 19.96 Compressing debug files
+#19 19.96 Targeted minimum CPU architecture: None
+#19 19.96 ------------------------------
+#19 20.87 Building TPSCoreMechanicsEditor...
+#19 20.87 [Adaptive Build] Excluded from TPSCoreMechanics unity file: TPSCoreMechanicsGameMode.cpp, ServerNpcManagerSubsystem.cpp, TPSCoreGameMode.cpp, NPCCharacter.cpp
+#19 20.87 [Adaptive Build] Excluded from NatsClient unity file: NatsClientSubsystem.cpp
+#19 20.92 Determining max actions to execute in parallel (12 physical cores, 12 logical cores)
+#19 20.92   Executing up to 12 processes, one per physical core
+#19 20.92   Requested 1.5 GB memory per action, 13.43 GB available: limiting max parallel actions to 8
+#19 20.96 Using Unreal Build Accelerator local executor to run 23 action(s)
+#19 20.96   Storage capacity 40Gb
+#19 20.98 ---- Starting trace ----
+#19 20.99 UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+#19 21.00 ------ Building 23 action(s) started ------
+#19 103.9 [1/23] Compile SharedPCH.UnrealEd.Project.ValApi.Cpp20.h
+#19 104.5 [2/23] Compile Module.NatsClient.cpp
+#19 104.9 [3/23] Compile NatsClientSubsystem.cpp
+#19 104.9 [4/23] Link (lld) libUnrealEditor-NatsClient.so (UBA disabled)
+#19 112.5 [5/23] Compile Module.TurboLinkGrpc.1.cpp
+#19 118.0 [6/23] Compile characters.pb.cc
+#19 120.6 [7/23] Compile chat.pb.cc
+#19 125.2 [8/23] Compile NPCCharacter.cpp
+#19 129.1 [9/23] Compile characters.grpc.pb.cc
+#19 129.3 [10/23] Compile chat.grpc.pb.cc
+#19 130.6 [11/23] Compile Module.TurboLinkGrpc.2.cpp
+#19 133.0 [12/23] Compile TPSCoreMechanicsGameMode.cpp
+#19 134.8 [13/23] Compile TPSCoreGameMode.cpp
+#19 153.2 [14/23] Compile ServerNpcManagerSubsystem.cpp
+#19 153.9 [15/23] Compile Module.TPSCoreMechanics.cpp
+#19 153.9 [16/23] Link (lld) libUnrealEditor-TPSCoreMechanics.so (UBA disabled)
+#19 169.4 [17/23] Compile Module.TurboLinkGrpc.3.cpp
+#19 169.4 [18/23] Link (lld) libUnrealEditor-TurboLinkGrpc.so (UBA disabled)
+#19 178.5 [19/23] Compile Module.TPSCoreMechanicsClient.cpp
+#19 178.6 [20/23] Compile Module.TurboLinkEditor.cpp
+#19 178.6 [21/23] Link (lld) libUnrealEditor-TPSCoreMechanicsClient.so (UBA disabled)
+#19 179.2 [22/23] Link (lld) libUnrealEditor-TurboLinkEditor.so (UBA disabled)
+#19 180.2 [23/23] WriteMetadata TPSCoreMechanicsEditor.target (UBA disabled)
+#19 180.2 Trace file written to /home/ue4/.config/Epic/UnrealBuildTool/Log.uba with size 13.0kb
+#19 180.2 Total time in Unreal Build Accelerator local executor: 159.22 seconds
+#19 180.6 Total execution time: 180.14 seconds
+#19 DONE 181.2s
+
+#20 [builder 8/9] RUN /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Build.sh     TPSCoreMechanicsServer Linux Development     /home/ue4/project/TPSCoreMechanics.uproject     -waitmutex
+#20 0.374 Setting up bundled DotNet SDK
+#20 0.406 Running command : dotnet Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll TPSCoreMechanicsServer Linux Development /home/ue4/project/TPSCoreMechanics.uproject -waitmutex
+#20 2.395 Log file: /home/ue4/.config/Epic/UnrealBuildTool/Log.txt
+#20 2.460 Using 'git status' to determine working set for adaptive non-unity build (/home/ue4/project).
+#20 2.548 Creating makefile for TPSCoreMechanicsServer (no existing makefile)
+#20 5.876 Parsing headers for TPSCoreMechanicsServer
+#20 5.879   Running Internal UnrealHeaderTool /home/ue4/project/TPSCoreMechanics.uproject /home/ue4/project/Intermediate/Build/Linux/TPSCoreMechanicsServer/Development/TPSCoreMechanicsServer.uhtmanifest -WarningsAsErrors -installed
+#20 14.11 Total of 132 written
+#20 14.12 Reflection code generated for TPSCoreMechanicsServer in 8.2432898 seconds
+#20 15.12 ------- Build details --------
+#20 15.13 Using toolchain located at '/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu'.
+#20 15.13 Using clang (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/clang++) version 'clang version 18.1.0rc (github.com/llvm/llvm-project 461274b81d8641eab64d494accddc81d7db8a09e)
+#20 15.13 Target: x86_64-unknown-linux-gnu
+#20 15.13 Thread model: posix
+#20 15.13 InstalledDir: /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin' (string), 18 (major), 1 (minor), 0 (patch)
+#20 15.13 Using bundled libc++ standard C++ library.
+#20 15.13 Using lld linker
+#20 15.14 Using llvm-ar (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/llvm-ar) version 'LLVM (http://llvm.org/):
+#20 15.14   LLVM version 18.1.0rc
+#20 15.14   Optimized build. (string)'
+#20 15.14 Using fast way to relink  circularly dependent libraries (no FixDeps).
+#20 15.14 Compressing debug files
+#20 15.14 Targeted minimum CPU architecture: None
+#20 15.14 ------------------------------
+#20 16.45 Building TPSCoreMechanicsServer...
+#20 16.45 [Adaptive Build] Excluded from NatsClient unity file: NatsClientSubsystem.cpp
+#20 16.45 [Adaptive Build] Excluded from TPSCoreMechanics unity file: TPSCoreMechanicsGameMode.cpp, ServerNpcManagerSubsystem.cpp, TPSCoreGameMode.cpp, NPCCharacter.cpp
+#20 16.53 Determining max actions to execute in parallel (12 physical cores, 12 logical cores)
+#20 16.53   Executing up to 12 processes, one per physical core
+#20 16.53   Requested 1.5 GB memory per action, 13.27 GB available: limiting max parallel actions to 8
+#20 16.58 Using Unreal Build Accelerator local executor to run 37 action(s)
+#20 16.58   Storage capacity 40Gb
+#20 16.62 ---- Starting trace ----
+#20 16.63 UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+#20 16.64 ------ Building 37 action(s) started ------
+#20 16.75 [1/37] Copy libboost_chrono-mt-x64.so.1.82.0
+#20 16.77 [2/37] Copy libboost_atomic-mt-x64.so
+#20 16.77 [3/37] Copy libboost_chrono-mt-x64.so
+#20 16.77 [4/37] Copy libboost_atomic-mt-x64.so.1.82.0
+#20 16.77 [5/37] Copy libboost_filesystem-mt-x64.so
+#20 16.77 [6/37] Copy libboost_iostreams-mt-x64.so
+#20 16.77 [7/37] Copy libboost_iostreams-mt-x64.so.1.82.0
+#20 16.77 [8/37] Copy libboost_program_options-mt-x64.so
+#20 16.77 [9/37] Copy libboost_program_options-mt-x64.so.1.82.0
+#20 16.77 [10/37] Copy libboost_python311-mt-x64.so
+#20 16.79 [11/37] Copy libboost_system-mt-x64.so
+#20 16.79 [12/37] Copy libboost_system-mt-x64.so.1.82.0
+#20 16.79 [13/37] Copy libboost_python311-mt-x64.so.1.82.0
+#20 16.79 [14/37] Copy libboost_regex-mt-x64.so.1.82.0
+#20 16.80 [15/37] Copy libboost_regex-mt-x64.so
+#20 16.82 [16/37] Copy libboost_thread-mt-x64.so
+#20 16.82 [17/37] Copy libboost_thread-mt-x64.so.1.82.0
+#20 102.1 [18/37] Compile SharedPCH.Engine.Project.ValApi.Cpp20.h
+#20 102.1 [19/37] Copy libboost_filesystem-mt-x64.so.1.82.0
+#20 113.3 [20/37] Compile SharedPCH.Engine.Project.Exceptions.ValApi.Cpp20.h
+#20 113.5 [21/37] Compile TPSCoreMechanicsGameMode.cpp
+#20 118.4 [22/37] Compile NPCCharacter.cpp
+#20 119.0 [23/37] Compile Module.NatsClient.cpp
+#20 128.1 [24/37] Compile TPSCoreGameMode.cpp
+#20 129.5 [25/37] Compile Module.TurboLinkGrpc.1.cpp
+#20 131.4 [26/37] Compile ServerNpcManagerSubsystem.cpp
+#20 151.7 [27/37] Compile NatsClientSubsystem.cpp
+#20 157.2 [28/37] Compile chat.pb.cc
+#20 161.2 [29/37] Compile characters.pb.cc
+#20 163.7 [30/37] Compile Module.TurboLinkGrpc.2.cpp
+#20 164.4 [31/37] Compile characters.grpc.pb.cc
+#20 172.3 [32/37] Compile Module.TPSCoreMechanics.cpp
+#20 173.5 [33/37] Compile chat.grpc.pb.cc
+#20 187.9 [34/37] Compile Module.TPSCoreMechanicsClient.cpp
+#20 217.9 [35/37] Compile Module.TurboLinkGrpc.3.cpp
+#20 217.9 [36/37] Link (lld) TPSCoreMechanicsServer (UBA disabled)
+#20 218.5 [37/37] WriteMetadata TPSCoreMechanicsServer.target (UBA disabled)
+#20 218.6 Trace file written to /home/ue4/.config/Epic/UnrealBuildTool/Log.uba with size 17.6kb
+#20 218.6 Total time in Unreal Build Accelerator local executor: 201.98 seconds
+#20 219.4 Total execution time: 218.85 seconds
+#20 DONE 220.4s
+
+#21 [builder 9/9] RUN set -eux;         /home/ue4/UnrealEngine/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun         -project=/home/ue4/project/TPSCoreMechanics.uproject         -platform=Linux         -serverconfig=Development         -server         -noclient         -cook         -stage         -pak         -archive         -archivedirectory=/home/ue4/project/LinuxServerPackage/LinuxServer         -noP4         -nodebuginfo         -map=/Game/ThirdPerson/Maps/ThirdPersonMap         -SkipCookingEditorContent         -build         -noxge         -NoShaderDistrib         -unattended         -utf8output         -ddc=Noshared         -nullrhi         || {             CODE=$?;             UE_LOG="/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt";             PROJ_LOG_DIR="/home/ue4/project/Saved/Logs";             echo "===== RunUAT failed (exit ${CODE}) =====";             if [ -f "$UE_LOG" ]; then                 echo "===== Unreal LocalBuildLogs tail ($UE_LOG) =====";                 tail -n 500 "$UE_LOG" || true;             else                 echo "No Unreal LocalBuildLogs file at: $UE_LOG";             fi;             if [ -d "$PROJ_LOG_DIR" ]; then                 echo "===== Project Saved/Logs files =====";                 ls -la "$PROJ_LOG_DIR" || true;                 LATEST_LOG=$(ls -1t "$PROJ_LOG_DIR"/*.log 2>/dev/null | head -n 1 || true);                 if [ -n "$LATEST_LOG" ]; then                     echo "===== Latest project log tail ($LATEST_LOG) =====";                     tail -n 500 "$LATEST_LOG" || true;                 fi;             fi;             CRASH_ROOT="/home/ue4/project/Saved/Crashes";             if [ -d "$CRASH_ROOT" ]; then                 LATEST_CRASH=$(ls -1dt "$CRASH_ROOT"/crashinfo-* 2>/dev/null | head -n 1 || true);                 if [ -n "$LATEST_CRASH" ]; then                     echo "===== Latest crash directory ($LATEST_CRASH) =====";                     ls -la "$LATEST_CRASH" || true;                     if [ -f "$LATEST_CRASH/CrashContext.runtime-xml" ]; then                         echo "===== CrashContext markers =====";                         grep -nE "<ErrorMessage>|<Signal>|<CallStack>|<PCallStack>|<SourceContext>|<EngineMode>|<ExecutableName>|<CrashType>|<PrimaryCrashProperties>" "$LATEST_CRASH/CrashContext.runtime-xml" || true;                         echo "===== CrashContext.runtime-xml (tail) =====";                         tail -n 300 "$LATEST_CRASH/CrashContext.runtime-xml" || true;                     fi;                     CRASH_LOG=$(ls -1t "$LATEST_CRASH"/*.log 2>/dev/null | head -n 1 || true);                     if [ -n "$CRASH_LOG" ]; then                         echo "===== Latest crash log tail ($CRASH_LOG) =====";                         tail -n 300 "$CRASH_LOG" || true;                     fi;                 fi;             fi;             exit "$CODE";         }
+#21 0.327 + /home/ue4/UnrealEngine/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun -project=/home/ue4/project/TPSCoreMechanics.uproject -platform=Linux -serverconfig=Development -server -noclient -cook -stage -pak -archive -archivedirectory=/home/ue4/project/LinuxServerPackage/LinuxServer -noP4 -nodebuginfo -map=/Game/ThirdPerson/Maps/ThirdPersonMap -SkipCookingEditorContent -build -noxge -NoShaderDistrib -unattended -utf8output -ddc=Noshared -nullrhi
+#21 0.334 
+#21 0.334 Running AutomationTool...
+#21 0.334 
+#21 0.359 Setting up bundled DotNet SDK
+#21 0.384 Start UAT Interactively: dotnet AutomationTool.dll BuildCookRun -project=/home/ue4/project/TPSCoreMechanics.uproject -platform=Linux -serverconfig=Development -server -noclient -cook -stage -pak -archive -archivedirectory=/home/ue4/project/LinuxServerPackage/LinuxServer -noP4 -nodebuginfo -map=/Game/ThirdPerson/Maps/ThirdPersonMap -SkipCookingEditorContent -build -noxge -NoShaderDistrib -unattended -utf8output -ddc=Noshared -nullrhi
+#21 0.387 /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/../../../Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet
+#21 0.688 Starting AutomationTool...
+#21 0.772 Parsing command line: BuildCookRun -project=/home/ue4/project/TPSCoreMechanics.uproject -platform=Linux -serverconfig=Development -server -noclient -cook -stage -pak -archive -archivedirectory=/home/ue4/project/LinuxServerPackage/LinuxServer -noP4 -nodebuginfo -map=/Game/ThirdPerson/Maps/ThirdPersonMap -SkipCookingEditorContent -build -noxge -NoShaderDistrib -unattended -utf8output -ddc=Noshared -nullrhi
+#21 1.075 Initializing script modules...
+#21 1.720 Total script module initialization time: 0.64 s.
+#21 1.777 Using /home/ue4/UnrealEngine/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet
+#21 2.406 Executing commands...
+#21 2.413 Setting up ProjectParams for /home/ue4/project/TPSCoreMechanics.uproject
+#21 5.374 ********** BUILD COMMAND STARTED **********
+#21 5.422 Running: /home/ue4/UnrealEngine/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet "/home/ue4/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" -Target="TPSCoreMechanicsEditor Linux Development -Project=/home/ue4/project/TPSCoreMechanics.uproject -Manifest=/home/ue4/project/Intermediate/Build/Manifest-1-TPSCoreMechanicsEditor-Linux-Development.xml" -Target="TPSCoreMechanicsServer Linux Development -Project=/home/ue4/project/TPSCoreMechanics.uproject -Manifest=/home/ue4/project/Intermediate/Build/Manifest-2-TPSCoreMechanicsServer-Linux-Development.xml  -remoteini=\"/home/ue4/project\"  " -NoXGE -log="/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/UBA-TPSCoreMechanicsEditor-Linux-Development.txt"
+#21 6.274 Log file: /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/UBA-TPSCoreMechanicsEditor-Linux-Development.txt
+#21 7.374 Using 'git status' to determine working set for adaptive non-unity build (/home/ue4/project).
+#21 7.575 Creating makefile for TPSCoreMechanicsEditor (command line arguments changed)
+#21 13.46 ------- Build details --------
+#21 13.46 Using toolchain located at '/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu'.
+#21 13.46 Using clang (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/clang++) version 'clang version 18.1.0rc (github.com/llvm/llvm-project 461274b81d8641eab64d494accddc81d7db8a09e)
+#21 13.46 Target: x86_64-unknown-linux-gnu
+#21 13.46 Thread model: posix
+#21 13.46 InstalledDir: /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin' (string), 18 (major), 1 (minor), 0 (patch)
+#21 13.46 Using bundled libc++ standard C++ library.
+#21 13.46 Using lld linker
+#21 13.47 Using llvm-ar (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/llvm-ar) version 'LLVM (http://llvm.org/):
+#21 13.47   LLVM version 18.1.0rc
+#21 13.47   Optimized build. (string)'
+#21 13.47 Using fast way to relink  circularly dependent libraries (no FixDeps).
+#21 13.47 Compressing debug files
+#21 13.47 Targeted minimum CPU architecture: None
+#21 13.47 ------------------------------
+#21 14.10 Waiting for 'git status' command to complete
+#21 15.29 Writing manifest to /home/ue4/project/Intermediate/Build/Manifest-1-TPSCoreMechanicsEditor-Linux-Development.xml
+#21 15.62 Creating makefile for TPSCoreMechanicsServer (command line arguments changed)
+#21 16.50 ------- Build details --------
+#21 16.50 Using toolchain located at '/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu'.
+#21 16.50 Using clang (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/clang++) version 'clang version 18.1.0rc (github.com/llvm/llvm-project 461274b81d8641eab64d494accddc81d7db8a09e)
+#21 16.50 Target: x86_64-unknown-linux-gnu
+#21 16.50 Thread model: posix
+#21 16.50 InstalledDir: /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin' (string), 18 (major), 1 (minor), 0 (patch)
+#21 16.50 Using bundled libc++ standard C++ library.
+#21 16.50 Using lld linker
+#21 16.51 Using llvm-ar (/home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v23_clang-18.1.0-rockylinux8/x86_64-unknown-linux-gnu/bin/llvm-ar) version 'LLVM (http://llvm.org/):
+#21 16.51   LLVM version 18.1.0rc
+#21 16.51   Optimized build. (string)'
+#21 16.51 Using fast way to relink  circularly dependent libraries (no FixDeps).
+#21 16.51 Compressing debug files
+#21 16.51 Targeted minimum CPU architecture: None
+#21 16.51 ------------------------------
+#21 16.93 Writing manifest to /home/ue4/project/Intermediate/Build/Manifest-2-TPSCoreMechanicsServer-Linux-Development.xml
+#21 17.19 Targets are up to date
+#21 17.25 Total execution time: 11.71 seconds
+#21 17.32 Took 11.92s to run dotnet, ExitCode=0
+#21 17.94 Build command time: 12.56 s
+#21 17.94 ********** BUILD COMMAND COMPLETED **********
+#21 17.94 ********** COOK COMMAND STARTED **********
+#21 18.14 HasMapsToCook /Game/ThirdPerson/Maps/ThirdPersonMap
+#21 18.14 Params.HasMapsToCook /Game/ThirdPerson/Maps/ThirdPersonMap
+#21 18.14 Running UnrealEditor Cook for project /home/ue4/project/TPSCoreMechanics.uproject
+#21 18.15 Commandlet log file is /home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt
+#21 18.15 Running: /home/ue4/UnrealEngine/Engine/Binaries/Linux/UnrealEditor-Cmd "/home/ue4/project/TPSCoreMechanics.uproject" -run=Cook -Map=/Game/ThirdPerson/Maps/ThirdPersonMap -TargetPlatform=LinuxServer  -ddc=Noshared -unversioned -skipeditorcontent -fileopenlog -abslog="/home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt" -stdout -CrashForUAT -unattended -NoLogTimes  -UTF8Output
+#21 20.53 Using musl
+#21 20.54 Opening shared memory
+#21 20.54 Shared memory doesn't exist, checking legacy lock file
+#21 20.54 Checking for a '/tmp/UnrealTraceServer.pid' lock file
+#21 20.54 Forking process
+#21 20.54 Wait until we know the daemon has started.
+#21 20.54 Parent received signal 10
+#21 20.54 Daemon signalled successful start
+#21 20.54 Forked complete (ret=0)
+#21 20.56 Failed to find game directory: /home/ue4/UnrealEngine/TPSCoreMechanics/Binaries
+#21 20.70 - Existing per-process limit (soft=1048576, hard=1048576) is enough for us (need only 1048576)
+#21 20.70 Increasing per-process limit of core file size to infinity.
+#21 20.71 LogInit: Display: Running engine for game: TPSCoreMechanics
+#21 20.71 LogCore: Display: Requested channels: 'cpu,gpu,frame,log,bookmark,screenshot,region'
+#21 20.71 LogTrace: Display: Display Control listening on port 1985
+#21 20.71 LogCsvProfiler: Display: Metadata set : platform="Linux"
+#21 20.71 LogCsvProfiler: Display: Metadata set : config="Development"
+#21 20.71 LogCsvProfiler: Display: Metadata set : buildversion="UE5-CL-37670630"
+#21 20.71 LogCsvProfiler: Display: Metadata set : engineversion="5.5.4-37670630+UE5"
+#21 20.71 LogCsvProfiler: Display: Metadata set : os="Ubuntu 22.04.2 LTS 6.12.72-linuxkit"
+#21 20.71 LogCsvProfiler: Display: Metadata set : cpu="GenuineIntel|Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz"
+#21 20.72 LogCsvProfiler: Display: Metadata set : pgoenabled="0"
+#21 20.72 LogCsvProfiler: Display: Metadata set : pgoprofilingenabled="0"
+#21 20.72 LogCsvProfiler: Display: Metadata set : ltoenabled="0"
+#21 20.72 LogCsvProfiler: Display: Metadata set : asan="0"
+#21 20.72 LogCsvProfiler: Display: Metadata set : commandline="" /home/ue4/project/TPSCoreMechanics.uproject -run=Cook -Map=/Game/ThirdPerson/Maps/ThirdPersonMap -TargetPlatform=LinuxServer -ddc=Noshared -unversioned -skipeditorcontent -fileopenlog -abslog=/home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt -stdout -CrashForUAT -unattended -NoLogTimes -UTF8Output""
+#21 20.72 LogCsvProfiler: Display: Metadata set : loginid="ca57cc132c984c028baf80416b786cfc-000003e8"
+#21 23.90 LogCsvProfiler: Display: Metadata set : llm="0"
+#21 24.41 LogAssetRegistry: Display: Asset registry cache read as 39.1 MiB from ../../../../project/Intermediate/CachedAssetRegistry_0.bin
+#21 24.52 LogConfig: Display: Loading Mac ini files took 2.10 seconds
+#21 24.63 LogConfig: Display: Loading Android ini files took 2.21 seconds
+#21 24.77 LogConfig: Display: Loading TVOS ini files took 2.35 seconds
+#21 25.01 LogConfig: Display: Loading Windows ini files took 2.48 seconds
+#21 25.25 LogConfig: Display: Loading LinuxArm64 ini files took 2.73 seconds
+#21 25.27 LogConfig: Display: Loading IOS ini files took 2.96 seconds
+#21 25.38 LogConfig: Display: Loading VulkanPC ini files took 2.98 seconds
+#21 25.54 LogConfig: Display: Loading VisionOS ini files took 1.01 seconds
+#21 25.61 LogConfig: Display: Loading Unix ini files took 3.26 seconds
+#21 27.03 LogConfig: Display: Loading Linux ini files took 3.33 seconds
+#21 27.11 RenderDocPlugin: Display: RenderDoc plugin will not be loaded. Use '-AttachRenderDoc' on the cmd line or enable 'renderdoc.AutoAttach' in the plugin settings.
+#21 27.74 LogStudioTelemetry: Display: Starting StudioTelemetry Module
+#21 27.74 LogStreaming: Display: AsyncLoading2 - Created: Event Driven Loader: false, Async Loading Thread: false, Async Post Load: false
+#21 27.78 LogStreaming: Display: AsyncLoading2 - Initialized
+#21 27.78 LogHAL: Display: Platform has ~ 16 GB [16766701568 / 17179869184 / 16], which maps to Larger [LargestMinGB=32, LargerMinGB=12, DefaultMinGB=8, SmallerMinGB=6, SmallestMinGB=0)
+#21 27.84 LogCsvProfiler: Display: Metadata set : extradevelopmentmemorymb="0"
+#21 27.84 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatASTC
+#21 27.84 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatDXT
+#21 27.85 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatETC2
+#21 27.85 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatIntelISPCTexComp
+#21 27.85 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatUncompressed
+#21 27.85 LogTextureFormatOodle: Display: Oodle Texture TFO init; latest sdk version = 2.9.12
+#21 27.85 LogTextureFormatOodle: Display: Oodle Texture loading DLL: liboo2texlinux64.2.9.12.so
+#21 27.85 LogTextureFormatOodle: Display: Oodle Texture loading DLL: liboo2texlinux64.2.9.5.so
+#21 28.04 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatOodle
+#21 28.04 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64'
+#21 28.04 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64Server'
+#21 28.09 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64Client'
+#21 28.09 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Linux'
+#21 28.09 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxEditor'
+#21 28.09 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxServer'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxClient'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTC'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXT'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'AndroidClient'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTCClient'
+#21 28.14 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXTClient'
+#21 28.15 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2Client'
+#21 28.15 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_Multi'
+#21 28.15 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_MultiClient'
+#21 31.14 LogTargetPlatformManager: Display: Building Assets For LinuxServer
+#21 31.27 LogDerivedDataCache: Display: Memory: Max Cache Size: -1 MB
+#21 31.32 LogZenServiceInstance: Display: Installing service from '/home/ue4/UnrealEngine/Engine/Binaries/Linux/zenserver' to '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Install/zenserver'
+#21 31.32 LogZenServiceInstance: Display: Migrating default data path from '/home/ue4/.config/Epic/Zen/Data' to '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Data'.  Old location will be deleted.
+#21 31.35 LogZenServiceInstance: Display: Launching executable '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Install/zenserver', working dir '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Install', data dir '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Data', args '--port 8558 --data-dir "/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Data" --http asio --gc-cache-duration-seconds 1209600 --gc-interval-seconds 21600 --gc-low-diskspace-threshold 2147483648 --quiet --http-forceloopback --owner-pid 113 --child-id Zen_113_Startup'
+#21 31.35 LogZenServiceInstance: Display: Unreal Zen Storage Server HTTP service at [::1]:8558 status: OK!.
+#21 31.37 LogDerivedDataCache: Display: ZenLocal: Using ZenServer HTTP service at http://[::1]:8558/ with namespace ue.ddc status: OK!.
+#21 31.38 LogDerivedDataCache: Display: ../../../Engine/DerivedDataCache: Performance: Latency=0.70ms. RandomReadSpeed=1385.93MBs, RandomWriteSpeed=173.10MBs. Assigned SpeedClass 'Local'
+#21 31.39 LogShaderCompilers: Display: Using Local Shader Compiler with 9 workers.
+#21 31.39 LogShaderCompilers: Display: Compiling shader autogen file: ../../../../project/Intermediate/ShaderAutogen/VULKAN_SM6/AutogenShaderHeaders.ush
+#21 31.39 LogShaderCompilers: Display: Failed to delete old shader autogen file: ../../../../project/Intermediate/ShaderAutogen/VULKAN_SM6/AutogenShaderHeaders.ush
+#21 35.95 LogShaderCompilers: Display: Shader autogen file written: ../../../../project/Intermediate/ShaderAutogen/VULKAN_SM6/AutogenShaderHeaders.ush
+#21 46.21 LogAssetRegistry: Display: AssetDataGatherer spent 0.001s loading caches ../../../../project/Intermediate/CachedAssetRegistry_*.bin.
+#21 46.72 LogEditorDomain: Display: EditorDomain is Disabled
+#21 46.82 LogStreaming: Display: FlushAsyncLoading(1): 1 QueuedPackages, 0 AsyncPackages
+#21 46.82 LogDeviceProfileManager: Display: Deviceprofile LinuxArm64Editor not found.
+#21 46.90 LogDeviceProfileManager: Display: Deviceprofile LinuxArm64 not found.
+#21 46.94 LogCsvProfiler: Display: Metadata set : deviceprofile="LinuxEditor"
+#21 46.94 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.94 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 8 to allow recursive sync load to finish
+#21 46.94 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.94 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.94 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 9 to allow recursive sync load to finish
+#21 46.94 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.94 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.95 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 10 to allow recursive sync load to finish
+#21 46.95 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.95 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.95 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 11 to allow recursive sync load to finish
+#21 46.95 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.95 LogStreaming: Display: Flushing package /Engine/EngineMaterials/WorldGridMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.95 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.95 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 13 to allow recursive sync load to finish
+#21 46.95 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 46.95 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.96 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 14 to allow recursive sync load to finish
+#21 46.96 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 46.96 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.96 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.96 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 16 to allow recursive sync load to finish
+#21 46.96 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 46.96 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.96 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 17 to allow recursive sync load to finish
+#21 46.96 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 46.96 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.96 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.97 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 19 to allow recursive sync load to finish
+#21 46.97 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 46.97 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.97 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 20 to allow recursive sync load to finish
+#21 46.97 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 46.97 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.97 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultDiffuse with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 46.97 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.97 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 22 to allow recursive sync load to finish
+#21 46.97 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultPostProcessMaterial
+#21 46.97 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 23 to allow recursive sync load to finish
+#21 46.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultPostProcessMaterial
+#21 46.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions02/Utility/BreakOutFloat2Components with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 46.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultPostProcessMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 21 to allow recursive sync load to finish
+#21 46.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultPostProcessMaterial with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 46.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultPostProcessMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 24 to allow recursive sync load to finish
+#21 46.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultPostProcessMaterial with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 46.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultLightFunctionMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 18 to allow recursive sync load to finish
+#21 46.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultLightFunctionMaterial with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 46.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultLightFunctionMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 25 to allow recursive sync load to finish
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultLightFunctionMaterial with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 46.99 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultDeferredDecalMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 15 to allow recursive sync load to finish
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultDeferredDecalMaterial with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 46.99 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 46.99 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultDeferredDecalMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 26 to allow recursive sync load to finish
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultDeferredDecalMaterial with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Opacity/CameraDepthFade with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/T_Default_Material_Grid_M with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/T_Default_Material_Grid_N with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.99 LogStreaming: Display: Package /Engine/EngineMaterials/WorldGridMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 12 to allow recursive sync load to finish
+#21 46.99 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/WorldGridMaterial with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 46.99 LogStreaming: Display: Flushing package /Engine/EngineMaterials/WorldGridMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 47.00 LogStreaming: Display: Package /Engine/EngineMaterials/WorldGridMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 27 to allow recursive sync load to finish
+#21 47.00 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/WorldGridMaterial with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 47.00 LogTextureEncodingSettings: Display: Texture Encode Speed: Final (cook).
+#21 47.00 LogTextureEncodingSettings: Display: Oodle Texture Encode Speed settings: Fast: RDO Off Lambda=0, Effort=Normal Final: RDO Off Lambda=0, Effort=Normal
+#21 47.22 LogTextureEncodingSettings: Display: Shared linear texture encoding: Disabled
+#21 47.24 LogMeshReduction: Display: HLOD mesh reduction module (r.ProxyLODMeshReductionModule) set to "ProxyLODMeshReduction" which doesn't exist.
+#21 47.24 LogMeshReduction: Display: Using QuadricMeshReduction for automatic static mesh reduction
+#21 47.24 LogMeshReduction: Display: Using SkeletalMeshReduction for automatic skeletal mesh reduction
+#21 47.24 LogMeshReduction: Display: No automatic mesh merging module available
+#21 47.28 LogMeshReduction: Display: No distributed automatic mesh merging module available
+#21 47.43 LogStaticMesh: Display: Building static mesh Sphere (Required Memory Estimate: 0.756426 MB)...
+#21 47.47 LogStaticMesh: Display: Building static mesh SM_CraneRig_Base (Required Memory Estimate: 1.522692 MB)...
+#21 47.48 LogStaticMesh: Display: Building static mesh SM_CraneRig_Arm (Required Memory Estimate: 0.0249 MB)...
+#21 47.50 LogStaticMesh: Display: Building static mesh SM_CraneRig_Mount (Required Memory Estimate: 0.292356 MB)...
+#21 47.53 LogStaticMesh: Display: Building static mesh SM_CraneRig_Body (Required Memory Estimate: 1.454466 MB)...
+#21 47.59 LogStaticMesh: Display: Building static mesh SM_RailRig_Track (Required Memory Estimate: 2.117645 MB)...
+#21 47.65 LogStaticMesh: Display: Building static mesh SM_RailRig_Mount (Required Memory Estimate: 2.380135 MB)...
+#21 47.81 LogStaticMesh: Display: Building static mesh S_1_Unit_Plane (Required Memory Estimate: 0.054254 MB)...
+#21 47.82 LogStaticMesh: Display: Building static mesh PlaneTranslationHandle (Required Memory Estimate: 0.189357 MB)...
+#21 47.89 LogStaticMesh: Display: Building static mesh RotationHandleFull (Required Memory Estimate: 6.20107 MB)...
+#21 47.90 LogStaticMesh: Display: Building static mesh RotationHandleIndicator (Required Memory Estimate: 0.419229 MB)...
+#21 47.91 LogStaticMesh: Display: Building static mesh RotationHandleQuarter (Required Memory Estimate: 1.44741 MB)...
+#21 47.93 LogStaticMesh: Display: Building static mesh StartRotationHandleIndicator (Required Memory Estimate: 0.830293 MB)...
+#21 49.25 LogStaticMesh: Display: Building static mesh TransformGizmoFreeRotation (Required Memory Estimate: 43.612814 MB)...
+#21 49.28 LogStaticMesh: Display: Building static mesh TranslateArrowHandle (Required Memory Estimate: 0.240406 MB)...
+#21 49.30 LogStaticMesh: Display: Building static mesh UniformScaleHandle (Required Memory Estimate: 0.140998 MB)...
+#21 49.31 LogStaticMesh: Display: Building static mesh SnapGridPlaneMesh (Required Memory Estimate: 0.059454 MB)...
+#21 49.32 LogStaticMesh: Display: Building static mesh BoundingBoxCorner (Required Memory Estimate: 0.240406 MB)...
+#21 49.43 LogStaticMesh: Display: Building static mesh BoundingBoxEdge (Required Memory Estimate: 0.08356 MB)...
+#21 49.66 LogStaticMesh: Display: Building static mesh SM_Sequencer_Node (Required Memory Estimate: 0.08356 MB)...
+#21 49.71 LogStaticMesh: Display: Building static mesh SplineEditorMesh (Required Memory Estimate: 0.094715 MB)...
+#21 49.71 LogVirtualization: Display: VirtualizationSystem name found in ini file: None
+#21 50.25 LogVirtualization: Display: FNullVirtualizationSystem mounted, virtualization will be disabled
+#21 50.26 LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize started...
+#21 52.40 LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize took 6.658 ms
+#21 52.41 LogMetaSound: Display: MetaSound Page Target Initialized to 'Default'
+#21 54.69 LogAudio: Display: Registering Engine Module Parameter Interfaces...
+#21 55.82 LogStaticMesh: Display: Building static mesh SM_MediaPlateScreen (Required Memory Estimate: 0.010915 MB)...
+#21 55.82 Signal 4 caught.
+#21 55.82 Malloc Size=262146 LargeMemoryPoolOffset=262162
+#21 56.54 LogICUInternationalization: OS requested locale 'en_US_POSIX' is not supported. Using the OS requested language of 'en-US-POSIX' as the locale.
+#21 56.54 LogICUInternationalization: ICU TimeZone Detection - Raw Offset: +0:00, Platform Override: ''
+#21 56.55 LogConfig: No local boot hotfix file found at: [/home/ue4/.config/Epic/CrashReportClient/Saved/PersistentDownloadDir/HotfixForNextBoot.txt]
+#21 56.55 LogInit: ExecutableName: CrashReportClientEditor
+#21 56.55 LogInit: Build: UE5-CL-37670630
+#21 56.55 LogInit: Platform=Linux
+#21 56.55 LogInit: MachineId=ca57cc132c984c028baf80416b786cfc-000003e8
+#21 56.55 LogInit: DeviceId=
+#21 56.55 LogInit: Engine Version: 5.5.4-37670630+UE5
+#21 56.55 LogInit: Compatible Engine Version: 5.5.0-37670630+UE5
+#21 56.55 LogInit: Net CL: 37670630
+#21 56.55 LogInit: OS: Ubuntu 22.04.2 LTS (6.12.72-linuxkit), CPU: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz, GPU: UnknownVendor
+#21 56.55 LogInit: Compiled (64-bit): Mar 25 2025 04:27:26
+#21 56.55 LogInit: Architecture: x64
+#21 56.55 LogInit: Compiled with Clang: 18.1.0rc (github.com/llvm/llvm-project 461274b81d8641eab64d494accddc81d7db8a09e)
+#21 56.55 LogInit: Build Configuration: Shipping
+#21 56.55 LogInit: Branch Name: UE5
+#21 56.55 LogInit: Command Line:  -Abslog="/home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05-CRC.txt" -Unattended "/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/" -unattended
+#21 56.55 LogInit: Base Directory: /home/ue4/UnrealEngine/Engine/Binaries/Linux/
+#21 56.55 LogInit: Allocator: Mimalloc
+#21 56.55 LogInit: Installed Engine Build: 1
+#21 56.55 LogInit: This binary is optimized with LTO: no, PGO: no, instrumented for PGO data collection: no
+#21 56.55 LogInit: Presizing for max 2097152 objects, including 1 objects not considered by GC.
+#21 56.55 LogInit: Object subsystem initialized
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogConfig: Applying CVar settings from Section [ConsoleVariables] File [Engine]
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogConfig: Set CVar [[memory.MemoryPressureCriticalThresholdMB:512]]
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogInit: Unix hardware info:
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogInit:  - we are the first instance of this executable
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogInit:  - this process' id (pid) is 243, parent process' id (ppid) is 113
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogInit:  - we are not running under debugger
+#21 56.55 [2026.03.18-16.33.44:091][  0]LogInit:  - machine network name is 'buildkitsandbox'
+#21 56.55 [2026.03.18-16.33.44:092][  0]LogInit:  - user name is 'ue4' (ue4)
+#21 56.55 [2026.03.18-16.33.44:092][  0]LogInit:  - we're logged in locally
+#21 56.55 [2026.03.18-16.33.44:092][  0]LogInit:  - we're running with rendering
+#21 56.55 [2026.03.18-16.33.44:092][  0]LogInit:  - CPU: GenuineIntel 'Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz' (signature: 0x906ED)
+#21 56.55 [2026.03.18-16.33.44:092][  0]LogInit:  - Number of physical cores available for the process: 12
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  - Number of logical cores available for the process: 12
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  - GPU Brand Info: UnknownVendor
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  - Memory allocator used: Mimalloc
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  - This is an internal build.
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogCore: Skipped benchmarking clocks because the engine is running in a standalone program mode - CLOCK_MONOTONIC will be used.
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit: Unix-specific commandline switches:
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -ansimalloc - use malloc()/free() from libc (useful for tools like valgrind and electric fence)
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -jemalloc - use jemalloc for all memory allocation
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -binnedmalloc - use binned malloc  for all memory allocation
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -filemapcachesize=NUMBER - set the size for case-sensitive file mapping cache
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -useksm - uses kernel same-page mapping (KSM) for mapped memory (OFF)
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -ksmmergeall - marks all mmap'd memory pages suitable for KSM (OFF)
+#21 56.56 [2026.03.18-16.33.44:092][  0]LogInit:  -preloadmodulesymbols - Loads the main module symbols file into memory (OFF)
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -sigdfl=SIGNAL - Allows a specific signal to be set to its default handler rather then ignoring the signal
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -crashhandlerstacksize - Allows setting crash handler stack sizes (204800)
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -noexclusivelockonwrite - disables marking files created by the engine as exclusive locked while the engine has them opened
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -httpproxy=ADDRESS:PORT - redirects HTTP requests to a proxy (only supported if compiled with libcurl)
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -reuseconn - allow libcurl to reuse HTTP connections (only matters if compiled with libcurl)
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -virtmemkb=NUMBER - sets process virtual memory (address space) limit (overrides VirtualMemoryLimitInKB value from .ini)
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  -allowsyscallfilterfile=PATH_TO_FILE - sets up a system call filter allow list. any invalid syscall in this list *will* cause a crash
+#21 57.67 [2026.03.18-16.33.44:092][  0]LogInit:  - Physical RAM available (not considering process quota): 16 GB (15989 MB, 16373732 KB, 16766701568 bytes)
+#21 57.68 [2026.03.18-16.33.44:092][  0]LogInit:  - VirtualMemoryAllocator pools will grow at scale 1
+#21 57.68 [2026.03.18-16.33.44:092][  0]LogInit:  - MemoryRangeDecommit() will be a no-op (re-run with -vmapoolevict to change)
+#21 57.68 [2026.03.18-16.33.44:092][  0]LogInit:  - PageSize 4096
+#21 57.68 [2026.03.18-16.33.44:092][  0]LogInit:  - BinnedPageSize 65536
+#21 57.68 [2026.03.18-16.33.44:102][  0]LogUObjectArray: 547 objects as part of root set at end of initial load.
+#21 57.68 [2026.03.18-16.33.44:102][  0]LogUObjectArray: 0 objects are not in the root set, but can never be destroyed because they are in the DisregardForGC set.
+#21 57.68 [2026.03.18-16.33.44:102][  0]LogUObjectArray: CloseDisregardForGC: 547/547 objects in disregard for GC pool
+#21 57.68 [2026.03.18-16.33.44:104][  0]LogInit: Using OS detected language (en-US-POSIX).
+#21 57.68 [2026.03.18-16.33.44:104][  0]LogInit: Using OS detected locale (en-US-POSIX).
+#21 57.68 [2026.03.18-16.33.44:105][  0]LogTextLocalizationManager: No specific localization for 'en-US-POSIX' exists, so 'en' will be used for the language.
+#21 57.68 [2026.03.18-16.33.44:184][  0]LogInit: Using OS detected language (en-US-POSIX).
+#21 57.68 [2026.03.18-16.33.44:184][  0]LogInit: Using OS detected locale (en-US-POSIX).
+#21 57.68 [2026.03.18-16.33.44:184][  0]LogTextLocalizationManager: No localization for 'en-US-POSIX' exists, so 'en' will be used for the language.
+#21 57.68 [2026.03.18-16.33.44:184][  0]LogTextLocalizationManager: No localization for 'en-US-POSIX' exists, so 'en' will be used for the locale.
+#21 57.68 [2026.03.18-16.33.44:184][  0]LogPackageLocalizationCache: Processed 2 localized package path(s) for 1 prioritized culture(s) in 0.000056 seconds
+#21 57.68 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: Display: Applying project settings from '/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/CrashReportClient.ini'.
+#21 57.68 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: CrashReportClientVersion=1.0
+#21 57.68 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: CrashReportReceiver disabled
+#21 57.68 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: DataRouter disabled
+#21 57.68 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: Initial state = Unknown UploadState value
+#21 57.68 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: Initial state = Unknown UploadState value
+#21 57.69 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: DepotName: UE5
+#21 57.69 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: BuiltFromCL: 37670630
+#21 57.69 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: EngineVersion: 5.5.4-37670630+UE5
+#21 57.69 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: BuildVersion: UE5-CL-37670630
+#21 57.69 [2026.03.18-16.33.45:209][  0]CrashReportCoreLog: Final state (Receiver) = Unknown UploadState value
+#21 57.69 [2026.03.18-16.33.45:209][  0]CrashReportCoreLog: Final state (Receiver) = Unknown UploadState value
+#21 57.69 [2026.03.18-16.33.45:209][  0]LogCore: Engine exit requested (reason: CrashReportClientApp RequestExit)
+#21 57.69 [2026.03.18-16.33.45:209][  0]LogExit: Preparing to exit.
+#21 57.69 [2026.03.18-16.33.45:218][  0]LogExit: Object subsystem successfully closed.
+#21 57.71 [2026.03.18-16.33.45:219][  0]LogPakFile: Destroying PakPlatformFile
+#21 57.71 [2026.03.18-16.33.45:220][  0]LogExit: Exiting.
+#21 57.88 CommonUnixCrashHandler: Signal=4
+#21 57.88 Engine crash handling finished; re-raising signal 4 for the default handler. Good bye.
+#21 60.56 Opening shared memory
+#21 60.56 Shared memory doesn't exist, checking legacy lock file
+#21 60.56 Checking for a '/tmp/UnrealTraceServer.pid' lock file
+#21 60.57 Forking process
+#21 60.57 Opening shared memory
+#21 60.57 Starting the store
+#21 60.57 Reading settings from '/home/ue4/UnrealEngine/UnrealTrace/Settings.ini'
+#21 60.57 
+#21 60.57 Unable to open settings file /home/ue4/UnrealEngine/UnrealTrace/Settings.ini.
+#21 60.57 
+#21 60.57 Store settings (/home/ue4/UnrealEngine/UnrealTrace/Settings.ini):
+#21 60.57  - Store port: 1989
+#21 60.57  - Recorder port: 1981
+#21 60.58  - Thread count: 0
+#21 60.58  - Sponsored mode: 1
+#21 60.58  - Directory: '/home/ue4/UnrealEngine/UnrealTrace/Store/001'
+#21 60.58 Signalling parent 114
+#21 60.58 Terminating server, no sponsors or connections active.
+#21 60.58 Received signal 15
+#21 60.60 Daemon is exiting without errors.
+#21 60.60 Listening cancelled, closing port...
+#21 60.60 Listening cancelled, closing port...
+#21 61.88 Took 43.73s to run UnrealEditor-Cmd, ExitCode=132
+#21 61.94 Cook failed.
+#21 61.94 (see /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt for full exception trace)
+#21 61.95 AutomationTool executed for 0h 1m 1s
+#21 61.95 AutomationTool exiting with ExitCode=25 (Error_UnknownCookFailure)
+#21 61.97 RunUAT ERROR: AutomationTool was unable to run successfully. Exited with code: 25
+#21 61.97 ===== RunUAT failed (exit 25) =====
+#21 61.97 ===== Unreal LocalBuildLogs tail (/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt) =====
+#21 61.97 + CODE=25
+#21 61.97 + UE_LOG=/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt
+#21 61.97 + PROJ_LOG_DIR=/home/ue4/project/Saved/Logs
+#21 61.97 + echo ===== RunUAT failed (exit 25) =====
+#21 61.97 + [ -f /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt ]
+#21 61.97 + echo ===== Unreal LocalBuildLogs tail (/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt) =====
+#21 61.97 + tail -n 500 /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-CacheTrackRecorder.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-CacheTrackRecorder.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-CacheTrackRecorder.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-CacheTrackRecorder.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-CacheTrackRecorder.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeMovieScene.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeMovieScene.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeMovieScene.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeMovieScene.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeMovieScene.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeMovieScene.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorder.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorder.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorder.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorder.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorder.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorder.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorderSources.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorderSources.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorderSources.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorderSources.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorderSources.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeRecorderSources.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeSequencer.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeSequencer.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeSequencer.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeSequencer.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeSequencer.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeSequencer.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeTrackRecorders.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeTrackRecorders.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeTrackRecorders.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeTrackRecorders.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeTrackRecorders.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakeTrackRecorders.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakesCore.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakesCore.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakesCore.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakesCore.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakesCore.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/VirtualProduction/Takes/Binaries/Linux/libUnrealEditor-TakesCore.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/UnrealEditor.modules=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/UnrealEditor.modules
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-CsvMetrics.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-CsvMetrics.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-CsvMetrics.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-CsvMetrics.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-CsvMetrics.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-CsvMetrics.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsCore.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsCore.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsCore.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsCore.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsCore.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsCore.sym
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsTest.debug=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsTest.debug
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsTest.so=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsTest.so
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsTest.sym=True
+#21 61.98 /home/ue4/UnrealEngine/Engine/Plugins/WorldMetrics/Binaries/Linux/libUnrealEditor-WorldMetricsTest.sym
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/TPSCoreMechanicsEditor.target=True
+#21 61.98 /home/ue4/project/Binaries/Linux/TPSCoreMechanicsEditor.target
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/UnrealEditor.modules=True
+#21 61.98 /home/ue4/project/Binaries/Linux/UnrealEditor.modules
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanics.debug=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanics.debug
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanics.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanics.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanics.sym=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanics.sym
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanicsClient.debug=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanicsClient.debug
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanicsClient.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanicsClient.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanicsClient.sym=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libUnrealEditor-TPSCoreMechanicsClient.sym
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/NatsClient/Binaries/Linux/UnrealEditor.modules=True
+#21 61.98 /home/ue4/project/Plugins/NatsClient/Binaries/Linux/UnrealEditor.modules
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/NatsClient/Binaries/Linux/libUnrealEditor-NatsClient.debug=True
+#21 61.98 /home/ue4/project/Plugins/NatsClient/Binaries/Linux/libUnrealEditor-NatsClient.debug
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/NatsClient/Binaries/Linux/libUnrealEditor-NatsClient.so=True
+#21 61.98 /home/ue4/project/Plugins/NatsClient/Binaries/Linux/libUnrealEditor-NatsClient.so
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/NatsClient/Binaries/Linux/libUnrealEditor-NatsClient.sym=True
+#21 61.98 /home/ue4/project/Plugins/NatsClient/Binaries/Linux/libUnrealEditor-NatsClient.sym
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/UnrealEditor.modules=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/UnrealEditor.modules
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkEditor.debug=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkEditor.debug
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkEditor.so=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkEditor.so
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkEditor.sym=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkEditor.sym
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkGrpc.debug=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkGrpc.debug
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkGrpc.so=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkGrpc.so
+#21 61.98 SafeFileExists /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkGrpc.sym=True
+#21 61.98 /home/ue4/project/Plugins/TurboLink/Binaries/Linux/libUnrealEditor-TurboLinkGrpc.sym
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer=True
+#21 61.98 /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer.debug=True
+#21 61.98 /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer.debug
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer.sym=True
+#21 61.98 /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer.sym
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer.target=True
+#21 61.98 /home/ue4/project/Binaries/Linux/TPSCoreMechanicsServer.target
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_atomic-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_atomic-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_atomic-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_atomic-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_chrono-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_chrono-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_chrono-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_chrono-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_filesystem-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_filesystem-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_filesystem-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_filesystem-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_iostreams-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_iostreams-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_iostreams-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_iostreams-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_program_options-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_program_options-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_program_options-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_program_options-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_python311-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_python311-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_python311-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_python311-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_regex-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_regex-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_regex-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_regex-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_system-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_system-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_system-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_system-mt-x64.so.1.82.0
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_thread-mt-x64.so=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_thread-mt-x64.so
+#21 61.98 SafeFileExists /home/ue4/project/Binaries/Linux/libboost_thread-mt-x64.so.1.82.0=True
+#21 61.98 /home/ue4/project/Binaries/Linux/libboost_thread-mt-x64.so.1.82.0
+#21 61.98 End Build products *******
+#21 61.98 Build command time: 12.56 s
+#21 61.98 ********** BUILD COMMAND COMPLETED **********
+#21 61.98 SafeFileExists /home/ue4/project/TPSCoreMechanics.uproject=True
+#21 61.98 ********** COOK COMMAND STARTED **********
+#21 61.98 Looking for targets for project /home/ue4/project/TPSCoreMechanics.uproject
+#21 61.98 Searching for target rule files in /home/ue4/project
+#21 61.98 Found 3 target rule files:
+#21 61.98   /home/ue4/project/Source/TPSCoreMechanics.Target.cs
+#21 61.98   /home/ue4/project/Source/TPSCoreMechanicsEditor.Target.cs
+#21 61.98   /home/ue4/project/Source/TPSCoreMechanicsServer.Target.cs
+#21 61.98 Targets DLL /tmp/UAT/+home+ue4+UnrealEngine/Rules/UATRules-16e47a6eb54b94d41d4d5e3155ff59b4.dll is up to date.
+#21 61.98 Compiling targets DLL: /tmp/UAT/+home+ue4+UnrealEngine/Rules/UATRules-16e47a6eb54b94d41d4d5e3155ff59b4.dll
+#21 61.98 Creating target rules object: TPSCoreMechanicsTarget
+#21 61.98 Adding target: TPSCoreMechanicsTarget (Game)
+#21 61.98 Creating target rules object: TPSCoreMechanicsEditorTarget
+#21 61.98 Adding target: TPSCoreMechanicsEditorTarget (Editor)
+#21 61.98 Creating target rules object: TPSCoreMechanicsServerTarget
+#21 61.98 Adding target: TPSCoreMechanicsServerTarget (Server)
+#21 61.98 Loading ini files for /home/ue4/project/TPSCoreMechanics.uproject
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Binaries/Linux/UnrealEditor-Cmd=True
+#21 61.98 HasMapsToCook /Game/ThirdPerson/Maps/ThirdPersonMap
+#21 61.98 Params.HasMapsToCook /Game/ThirdPerson/Maps/ThirdPersonMap
+#21 61.98 Running UnrealEditor Cook for project /home/ue4/project/TPSCoreMechanics.uproject
+#21 61.98 Commandlet log file is /home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt
+#21 61.98 SafeFileExists /home/ue4/UnrealEngine/Engine/Binaries/Linux/UnrealEditor-Cmd=True
+#21 61.98 Running: /home/ue4/UnrealEngine/Engine/Binaries/Linux/UnrealEditor-Cmd "/home/ue4/project/TPSCoreMechanics.uproject" -run=Cook -Map=/Game/ThirdPerson/Maps/ThirdPersonMap -TargetPlatform=LinuxServer  -ddc=Noshared -unversioned -skipeditorcontent -fileopenlog -abslog="/home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt" -stdout -CrashForUAT -unattended -NoLogTimes  -UTF8Output
+#21 61.98 Using musl
+#21 61.98 Opening shared memory
+#21 61.98 Shared memory doesn't exist, checking legacy lock file
+#21 61.98 Checking for a '/tmp/UnrealTraceServer.pid' lock file
+#21 61.98 Forking process
+#21 61.98 Wait until we know the daemon has started.
+#21 61.98 Parent received signal 10
+#21 61.98 Daemon signalled successful start
+#21 61.98 Forked complete (ret=0)
+#21 61.98 Failed to find game directory: /home/ue4/UnrealEngine/TPSCoreMechanics/Binaries
+#21 61.98 - Existing per-process limit (soft=1048576, hard=1048576) is enough for us (need only 1048576)
+#21 61.98 Increasing per-process limit of core file size to infinity.
+#21 61.98 LogInit: Display: Running engine for game: TPSCoreMechanics
+#21 61.98 LogCore: Display: Requested channels: 'cpu,gpu,frame,log,bookmark,screenshot,region'
+#21 61.98 LogTrace: Display: Display Control listening on port 1985
+#21 61.98 LogCsvProfiler: Display: Metadata set : platform="Linux"
+#21 61.98 LogCsvProfiler: Display: Metadata set : config="Development"
+#21 61.98 LogCsvProfiler: Display: Metadata set : buildversion="UE5-CL-37670630"
+#21 61.98 LogCsvProfiler: Display: Metadata set : engineversion="5.5.4-37670630+UE5"
+#21 61.98 LogCsvProfiler: Display: Metadata set : os="Ubuntu 22.04.2 LTS 6.12.72-linuxkit"
+#21 61.98 LogCsvProfiler: Display: Metadata set : cpu="GenuineIntel|Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz"
+#21 61.98 LogCsvProfiler: Display: Metadata set : pgoenabled="0"
+#21 61.98 LogCsvProfiler: Display: Metadata set : pgoprofilingenabled="0"
+#21 61.98 LogCsvProfiler: Display: Metadata set : ltoenabled="0"
+#21 61.98 LogCsvProfiler: Display: Metadata set : asan="0"
+#21 61.98 LogCsvProfiler: Display: Metadata set : commandline="" /home/ue4/project/TPSCoreMechanics.uproject -run=Cook -Map=/Game/ThirdPerson/Maps/ThirdPersonMap -TargetPlatform=LinuxServer -ddc=Noshared -unversioned -skipeditorcontent -fileopenlog -abslog=/home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt -stdout -CrashForUAT -unattended -NoLogTimes -UTF8Output""
+#21 61.98 LogCsvProfiler: Display: Metadata set : loginid="ca57cc132c984c028baf80416b786cfc-000003e8"
+#21 61.98 LogCsvProfiler: Display: Metadata set : llm="0"
+#21 61.98 LogAssetRegistry: Display: Asset registry cache read as 39.1 MiB from ../../../../project/Intermediate/CachedAssetRegistry_0.bin
+#21 61.98 LogConfig: Display: Loading Mac ini files took 2.10 seconds
+#21 61.98 LogConfig: Display: Loading Android ini files took 2.21 seconds
+#21 61.98 LogConfig: Display: Loading TVOS ini files took 2.35 seconds
+#21 61.98 LogConfig: Display: Loading Windows ini files took 2.48 seconds
+#21 61.98 LogConfig: Display: Loading LinuxArm64 ini files took 2.73 seconds
+#21 61.98 LogConfig: Display: Loading IOS ini files took 2.96 seconds
+#21 61.98 LogConfig: Display: Loading VulkanPC ini files took 2.98 seconds
+#21 61.98 LogConfig: Display: Loading VisionOS ini files took 1.01 seconds
+#21 61.98 LogConfig: Display: Loading Unix ini files took 3.26 seconds
+#21 61.98 LogConfig: Display: Loading Linux ini files took 3.33 seconds
+#21 61.98 RenderDocPlugin: Display: RenderDoc plugin will not be loaded. Use '-AttachRenderDoc' on the cmd line or enable 'renderdoc.AutoAttach' in the plugin settings.
+#21 61.98 LogStudioTelemetry: Display: Starting StudioTelemetry Module
+#21 61.98 LogStreaming: Display: AsyncLoading2 - Created: Event Driven Loader: false, Async Loading Thread: false, Async Post Load: false
+#21 61.98 LogStreaming: Display: AsyncLoading2 - Initialized
+#21 61.98 LogHAL: Display: Platform has ~ 16 GB [16766701568 / 17179869184 / 16], which maps to Larger [LargestMinGB=32, LargerMinGB=12, DefaultMinGB=8, SmallerMinGB=6, SmallestMinGB=0)
+#21 61.98 LogCsvProfiler: Display: Metadata set : extradevelopmentmemorymb="0"
+#21 61.98 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatASTC
+#21 61.98 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatDXT
+#21 61.98 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatETC2
+#21 61.98 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatIntelISPCTexComp
+#21 61.98 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatUncompressed
+#21 61.98 LogTextureFormatOodle: Display: Oodle Texture TFO init; latest sdk version = 2.9.12
+#21 61.98 LogTextureFormatOodle: Display: Oodle Texture loading DLL: liboo2texlinux64.2.9.12.so
+#21 61.98 LogTextureFormatOodle: Display: Oodle Texture loading DLL: liboo2texlinux64.2.9.5.so
+#21 61.98 LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatOodle
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64Server'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64Client'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Linux'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxEditor'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxServer'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxClient'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTC'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXT'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'AndroidClient'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTCClient'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXTClient'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2Client'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_Multi'
+#21 61.98 LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_MultiClient'
+#21 61.98 LogTargetPlatformManager: Display: Building Assets For LinuxServer
+#21 61.98 LogDerivedDataCache: Display: Memory: Max Cache Size: -1 MB
+#21 61.98 LogZenServiceInstance: Display: Installing service from '/home/ue4/UnrealEngine/Engine/Binaries/Linux/zenserver' to '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Install/zenserver'
+#21 61.98 LogZenServiceInstance: Display: Migrating default data path from '/home/ue4/.config/Epic/Zen/Data' to '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Data'.  Old location will be deleted.
+#21 61.98 LogZenServiceInstance: Display: Launching executable '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Install/zenserver', working dir '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Install', data dir '/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Data', args '--port 8558 --data-dir "/home/ue4/.config/Epic/UnrealEngine/Common/Zen/Data" --http asio --gc-cache-duration-seconds 1209600 --gc-interval-seconds 21600 --gc-low-diskspace-threshold 2147483648 --quiet --http-forceloopback --owner-pid 113 --child-id Zen_113_Startup'
+#21 61.98 LogZenServiceInstance: Display: Unreal Zen Storage Server HTTP service at [::1]:8558 status: OK!.
+#21 61.98 LogDerivedDataCache: Display: ZenLocal: Using ZenServer HTTP service at http://[::1]:8558/ with namespace ue.ddc status: OK!.
+#21 61.98 LogDerivedDataCache: Display: ../../../Engine/DerivedDataCache: Performance: Latency=0.70ms. RandomReadSpeed=1385.93MBs, RandomWriteSpeed=173.10MBs. Assigned SpeedClass 'Local'
+#21 61.98 LogShaderCompilers: Display: Using Local Shader Compiler with 9 workers.
+#21 61.98 LogShaderCompilers: Display: Compiling shader autogen file: ../../../../project/Intermediate/ShaderAutogen/VULKAN_SM6/AutogenShaderHeaders.ush
+#21 61.98 LogShaderCompilers: Display: Failed to delete old shader autogen file: ../../../../project/Intermediate/ShaderAutogen/VULKAN_SM6/AutogenShaderHeaders.ush
+#21 61.98 LogShaderCompilers: Display: Shader autogen file written: ../../../../project/Intermediate/ShaderAutogen/VULKAN_SM6/AutogenShaderHeaders.ush
+#21 61.98 LogAssetRegistry: Display: AssetDataGatherer spent 0.001s loading caches ../../../../project/Intermediate/CachedAssetRegistry_*.bin.
+#21 61.98 LogEditorDomain: Display: EditorDomain is Disabled
+#21 61.98 LogStreaming: Display: FlushAsyncLoading(1): 1 QueuedPackages, 0 AsyncPackages
+#21 61.98 LogDeviceProfileManager: Display: Deviceprofile LinuxArm64Editor not found.
+#21 61.98 LogDeviceProfileManager: Display: Deviceprofile LinuxArm64 not found.
+#21 61.98 LogCsvProfiler: Display: Metadata set : deviceprofile="LinuxEditor"
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 8 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 9 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 10 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 11 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/WorldGridMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 13 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 14 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 16 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 17 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 19 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 20 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultDiffuse with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness has reached state ExportsDone > CreateLinkerLoadExports, releasing request 22 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness with requester package /Engine/EngineMaterials/DefaultPostProcessMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec has reached state ExportsDone > CreateLinkerLoadExports, releasing request 23 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec with requester package /Engine/EngineMaterials/DefaultPostProcessMaterial
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions02/Utility/BreakOutFloat2Components with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultPostProcessMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 21 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultPostProcessMaterial with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultPostProcessMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 24 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultPostProcessMaterial with requester package /Engine/EngineMaterials/DefaultLightFunctionMaterial
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultLightFunctionMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 18 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultLightFunctionMaterial with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultLightFunctionMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 25 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultLightFunctionMaterial with requester package /Engine/EngineMaterials/DefaultDeferredDecalMaterial
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultDeferredDecalMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 15 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultDeferredDecalMaterial with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/DefaultDeferredDecalMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 26 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/DefaultDeferredDecalMaterial with requester package /Engine/EngineMaterials/WorldGridMaterial
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/Functions/Engine_MaterialFunctions01/Opacity/CameraDepthFade with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/T_Default_Material_Grid_M with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/T_Default_Material_Grid_N with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/WorldGridMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 12 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/WorldGridMaterial with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogStreaming: Display: Flushing package /Engine/EngineMaterials/WorldGridMaterial (state: ExportsDone) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+#21 61.98 LogStreaming: Display: Package /Engine/EngineMaterials/WorldGridMaterial has reached state ExportsDone > CreateLinkerLoadExports, releasing request 27 to allow recursive sync load to finish
+#21 61.98 LogStreaming: Display: Merging postload groups of package /Engine/EngineMaterials/WorldGridMaterial with requester package /Engine/EngineMaterials/DefaultTextMaterialOpaque
+#21 61.98 LogTextureEncodingSettings: Display: Texture Encode Speed: Final (cook).
+#21 61.98 LogTextureEncodingSettings: Display: Oodle Texture Encode Speed settings: Fast: RDO Off Lambda=0, Effort=Normal Final: RDO Off Lambda=0, Effort=Normal
+#21 61.98 LogTextureEncodingSettings: Display: Shared linear texture encoding: Disabled
+#21 61.98 LogMeshReduction: Display: HLOD mesh reduction module (r.ProxyLODMeshReductionModule) set to "ProxyLODMeshReduction" which doesn't exist.
+#21 61.98 LogMeshReduction: Display: Using QuadricMeshReduction for automatic static mesh reduction
+#21 61.98 LogMeshReduction: Display: Using SkeletalMeshReduction for automatic skeletal mesh reduction
+#21 61.98 LogMeshReduction: Display: No automatic mesh merging module available
+#21 61.98 LogMeshReduction: Display: No distributed automatic mesh merging module available
+#21 61.98 LogStaticMesh: Display: Building static mesh Sphere (Required Memory Estimate: 0.756426 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_CraneRig_Base (Required Memory Estimate: 1.522692 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_CraneRig_Arm (Required Memory Estimate: 0.0249 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_CraneRig_Mount (Required Memory Estimate: 0.292356 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_CraneRig_Body (Required Memory Estimate: 1.454466 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_RailRig_Track (Required Memory Estimate: 2.117645 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_RailRig_Mount (Required Memory Estimate: 2.380135 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh S_1_Unit_Plane (Required Memory Estimate: 0.054254 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh PlaneTranslationHandle (Required Memory Estimate: 0.189357 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh RotationHandleFull (Required Memory Estimate: 6.20107 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh RotationHandleIndicator (Required Memory Estimate: 0.419229 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh RotationHandleQuarter (Required Memory Estimate: 1.44741 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh StartRotationHandleIndicator (Required Memory Estimate: 0.830293 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh TransformGizmoFreeRotation (Required Memory Estimate: 43.612814 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh TranslateArrowHandle (Required Memory Estimate: 0.240406 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh UniformScaleHandle (Required Memory Estimate: 0.140998 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SnapGridPlaneMesh (Required Memory Estimate: 0.059454 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh BoundingBoxCorner (Required Memory Estimate: 0.240406 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh BoundingBoxEdge (Required Memory Estimate: 0.08356 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_Sequencer_Node (Required Memory Estimate: 0.08356 MB)...
+#21 61.98 LogStaticMesh: Display: Building static mesh SplineEditorMesh (Required Memory Estimate: 0.094715 MB)...
+#21 61.98 LogVirtualization: Display: VirtualizationSystem name found in ini file: None
+#21 61.98 LogVirtualization: Display: FNullVirtualizationSystem mounted, virtualization will be disabled
+#21 61.98 LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize started...
+#21 61.98 LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize took 6.658 ms
+#21 61.98 LogMetaSound: Display: MetaSound Page Target Initialized to 'Default'
+#21 61.98 LogAudio: Display: Registering Engine Module Parameter Interfaces...
+#21 61.98 LogStaticMesh: Display: Building static mesh SM_MediaPlateScreen (Required Memory Estimate: 0.010915 MB)...
+#21 61.98 Signal 4 caught.
+#21 61.98 Malloc Size=262146 LargeMemoryPoolOffset=262162
+#21 61.98 LogICUInternationalization: OS requested locale 'en_US_POSIX' is not supported. Using the OS requested language of 'en-US-POSIX' as the locale.
+#21 61.98 LogICUInternationalization: ICU TimeZone Detection - Raw Offset: +0:00, Platform Override: ''
+#21 61.98 LogConfig: No local boot hotfix file found at: [/home/ue4/.config/Epic/CrashReportClient/Saved/PersistentDownloadDir/HotfixForNextBoot.txt]
+#21 61.98 LogInit: ExecutableName: CrashReportClientEditor
+#21 61.98 LogInit: Build: UE5-CL-37670630
+#21 61.98 LogInit: Platform=Linux
+#21 61.98 LogInit: MachineId=ca57cc132c984c028baf80416b786cfc-000003e8
+#21 61.98 LogInit: DeviceId=
+#21 61.98 LogInit: Engine Version: 5.5.4-37670630+UE5
+#21 61.98 LogInit: Compatible Engine Version: 5.5.0-37670630+UE5
+#21 61.98 LogInit: Net CL: 37670630
+#21 61.98 LogInit: OS: Ubuntu 22.04.2 LTS (6.12.72-linuxkit), CPU: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz, GPU: UnknownVendor
+#21 61.98 LogInit: Compiled (64-bit): Mar 25 2025 04:27:26
+#21 61.98 LogInit: Architecture: x64
+#21 61.98 LogInit: Compiled with Clang: 18.1.0rc (github.com/llvm/llvm-project 461274b81d8641eab64d494accddc81d7db8a09e)
+#21 61.98 LogInit: Build Configuration: Shipping
+#21 61.98 LogInit: Branch Name: UE5
+#21 61.98 LogInit: Command Line:  -Abslog="/home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05-CRC.txt" -Unattended "/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/" -unattended
+#21 61.98 LogInit: Base Directory: /home/ue4/UnrealEngine/Engine/Binaries/Linux/
+#21 61.98 LogInit: Allocator: Mimalloc
+#21 61.98 LogInit: Installed Engine Build: 1
+#21 61.98 LogInit: This binary is optimized with LTO: no, PGO: no, instrumented for PGO data collection: no
+#21 61.98 LogInit: Presizing for max 2097152 objects, including 1 objects not considered by GC.
+#21 61.98 LogInit: Object subsystem initialized
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogConfig: Applying CVar settings from Section [ConsoleVariables] File [Engine]
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogConfig: Set CVar [[memory.MemoryPressureCriticalThresholdMB:512]]
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogInit: Unix hardware info:
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogInit:  - we are the first instance of this executable
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogInit:  - this process' id (pid) is 243, parent process' id (ppid) is 113
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogInit:  - we are not running under debugger
+#21 61.98 [2026.03.18-16.33.44:091][  0]LogInit:  - machine network name is 'buildkitsandbox'
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - user name is 'ue4' (ue4)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - we're logged in locally
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - we're running with rendering
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - CPU: GenuineIntel 'Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz' (signature: 0x906ED)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - Number of physical cores available for the process: 12
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - Number of logical cores available for the process: 12
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - GPU Brand Info: UnknownVendor
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - Memory allocator used: Mimalloc
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - This is an internal build.
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogCore: Skipped benchmarking clocks because the engine is running in a standalone program mode - CLOCK_MONOTONIC will be used.
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit: Unix-specific commandline switches:
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -ansimalloc - use malloc()/free() from libc (useful for tools like valgrind and electric fence)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -jemalloc - use jemalloc for all memory allocation
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -binnedmalloc - use binned malloc  for all memory allocation
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -filemapcachesize=NUMBER - set the size for case-sensitive file mapping cache
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -useksm - uses kernel same-page mapping (KSM) for mapped memory (OFF)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -ksmmergeall - marks all mmap'd memory pages suitable for KSM (OFF)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -preloadmodulesymbols - Loads the main module symbols file into memory (OFF)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -sigdfl=SIGNAL - Allows a specific signal to be set to its default handler rather then ignoring the signal
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -crashhandlerstacksize - Allows setting crash handler stack sizes (204800)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -noexclusivelockonwrite - disables marking files created by the engine as exclusive locked while the engine has them opened
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -httpproxy=ADDRESS:PORT - redirects HTTP requests to a proxy (only supported if compiled with libcurl)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -reuseconn - allow libcurl to reuse HTTP connections (only matters if compiled with libcurl)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -virtmemkb=NUMBER - sets process virtual memory (address space) limit (overrides VirtualMemoryLimitInKB value from .ini)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  -allowsyscallfilterfile=PATH_TO_FILE - sets up a system call filter allow list. any invalid syscall in this list *will* cause a crash
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - Physical RAM available (not considering process quota): 16 GB (15989 MB, 16373732 KB, 16766701568 bytes)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - VirtualMemoryAllocator pools will grow at scale 1
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - MemoryRangeDecommit() will be a no-op (re-run with -vmapoolevict to change)
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - PageSize 4096
+#21 61.98 [2026.03.18-16.33.44:092][  0]LogInit:  - BinnedPageSize 65536
+#21 61.98 [2026.03.18-16.33.44:102][  0]LogUObjectArray: 547 objects as part of root set at end of initial load.
+#21 61.98 [2026.03.18-16.33.44:102][  0]LogUObjectArray: 0 objects are not in the root set, but can never be destroyed because they are in the DisregardForGC set.
+#21 61.98 [2026.03.18-16.33.44:102][  0]LogUObjectArray: CloseDisregardForGC: 547/547 objects in disregard for GC pool
+#21 61.98 [2026.03.18-16.33.44:104][  0]LogInit: Using OS detected language (en-US-POSIX).
+#21 61.98 [2026.03.18-16.33.44:104][  0]LogInit: Using OS detected locale (en-US-POSIX).
+#21 61.98 [2026.03.18-16.33.44:105][  0]LogTextLocalizationManager: No specific localization for 'en-US-POSIX' exists, so 'en' will be used for the language.
+#21 61.98 [2026.03.18-16.33.44:184][  0]LogInit: Using OS detected language (en-US-POSIX).
+#21 61.98 [2026.03.18-16.33.44:184][  0]LogInit: Using OS detected locale (en-US-POSIX).
+#21 61.98 [2026.03.18-16.33.44:184][  0]LogTextLocalizationManager: No localization for 'en-US-POSIX' exists, so 'en' will be used for the language.
+#21 61.98 [2026.03.18-16.33.44:184][  0]LogTextLocalizationManager: No localization for 'en-US-POSIX' exists, so 'en' will be used for the locale.
+#21 61.98 [2026.03.18-16.33.44:184][  0]LogPackageLocalizationCache: Processed 2 localized package path(s) for 1 prioritized culture(s) in 0.000056 seconds
+#21 61.98 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: Display: Applying project settings from '/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/CrashReportClient.ini'.
+#21 61.98 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: CrashReportClientVersion=1.0
+#21 61.98 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: CrashReportReceiver disabled
+#21 61.98 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: DataRouter disabled
+#21 61.98 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: Initial state = Unknown UploadState value
+#21 61.98 [2026.03.18-16.33.44:186][  0]CrashReportCoreLog: Initial state = Unknown UploadState value
+#21 61.98 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: DepotName: UE5
+#21 61.98 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: BuiltFromCL: 37670630
+#21 61.98 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: EngineVersion: 5.5.4-37670630+UE5
+#21 61.98 [2026.03.18-16.33.44:187][  0]LogCrashDebugHelper: BuildVersion: UE5-CL-37670630
+#21 61.98 [2026.03.18-16.33.45:209][  0]CrashReportCoreLog: Final state (Receiver) = Unknown UploadState value
+#21 61.98 [2026.03.18-16.33.45:209][  0]CrashReportCoreLog: Final state (Receiver) = Unknown UploadState value
+#21 61.98 [2026.03.18-16.33.45:209][  0]LogCore: Engine exit requested (reason: CrashReportClientApp RequestExit)
+#21 61.98 [2026.03.18-16.33.45:209][  0]LogExit: Preparing to exit.
+#21 61.98 [2026.03.18-16.33.45:218][  0]LogExit: Object subsystem successfully closed.
+#21 61.98 [2026.03.18-16.33.45:219][  0]LogPakFile: Destroying PakPlatformFile
+#21 61.98 [2026.03.18-16.33.45:220][  0]LogExit: Exiting.
+#21 61.98 CommonUnixCrashHandler: Signal=4
+#21 61.98 Engine crash handling finished; re-raising signal 4 for the default handler. Good bye.
+#21 61.98 Opening shared memory
+#21 61.98 Shared memory doesn't exist, checking legacy lock file
+#21 61.98 Checking for a '/tmp/UnrealTraceServer.pid' lock file
+#21 61.98 Forking process
+#21 61.98 Opening shared memory
+#21 61.98 Starting the store
+#21 61.98 Reading settings from '/home/ue4/UnrealEngine/UnrealTrace/Settings.ini'
+#21 61.98 
+#21 61.98 Unable to open settings file /home/ue4/UnrealEngine/UnrealTrace/Settings.ini.
+#21 61.98 
+#21 61.98 Store settings (/home/ue4/UnrealEngine/UnrealTrace/Settings.ini):
+#21 61.98  - Store port: 1989
+#21 61.98  - Recorder port: 1981
+#21 61.98  - Thread count: 0
+#21 61.98  - Sponsored mode: 1
+#21 61.98  - Directory: '/home/ue4/UnrealEngine/UnrealTrace/Store/001'
+#21 61.98 Signalling parent 114
+#21 61.98 Terminating server, no sponsors or connections active.
+#21 61.98 Received signal 15
+#21 61.98 Daemon is exiting without errors.
+#21 61.98 Listening cancelled, closing port...
+#21 61.98 Listening cancelled, closing port...
+#21 61.98 Took 43.73s to run UnrealEditor-Cmd, ExitCode=132
+#21 61.98 SafeDeleteFile /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Cook-2026.03.18-16.33.49.txt
+#21 61.98 SafeCopyFile /home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Cook-2026.03.18-16.33.49.txt
+#21 61.98 SafeDeleteFile /home/ue4/UnrealEngine/Engine/Programs/AutomationTool/Saved/Cook-2026.03.18-16.33.05.txt
+#21 61.98 ==============================================================================
+#21 61.98 Cook failed.
+#21 61.98 (see /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt for full exception trace)
+#21 61.98 
+#21 61.98 CommandletException: Editor terminated with exit code 132 (signal 4) while running Cook for /home/ue4/project/TPSCoreMechanics.uproject; see log /home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Cook-2026.03.18-16.33.49.txt
+#21 61.98    at AutomationTool.CommandUtils.FinishRunCommandlet(FileReference ProjectFile, String Commandlet, DateTime StartTime, IProcessResult RunResult, String LocalLogFile, String& DestLogFile, UInt32 ErrorLevel) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/CommandletUtils.cs:line 477
+#21 61.98    at AutomationTool.CommandUtils.RunCommandlet(FileReference ProjectFile, String UnrealExe, String Commandlet, String Parameters, String& DestLogFile, UInt32 ErrorLevel) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/CommandletUtils.cs:line 281
+#21 61.98    at AutomationTool.CommandUtils.RunCommandlet(FileReference ProjectFile, String UnrealExe, String Commandlet, String Parameters, UInt32 ErrorLevel) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/CommandletUtils.cs:line 247
+#21 61.98    at AutomationTool.CommandUtils.CookCommandlet(FileReference ProjectFile, String UnrealExe, String[] Maps, String[] Dirs, String InternationalizationPreset, String[] CulturesToCook, String TargetPlatform, String Parameters) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/CommandletUtils.cs:line 93
+#21 61.98    at AutomationScripts.Project.Cook(ProjectParams Params) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/Scripts/CookCommand.Automation.cs:line 295Wrapped by AutomationException: Cook failed.
+#21 61.98    at AutomationScripts.Project.Cook(ProjectParams Params) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/Scripts/CookCommand.Automation.cs:line 305
+#21 61.98    at BuildCookRun.DoBuildCookRun(ProjectParams Params) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/Scripts/BuildCookRun.Automation.cs:line 253
+#21 61.98    at BuildCookRun.ExecuteBuild() in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/Scripts/BuildCookRun.Automation.cs:line 43
+#21 61.98    at AutomationTool.BuildCommand.Execute() in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/BuildCommand.cs:line 372
+#21 61.98    at AutomationTool.BuildCommand.ExecuteAsync() in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/BuildCommand.cs:line 381
+#21 61.98    at AutomationTool.Automation.ExecuteAsync(List`1 CommandsToExecute, Dictionary`2 Commands) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/Automation.cs:line 284
+#21 61.98    at AutomationTool.Automation.ExecuteAsync(List`1 CommandsToExecute, Dictionary`2 Commands) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/Automation.cs:line 308
+#21 61.98    at AutomationTool.Automation.ProcessAsync(ParsedCommandLine AutomationToolCommandLine, StartupTraceListener StartupListener, HashSet`1 ScriptModuleAssemblies) in /home/ue4/UnrealEngine/Engine/Saved/CsTools/Engine/Source/Programs/AutomationTool/AutomationUtils/Automation.cs:line 168
+#21 61.98 ==============================================================================
+#21 61.98 AutomationTool executed for 0h 1m 1s
+#21 61.98 AutomationTool exiting with ExitCode=25 (Error_UnknownCookFailure)
+#21 61.98 + [ -d /home/ue4/project/Saved/Logs ]
+#21 61.98 + CRASH_ROOT=/home/ue4/project/Saved/Crashes
+#21 61.98 + [ -d /home/ue4/project/Saved/Crashes ]
+#21 61.98 + ls -1dt /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E
+#21 61.98 + head -n 1
+#21 61.98 ===== Latest crash directory (/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E) =====
+#21 61.98 + LATEST_CRASH=/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E
+#21 61.98 + [ -n /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E ]
+#21 61.98 + echo ===== Latest crash directory (/home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E) =====
+#21 61.98 + ls -la /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E
+#21 61.99 total 104
+#21 61.99 drwxr-xr-x 2 ue4 ue4  4096 Mar 18 16:33 .
+#21 61.99 drwxr-xr-x 3 ue4 ue4  4096 Mar 18 16:33 ..
+#21 61.99 -rw-r--r-- 1 ue4 ue4 78402 Mar 18 16:33 Cook-2026.03.18-16.33.05.txt
+#21 61.99 -rw-r--r-- 1 ue4 ue4  7732 Mar 18 16:33 CrashContext.runtime-xml
+#21 61.99 -rw-r--r-- 1 ue4 ue4   179 Mar 18 16:33 CrashReportClient.ini
+#21 61.99 -rw-r--r-- 1 ue4 ue4  2907 Mar 18 16:33 Diagnostics.txt
+#21 61.99 + [ -f /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/CrashContext.runtime-xml ]
+#21 61.99 + echo ===== CrashContext markers =====
+#21 61.99 ===== CrashContext markers =====
+#21 61.99 + grep -nE <ErrorMessage>|<Signal>|<CallStack>|<PCallStack>|<SourceContext>|<EngineMode>|<ExecutableName>|<CrashType>|<PrimaryCrashProperties> /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/CrashContext.runtime-xml
+#21 61.99 10:		<CrashType>Crash</CrashType>
+#21 61.99 11:		<ErrorMessage>Caught signal 4 Illegal instruction</ErrorMessage>
+#21 61.99 21:		<ExecutableName>UnrealEditor-Cmd</ExecutableName>
+#21 61.99 27:		<EngineMode>Commandlet</EngineMode>
+#21 61.99 73:		<CallStack>libusd_plug.so!_ZN32pxrInternal_v0_24__pxrReserved__17Plug_ReadPlugInfoERKNSt3__16vectorINS0_12basic_stringIcNS0_11char_traitsIcEENS0_9allocatorIcEEEENS5_IS7_EEEEbRKNS0_8functionIFbRKS7_EEERKNSC_IFvRKNS_25Plug_RegistrationMetadataEEEEPNS_14Plug_TaskArenaE(+0x390)
+#21 61.99 91:		<PCallStack>
+#21 61.99 + echo ===== CrashContext.runtime-xml (tail) =====
+#21 61.99 + tail -n 300 /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/CrashContext.runtime-xml
+#21 61.99 ===== CrashContext.runtime-xml (tail) =====
+#21 61.99 <?xml version="1.0" encoding="UTF-8"?>
+#21 61.99 <FGenericCrashContext>
+#21 61.99 	<RuntimeProperties>
+#21 61.99 		<CrashVersion>3</CrashVersion>
+#21 61.99 		<ExecutionGuid>00761E20293B46CD98AE4E2003433FD4</ExecutionGuid>
+#21 61.99 		<CrashGUID>UECC-Linux-4948764933BA4316BF2A565F4BC19709_0000</CrashGUID>
+#21 61.99 		<IsEnsure>false</IsEnsure>
+#21 61.99 		<IsStall>false</IsStall>
+#21 61.99 		<IsAssert>false</IsAssert>
+#21 61.99 		<CrashType>Crash</CrashType>
+#21 61.99 		<ErrorMessage>Caught signal 4 Illegal instruction</ErrorMessage>
+#21 61.99 		<CrashReporterMessage />
+#21 61.99 		<CrashReporterMessage>Unattended</CrashReporterMessage>
+#21 61.99 		<ProcessId>113</ProcessId>
+#21 61.99 		<SecondsSinceStart>0</SecondsSinceStart>
+#21 61.99 		<IsInternalBuild>false</IsInternalBuild>
+#21 61.99 		<IsPerforceBuild>false</IsPerforceBuild>
+#21 61.99 		<IsWithDebugInfo>true</IsWithDebugInfo>
+#21 61.99 		<IsSourceDistribution>false</IsSourceDistribution>
+#21 61.99 		<GameName>UE-TPSCoreMechanics</GameName>
+#21 61.99 		<ExecutableName>UnrealEditor-Cmd</ExecutableName>
+#21 61.99 		<BuildConfiguration>Development</BuildConfiguration>
+#21 61.99 		<GameSessionID />
+#21 61.99 		<PlatformName>LinuxEditor</PlatformName>
+#21 61.99 		<PlatformFullName>Linux [Ubuntu 22.04.2 LTS 6.12.72-linuxkit 64b]</PlatformFullName>
+#21 61.99 		<PlatformNameIni>Linux</PlatformNameIni>
+#21 61.99 		<EngineMode>Commandlet</EngineMode>
+#21 61.99 		<EngineModeEx>Unset</EngineModeEx>
+#21 61.99 		<DeploymentName />
+#21 61.99 		<EngineVersion>5.5.4-37670630+UE5</EngineVersion>
+#21 61.99 		<EngineCompatibleVersion>5.5.4-37670630+UE5</EngineCompatibleVersion>
+#21 61.99 		<CommandLine>CommandLineRemoved</CommandLine>
+#21 61.99 		<LanguageLCID>9</LanguageLCID>
+#21 61.99 		<AppDefaultLocale>en_US_POSIX</AppDefaultLocale>
+#21 61.99 		<BuildVersion>UE5-CL-37670630</BuildVersion>
+#21 61.99 		<Symbols>UE5-CL-37670630-Linux-Development</Symbols>
+#21 61.99 		<IsUERelease>true</IsUERelease>
+#21 61.99 		<IsRequestingExit>false</IsRequestingExit>
+#21 61.99 		<UserName />
+#21 61.99 		<BaseDir>/home/ue4/UnrealEngine/Engine/Binaries/Linux/</BaseDir>
+#21 61.99 		<RootDir>/home/ue4/UnrealEngine/</RootDir>
+#21 61.99 		<MachineId>CA57CC132C984C028BAF80416B786CFC-000003E8</MachineId>
+#21 61.99 		<LoginId>ca57cc132c984c028baf80416b786cfc-000003e8</LoginId>
+#21 61.99 		<EpicAccountId />
+#21 61.99 		<SourceContext />
+#21 61.99 		<UserDescription>Sent in the unattended mode</UserDescription>
+#21 61.99 		<UserActivityHint />
+#21 61.99 		<CrashDumpMode>0</CrashDumpMode>
+#21 61.99 		<GameStateName />
+#21 61.99 		<Misc.NumberOfCores>12</Misc.NumberOfCores>
+#21 61.99 		<Misc.NumberOfCoresIncludingHyperthreads>12</Misc.NumberOfCoresIncludingHyperthreads>
+#21 61.99 		<Misc.Is64bitOperatingSystem>1</Misc.Is64bitOperatingSystem>
+#21 61.99 		<Misc.CPUVendor>GenuineIntel</Misc.CPUVendor>
+#21 61.99 		<Misc.CPUBrand>Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz</Misc.CPUBrand>
+#21 61.99 		<Misc.PrimaryGPUBrand>UnknownVendor</Misc.PrimaryGPUBrand>
+#21 61.99 		<Misc.OSVersionMajor>Ubuntu 22.04.2 LTS</Misc.OSVersionMajor>
+#21 61.99 		<Misc.OSVersionMinor>6.12.72-linuxkit</Misc.OSVersionMinor>
+#21 61.99 		<Misc.AnticheatProvider />
+#21 61.99 		<MemoryStats.TotalPhysical>16766701568</MemoryStats.TotalPhysical>
+#21 61.99 		<MemoryStats.TotalVirtual>4294963200</MemoryStats.TotalVirtual>
+#21 61.99 		<MemoryStats.PageSize>4096</MemoryStats.PageSize>
+#21 61.99 		<MemoryStats.TotalPhysicalGB>16</MemoryStats.TotalPhysicalGB>
+#21 61.99 		<MemoryStats.AvailablePhysical>14020390912</MemoryStats.AvailablePhysical>
+#21 61.99 		<MemoryStats.AvailableVirtual>26017431552</MemoryStats.AvailableVirtual>
+#21 61.99 		<MemoryStats.UsedPhysical>1601458176</MemoryStats.UsedPhysical>
+#21 61.99 		<MemoryStats.PeakUsedPhysical>1601458176</MemoryStats.PeakUsedPhysical>
+#21 61.99 		<MemoryStats.UsedVirtual>9148432384</MemoryStats.UsedVirtual>
+#21 61.99 		<MemoryStats.PeakUsedVirtual>9148432384</MemoryStats.PeakUsedVirtual>
+#21 61.99 		<MemoryStats.bIsOOM>0</MemoryStats.bIsOOM>
+#21 61.99 		<MemoryStats.OOMAllocationSize>0</MemoryStats.OOMAllocationSize>
+#21 61.99 		<MemoryStats.OOMAllocationAlignment>0</MemoryStats.OOMAllocationAlignment>
+#21 61.99 		<NumMinidumpFramesToIgnore>0</NumMinidumpFramesToIgnore>
+#21 61.99 		<CallStack>libusd_plug.so!_ZN32pxrInternal_v0_24__pxrReserved__17Plug_ReadPlugInfoERKNSt3__16vectorINS0_12basic_stringIcNS0_11char_traitsIcEENS0_9allocatorIcEEEENS5_IS7_EEEEbRKNS0_8functionIFbRKS7_EEERKNSC_IFvRKNS_25Plug_RegistrationMetadataEEEEPNS_14Plug_TaskArenaE(+0x390)
+#21 61.99 libusd_plug.so!UnknownFunction(0x3acea)
+#21 61.99 libusd_tf.so!_ZN3tbb10interface78internal20isolate_within_arenaERNS1_13delegate_baseEl(+0x39)
+#21 61.99 libusd_plug.so!UnknownFunction(0x3a2bd)
+#21 61.99 libusd_plug.so!_ZN32pxrInternal_v0_24__pxrReserved__12PlugRegistry15RegisterPluginsERKNSt3__16vectorINS1_12basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEENS6_IS8_EEEE(+0x1d)
+#21 61.99 libUnrealEditor-UnrealUSDWrapper.so!FUnrealUSDWrapperModule::StartupModule() [/home/ue4/UnrealEngine/Engine/Source/./../Plugins/Runtime/USDCore/Source/UnrealUSDWrapper/Private/UnrealUSDWrapper.cpp:1241]
+#21 61.99 libUnrealEditor-Core.so!FModuleManager::LoadModuleWithFailureReason(FName, EModuleLoadResult&amp;, ELoadModuleFlags) [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Core/Private/Modules/ModuleManager.cpp:854]
+#21 61.99 libUnrealEditor-Projects.so!FModuleDescriptor::LoadModulesForPhase(ELoadingPhase::Type, TArray&lt;FModuleDescriptor, TSizedDefaultAllocator&lt;32&gt; &gt; const&amp;, TMap&lt;FName, EModuleLoadResult, FDefaultSetAllocator, TDefaultMapHashableKeyFuncs&lt;FName, EModuleLoadResult, false&gt; &gt;&amp;) [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Projects/Private/ModuleDescriptor.cpp:753]
+#21 61.99 libUnrealEditor-Projects.so!FPluginManager::TryLoadModulesForPlugin(FPlugin const&amp;, ELoadingPhase::Type) const [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Projects/Private/PluginManager.cpp:2724]
+#21 61.99 libUnrealEditor-Projects.so!FPluginManager::LoadModulesForEnabledPlugins(ELoadingPhase::Type) [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Projects/Private/PluginManager.cpp:2863]
+#21 61.99 UnrealEditor-Cmd!FEngineLoop::LoadStartupModules() [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Launch/Private/LaunchEngineLoop.cpp:4702]
+#21 61.99 UnrealEditor-Cmd!FEngineLoop::PreInitPostStartupScreen(char16_t const*) [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Launch/Private/LaunchEngineLoop.cpp:3959]
+#21 61.99 UnrealEditor-Cmd!GuardedMain(char16_t const*) [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Launch/Private/LaunchEngineLoop.cpp:4444]
+#21 61.99 libUnrealEditor-UnixCommonStartup.so!CommonUnixMain(int, char**, int (*)(char16_t const*), void (*)()) [/home/ue4/UnrealEngine/Engine/Source/./Runtime/Unix/UnixCommonStartup/Private/UnixCommonStartup.cpp:323]
+#21 61.99 libc.so.6!UnknownFunction(0x29d8f)
+#21 61.99 libc.so.6!__libc_start_main(+0x7f)
+#21 61.99 UnrealEditor-Cmd!_start(+0x29)
+#21 61.99 </CallStack>
+#21 61.99 		<PCallStack>
+#21 61.99 
+#21 61.99 libusd_plug 0x00007f0555e3b000 + 20340 
+#21 61.99 libusd_plug 0x00007f0555e3b000 + 3aceb 
+#21 61.99 libusd_tf 0x00007f05649eb000 + 3e816a 
+#21 61.99 libusd_plug 0x00007f0555e3b000 + 3a2be 
+#21 61.99 libusd_plug 0x00007f0555e3b000 + 39f7e 
+#21 61.99 libUnrealEditor-UnrealUSDWrapper 0x00007f0557972000 + 482a9c 
+#21 61.99 libUnrealEditor-Core 0x00007f066d951000 + c23da4 
+#21 61.99 libUnrealEditor-Projects 0x00007f0666ea9000 + 490bd 
+#21 61.99 libUnrealEditor-Projects 0x00007f0666ea9000 + 66eaa 
+#21 61.99 libUnrealEditor-Projects 0x00007f0666ea9000 + 69c6a 
+#21 61.99 UnrealEditor-Cmd 0x0000000000200000 + 56d50 
+#21 61.99 UnrealEditor-Cmd 0x0000000000200000 + 5326e 
+#21 61.99 UnrealEditor-Cmd 0x0000000000200000 + 42072 
+#21 61.99 libUnrealEditor-UnixCommonStartup 0x00007f0662259000 + 8bca 
+#21 61.99 libc.so 0x00007f0661f44000 + 29d90 
+#21 61.99 libc.so 0x00007f0661f44000 + 29e40 
+#21 61.99 UnrealEditor-Cmd 0x0000000000200000 + 37baa 
+#21 61.99 </PCallStack>
+#21 61.99 		<PCallStackHash>A56BEEC5CEDEC34C7C99286CCE158A613E74AD3B</PCallStackHash>
+#21 61.99 		<TimeOfCrash>639094484241850000</TimeOfCrash>
+#21 61.99 		<bAllowToBeContacted>1</bAllowToBeContacted>
+#21 61.99 		<CPUBrand>Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz</CPUBrand>
+#21 61.99 		<CrashReportClientVersion>1.0</CrashReportClientVersion>
+#21 61.99 		<Modules />
+#21 61.99 	</RuntimeProperties>
+#21 61.99 	<PlatformProperties>
+#21 61.99 		<CrashSignal>4</CrashSignal>
+#21 61.99 		<CrashSignalName>Illegal instruction</CrashSignalName>
+#21 61.99 		<PlatformCallbackResult>0</PlatformCallbackResult>
+#21 61.99 		<CrashTrigger>0</CrashTrigger>
+#21 61.99 	</PlatformProperties>
+#21 61.99 	<EngineData>
+#21 61.99 		<MatchingDPStatus>LinuxEditorNo errors</MatchingDPStatus>
+#21 61.99 		<RHI.RHIName>NullRHI</RHI.RHIName>
+#21 61.99 		<DeviceProfile.Name>LinuxEditor</DeviceProfile.Name>
+#21 61.99 	</EngineData>
+#21 61.99 	<GameData>
+#21 61.99 </GameData>
+#21 61.99 </FGenericCrashContext>
+#21 62.00 + ls -1t /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/*.log
+#21 62.00 + head -n 1
+#21 62.00 + CRASH_LOG=
+#21 62.00 + [ -n  ]
+#21 62.00 + exit 25
+#21 ERROR: process "/bin/sh -c set -eux;         ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun         -project=${PROJECT_ROOT}/TPSCoreMechanics.uproject         -platform=Linux         -serverconfig=Development         -server         -noclient         -cook         -stage         -pak         -archive         -archivedirectory=${PROJECT_ROOT}/LinuxServerPackage/LinuxServer         -noP4         -nodebuginfo         -map=${COOK_MAPS}         -SkipCookingEditorContent         -build         -noxge         -NoShaderDistrib         -unattended         -utf8output         -ddc=Noshared         -nullrhi         || {             CODE=$?;             UE_LOG=\"/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt\";             PROJ_LOG_DIR=\"${PROJECT_ROOT}/Saved/Logs\";             echo \"===== RunUAT failed (exit ${CODE}) =====\";             if [ -f \"$UE_LOG\" ]; then                 echo \"===== Unreal LocalBuildLogs tail ($UE_LOG) =====\";                 tail -n 500 \"$UE_LOG\" || true;             else                 echo \"No Unreal LocalBuildLogs file at: $UE_LOG\";             fi;             if [ -d \"$PROJ_LOG_DIR\" ]; then                 echo \"===== Project Saved/Logs files =====\";                 ls -la \"$PROJ_LOG_DIR\" || true;                 LATEST_LOG=$(ls -1t \"$PROJ_LOG_DIR\"/*.log 2>/dev/null | head -n 1 || true);                 if [ -n \"$LATEST_LOG\" ]; then                     echo \"===== Latest project log tail ($LATEST_LOG) =====\";                     tail -n 500 \"$LATEST_LOG\" || true;                 fi;             fi;             CRASH_ROOT=\"${PROJECT_ROOT}/Saved/Crashes\";             if [ -d \"$CRASH_ROOT\" ]; then                 LATEST_CRASH=$(ls -1dt \"$CRASH_ROOT\"/crashinfo-* 2>/dev/null | head -n 1 || true);                 if [ -n \"$LATEST_CRASH\" ]; then                     echo \"===== Latest crash directory ($LATEST_CRASH) =====\";                     ls -la \"$LATEST_CRASH\" || true;                     if [ -f \"$LATEST_CRASH/CrashContext.runtime-xml\" ]; then                         echo \"===== CrashContext markers =====\";                         grep -nE \"<ErrorMessage>|<Signal>|<CallStack>|<PCallStack>|<SourceContext>|<EngineMode>|<ExecutableName>|<CrashType>|<PrimaryCrashProperties>\" \"$LATEST_CRASH/CrashContext.runtime-xml\" || true;                         echo \"===== CrashContext.runtime-xml (tail) =====\";                         tail -n 300 \"$LATEST_CRASH/CrashContext.runtime-xml\" || true;                     fi;                     CRASH_LOG=$(ls -1t \"$LATEST_CRASH\"/*.log 2>/dev/null | head -n 1 || true);                     if [ -n \"$CRASH_LOG\" ]; then                         echo \"===== Latest crash log tail ($CRASH_LOG) =====\";                         tail -n 300 \"$CRASH_LOG\" || true;                     fi;                 fi;             fi;             exit \"$CODE\";         }" did not complete successfully: exit code: 25
+------
+ > [builder 9/9] RUN set -eux;         /home/ue4/UnrealEngine/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun         -project=/home/ue4/project/TPSCoreMechanics.uproject         -platform=Linux         -serverconfig=Development         -server         -noclient         -cook         -stage         -pak         -archive         -archivedirectory=/home/ue4/project/LinuxServerPackage/LinuxServer         -noP4         -nodebuginfo         -map=/Game/ThirdPerson/Maps/ThirdPersonMap         -SkipCookingEditorContent         -build         -noxge         -NoShaderDistrib         -unattended         -utf8output         -ddc=Noshared         -nullrhi         || {             CODE=$?;             UE_LOG="/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt";             PROJ_LOG_DIR="/home/ue4/project/Saved/Logs";             echo "===== RunUAT failed (exit ${CODE}) =====";             if [ -f "$UE_LOG" ]; then                 echo "===== Unreal LocalBuildLogs tail ($UE_LOG) =====";                 tail -n 500 "$UE_LOG" || true;             else                 echo "No Unreal LocalBuildLogs file at: $UE_LOG";             fi;             if [ -d "$PROJ_LOG_DIR" ]; then                 echo "===== Project Saved/Logs files =====";                 ls -la "$PROJ_LOG_DIR" || true;                 LATEST_LOG=$(ls -1t "$PROJ_LOG_DIR"/*.log 2>/dev/null | head -n 1 || true);                 if [ -n "$LATEST_LOG" ]; then                     echo "===== Latest project log tail ($LATEST_LOG) =====";                     tail -n 500 "$LATEST_LOG" || true;                 fi;             fi;             CRASH_ROOT="/home/ue4/project/Saved/Crashes";             if [ -d "$CRASH_ROOT" ]; then                 LATEST_CRASH=$(ls -1dt "$CRASH_ROOT"/crashinfo-* 2>/dev/null | head -n 1 || true);                 if [ -n "$LATEST_CRASH" ]; then                     echo "===== Latest crash directory ($LATEST_CRASH) =====";                     ls -la "$LATEST_CRASH" || true;                     if [ -f "$LATEST_CRASH/CrashContext.runtime-xml" ]; then                         echo "===== CrashContext markers =====";                         grep -nE "<ErrorMessage>|<Signal>|<CallStack>|<PCallStack>|<SourceContext>|<EngineMode>|<ExecutableName>|<CrashType>|<PrimaryCrashProperties>" "$LATEST_CRASH/CrashContext.runtime-xml" || true;                         echo "===== CrashContext.runtime-xml (tail) =====";                         tail -n 300 "$LATEST_CRASH/CrashContext.runtime-xml" || true;                     fi;                     CRASH_LOG=$(ls -1t "$LATEST_CRASH"/*.log 2>/dev/null | head -n 1 || true);                     if [ -n "$CRASH_LOG" ]; then                         echo "===== Latest crash log tail ($CRASH_LOG) =====";                         tail -n 300 "$CRASH_LOG" || true;                     fi;                 fi;             fi;             exit "$CODE";         }:
+61.99 		<DeviceProfile.Name>LinuxEditor</DeviceProfile.Name>
+61.99 	</EngineData>
+61.99 	<GameData>
+61.99 </GameData>
+61.99 </FGenericCrashContext>
+62.00 + ls -1t /home/ue4/project/Saved/Crashes/crashinfo-TPSCoreMechanics-pid-113-B57F21A055984BC4900A6FABB85E541E/*.log
+62.00 + head -n 1
+62.00 + CRASH_LOG=
+62.00 + [ -n  ]
+62.00 + exit 25
+------
+Dockerfile.server:107
+--------------------
+ 106 |     # Use iterative cooking and skip DDC, disable shader compilation distributed builds
+ 107 | >>> RUN set -eux; \
+ 108 | >>>         ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun \
+ 109 | >>>         -project=${PROJECT_ROOT}/TPSCoreMechanics.uproject \
+ 110 | >>>         -platform=Linux \
+ 111 | >>>         -serverconfig=Development \
+ 112 | >>>         -server \
+ 113 | >>>         -noclient \
+ 114 | >>>         -cook \
+ 115 | >>>         -stage \
+ 116 | >>>         -pak \
+ 117 | >>>         -archive \
+ 118 | >>>         -archivedirectory=${PROJECT_ROOT}/LinuxServerPackage/LinuxServer \
+ 119 | >>>         -noP4 \
+ 120 | >>>         -nodebuginfo \
+ 121 | >>>         -map=${COOK_MAPS} \
+ 122 | >>>         -SkipCookingEditorContent \
+ 123 | >>>         -build \
+ 124 | >>>         -noxge \
+ 125 | >>>         -NoShaderDistrib \
+ 126 | >>>         -unattended \
+ 127 | >>>         -utf8output \
+ 128 | >>>         -ddc=Noshared \
+ 129 | >>>         -nullrhi \
+ 130 | >>>         || { \
+ 131 | >>>             CODE=$?; \
+ 132 | >>>             UE_LOG="/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt"; \
+ 133 | >>>             PROJ_LOG_DIR="${PROJECT_ROOT}/Saved/Logs"; \
+ 134 | >>>             echo "===== RunUAT failed (exit ${CODE}) ====="; \
+ 135 | >>>             if [ -f "$UE_LOG" ]; then \
+ 136 | >>>                 echo "===== Unreal LocalBuildLogs tail ($UE_LOG) ====="; \
+ 137 | >>>                 tail -n 500 "$UE_LOG" || true; \
+ 138 | >>>             else \
+ 139 | >>>                 echo "No Unreal LocalBuildLogs file at: $UE_LOG"; \
+ 140 | >>>             fi; \
+ 141 | >>>             if [ -d "$PROJ_LOG_DIR" ]; then \
+ 142 | >>>                 echo "===== Project Saved/Logs files ====="; \
+ 143 | >>>                 ls -la "$PROJ_LOG_DIR" || true; \
+ 144 | >>>                 LATEST_LOG=$(ls -1t "$PROJ_LOG_DIR"/*.log 2>/dev/null | head -n 1 || true); \
+ 145 | >>>                 if [ -n "$LATEST_LOG" ]; then \
+ 146 | >>>                     echo "===== Latest project log tail ($LATEST_LOG) ====="; \
+ 147 | >>>                     tail -n 500 "$LATEST_LOG" || true; \
+ 148 | >>>                 fi; \
+ 149 | >>>             fi; \
+ 150 | >>>             CRASH_ROOT="${PROJECT_ROOT}/Saved/Crashes"; \
+ 151 | >>>             if [ -d "$CRASH_ROOT" ]; then \
+ 152 | >>>                 LATEST_CRASH=$(ls -1dt "$CRASH_ROOT"/crashinfo-* 2>/dev/null | head -n 1 || true); \
+ 153 | >>>                 if [ -n "$LATEST_CRASH" ]; then \
+ 154 | >>>                     echo "===== Latest crash directory ($LATEST_CRASH) ====="; \
+ 155 | >>>                     ls -la "$LATEST_CRASH" || true; \
+ 156 | >>>                     if [ -f "$LATEST_CRASH/CrashContext.runtime-xml" ]; then \
+ 157 | >>>                         echo "===== CrashContext markers ====="; \
+ 158 | >>>                         grep -nE "<ErrorMessage>|<Signal>|<CallStack>|<PCallStack>|<SourceContext>|<EngineMode>|<ExecutableName>|<CrashType>|<PrimaryCrashProperties>" "$LATEST_CRASH/CrashContext.runtime-xml" || true; \
+ 159 | >>>                         echo "===== CrashContext.runtime-xml (tail) ====="; \
+ 160 | >>>                         tail -n 300 "$LATEST_CRASH/CrashContext.runtime-xml" || true; \
+ 161 | >>>                     fi; \
+ 162 | >>>                     CRASH_LOG=$(ls -1t "$LATEST_CRASH"/*.log 2>/dev/null | head -n 1 || true); \
+ 163 | >>>                     if [ -n "$CRASH_LOG" ]; then \
+ 164 | >>>                         echo "===== Latest crash log tail ($CRASH_LOG) ====="; \
+ 165 | >>>                         tail -n 300 "$CRASH_LOG" || true; \
+ 166 | >>>                     fi; \
+ 167 | >>>                 fi; \
+ 168 | >>>             fi; \
+ 169 | >>>             exit "$CODE"; \
+ 170 | >>>         }
+ 171 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;         ${UE_ROOT}/Engine/Build/BatchFiles/RunUAT.sh BuildCookRun         -project=${PROJECT_ROOT}/TPSCoreMechanics.uproject         -platform=Linux         -serverconfig=Development         -server         -noclient         -cook         -stage         -pak         -archive         -archivedirectory=${PROJECT_ROOT}/LinuxServerPackage/LinuxServer         -noP4         -nodebuginfo         -map=${COOK_MAPS}         -SkipCookingEditorContent         -build         -noxge         -NoShaderDistrib         -unattended         -utf8output         -ddc=Noshared         -nullrhi         || {             CODE=$?;             UE_LOG=\"/home/ue4/Library/Logs/Unreal Engine/LocalBuildLogs/Log.txt\";             PROJ_LOG_DIR=\"${PROJECT_ROOT}/Saved/Logs\";             echo \"===== RunUAT failed (exit ${CODE}) =====\";             if [ -f \"$UE_LOG\" ]; then                 echo \"===== Unreal LocalBuildLogs tail ($UE_LOG) =====\";                 tail -n 500 \"$UE_LOG\" || true;             else                 echo \"No Unreal LocalBuildLogs file at: $UE_LOG\";             fi;             if [ -d \"$PROJ_LOG_DIR\" ]; then                 echo \"===== Project Saved/Logs files =====\";                 ls -la \"$PROJ_LOG_DIR\" || true;                 LATEST_LOG=$(ls -1t \"$PROJ_LOG_DIR\"/*.log 2>/dev/null | head -n 1 || true);                 if [ -n \"$LATEST_LOG\" ]; then                     echo \"===== Latest project log tail ($LATEST_LOG) =====\";                     tail -n 500 \"$LATEST_LOG\" || true;                 fi;             fi;             CRASH_ROOT=\"${PROJECT_ROOT}/Saved/Crashes\";             if [ -d \"$CRASH_ROOT\" ]; then                 LATEST_CRASH=$(ls -1dt \"$CRASH_ROOT\"/crashinfo-* 2>/dev/null | head -n 1 || true);                 if [ -n \"$LATEST_CRASH\" ]; then                     echo \"===== Latest crash directory ($LATEST_CRASH) =====\";                     ls -la \"$LATEST_CRASH\" || true;                     if [ -f \"$LATEST_CRASH/CrashContext.runtime-xml\" ]; then                         echo \"===== CrashContext markers =====\";                         grep -nE \"<ErrorMessage>|<Signal>|<CallStack>|<PCallStack>|<SourceContext>|<EngineMode>|<ExecutableName>|<CrashType>|<PrimaryCrashProperties>\" \"$LATEST_CRASH/CrashContext.runtime-xml\" || true;                         echo \"===== CrashContext.runtime-xml (tail) =====\";                         tail -n 300 \"$LATEST_CRASH/CrashContext.runtime-xml\" || true;                     fi;                     CRASH_LOG=$(ls -1t \"$LATEST_CRASH\"/*.log 2>/dev/null | head -n 1 || true);                     if [ -n \"$CRASH_LOG\" ]; then                         echo \"===== Latest crash log tail ($CRASH_LOG) =====\";                         tail -n 300 \"$CRASH_LOG\" || true;                     fi;                 fi;             fi;             exit \"$CODE\";         }" did not complete successfully: exit code: 25

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "NPC/NPCCharacter.h"
 #include "TPSCoreGameMode.generated.h"
 
 class UCharacterClassInfo;
@@ -40,9 +41,36 @@ public:
 
 	UCharacterClassInfo* GetCharacterClassDefaultInfo() const;
 
+	/** Zone identifier sent to npc-metadata-service to fetch this map's NPCs. */
+	UFUNCTION(BlueprintPure, Category = "NPC")
+	const FString& GetZoneId() const { return ZoneId; }
+
+	/**
+	 * NPC actor class spawned by UServerNpcManagerSubsystem.
+	 * Defaults to ANPCCharacter. Override with a Blueprint subclass to apply
+	 * custom mesh, animations, or AI behaviour.
+	 */
+	UFUNCTION(BlueprintPure, Category = "NPC")
+	TSubclassOf<ANPCCharacter> GetNpcClass() const { return NpcClass; }
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Class Defaults")
 	TObjectPtr<UCharacterClassInfo> ClassDefaults;
+
+	/**
+	 * Zone id forwarded to npc.meta.by_zone on BeginPlay.
+	 * Leave empty to fall back to the map name.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "NPC")
+	FString ZoneId;
+
+	/**
+	 * NPC actor class to spawn. Defaults to ANPCCharacter (C++ base).
+	 * Set to a Blueprint subclass (e.g. BP_NPCCharacter) when you need
+	 * custom meshes or animations driven from the editor.
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "NPC")
+	TSubclassOf<ANPCCharacter> NpcClass;
 
 	/** Temporary: CharacterId stored during Login, consumed in PostLogin. */
 	TMap<FObjectKey, FString> PendingCharacterIds;

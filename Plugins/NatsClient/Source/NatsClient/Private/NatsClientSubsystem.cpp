@@ -2,10 +2,27 @@
 
 #include "NatsClientSubsystem.h"
 #include "Async/Async.h"
+#include "Misc/Paths.h"
+
+#ifndef NATS_CLIENT_NOT_AVAILABLE
+#define NATS_CLIENT_NOT_AVAILABLE 1
+#endif
 
 #if !NATS_CLIENT_NOT_AVAILABLE
-// When nats.c is vendored, include its header here:
-// #include "nats/nats.h"
+extern "C"
+{
+#include "nats/nats.h"
+}
+
+static FString NatsStatusToString(const natsStatus Status)
+{
+	const char* StatusText = natsStatus_GetText(Status);
+	if (StatusText == nullptr)
+	{
+		return FString::Printf(TEXT("Unknown natsStatus (%d)"), static_cast<int32>(Status));
+	}
+	return UTF8_TO_TCHAR(StatusText);
+}
 #endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogNatsClient, Log, All);
@@ -32,20 +49,73 @@ void UNatsClientSubsystem::Connect(const FString& Url, const FString& Credential
 	UE_LOG(LogNatsClient, Warning, TEXT("Connect called but nats.c is not vendored. Place prebuilt libs under Plugins/NatsClient/Source/NatsClient/ThirdParty/nats.c/"));
 	return;
 #else
-	// TODO: implement with nats.c
-	// natsOptions* opts = nullptr;
-	// natsOptions_Create(&opts);
-	// natsOptions_SetURL(opts, TCHAR_TO_UTF8(*Url));
-	// if (!CredentialsOrNKey.IsEmpty())
-	//     natsOptions_SetNKey(opts, TCHAR_TO_UTF8(*CredentialsOrNKey), nullptr, nullptr);
-	// natsStatus s = natsConnection_Connect((natsConnection**)&NatsConnection, opts);
-	// natsOptions_Destroy(opts);
-	// if (s == NATS_OK)
-	// {
-	//     bConnected = true;
-	//     AsyncTask(ENamedThreads::GameThread, [this]() { OnConnected.Broadcast(); });
-	// }
-	UE_LOG(LogNatsClient, Log, TEXT("Connect: %s (nats.c stub)"), *Url);
+   if (Url.IsEmpty())
+   {
+      UE_LOG(LogNatsClient, Warning, TEXT("Connect failed: URL is empty"));
+      return;
+   }
+
+   Disconnect();
+
+   natsOptions* Options = nullptr;
+   natsStatus Status = natsOptions_Create(&Options);
+   if (Status != NATS_OK || Options == nullptr)
+   {
+      UE_LOG(LogNatsClient, Error, TEXT("natsOptions_Create failed: %s"), *NatsStatusToString(Status));
+      return;
+   }
+
+   FTCHARToUTF8 UrlUtf8(*Url);
+   Status = natsOptions_SetURL(Options, UrlUtf8.Get());
+   if (Status != NATS_OK)
+   {
+      UE_LOG(LogNatsClient, Error, TEXT("natsOptions_SetURL failed: %s"), *NatsStatusToString(Status));
+      natsOptions_Destroy(Options);
+      return;
+   }
+
+   if (!CredentialsOrNKey.IsEmpty())
+   {
+      FString CredentialsPath = CredentialsOrNKey;
+      if (!FPaths::FileExists(CredentialsPath))
+      {
+         CredentialsPath = FPaths::ConvertRelativePathToFull(CredentialsOrNKey);
+      }
+
+      if (!FPaths::FileExists(CredentialsPath))
+      {
+         UE_LOG(
+            LogNatsClient,
+            Error,
+            TEXT("CredentialsOrNKey must be a valid credentials file path for now. Inline NKey seed is not yet supported: %s"),
+            *CredentialsOrNKey);
+         natsOptions_Destroy(Options);
+         return;
+      }
+
+      FTCHARToUTF8 CredentialsUtf8(*CredentialsPath);
+      Status = natsOptions_SetUserCredentialsFromFiles(Options, CredentialsUtf8.Get(), nullptr);
+      if (Status != NATS_OK)
+      {
+         UE_LOG(LogNatsClient, Error, TEXT("natsOptions_SetUserCredentialsFromFiles failed: %s"), *NatsStatusToString(Status));
+         natsOptions_Destroy(Options);
+         return;
+      }
+   }
+
+   natsConnection* NewConnection = nullptr;
+   Status = natsConnection_Connect(&NewConnection, Options);
+   natsOptions_Destroy(Options);
+
+   if (Status != NATS_OK || NewConnection == nullptr)
+   {
+      UE_LOG(LogNatsClient, Error, TEXT("natsConnection_Connect failed: %s"), *NatsStatusToString(Status));
+      return;
+   }
+
+   NatsConnection = NewConnection;
+   bConnected = true;
+   AsyncTask(ENamedThreads::GameThread, [this]() { OnConnected.Broadcast(); });
 #endif
 }
 
@@ -54,7 +124,18 @@ void UNatsClientSubsystem::Disconnect()
 #if !NATS_CLIENT_NOT_AVAILABLE
 	if (NatsConnection)
 	{
-		// natsConnection_Destroy((natsConnection*)NatsConnection);
+      for (auto& Pair : Subscriptions)
+      {
+         if (Pair.Value.NativeSubscription != nullptr)
+         {
+            natsSubscription_Unsubscribe(static_cast<natsSubscription*>(Pair.Value.NativeSubscription));
+            natsSubscription_Destroy(static_cast<natsSubscription*>(Pair.Value.NativeSubscription));
+            Pair.Value.NativeSubscription = nullptr;
+         }
+      }
+
+      natsConnection_Close(static_cast<natsConnection*>(NatsConnection));
+      natsConnection_Destroy(static_cast<natsConnection*>(NatsConnection));
 		NatsConnection = nullptr;
 	}
 #endif
@@ -75,10 +156,23 @@ void UNatsClientSubsystem::PublishJson(const FString& Subject, const FString& Js
 	UE_LOG(LogNatsClient, Warning, TEXT("PublishJson: nats.c not available. Subject=%s"), *Subject);
 	return;
 #else
-	// TODO: implement with nats.c
-	// natsConnection_PublishString((natsConnection*)NatsConnection,
-	//     TCHAR_TO_UTF8(*Subject), TCHAR_TO_UTF8(*JsonPayload));
-	UE_LOG(LogNatsClient, Verbose, TEXT("PublishJson [%s]: %s"), *Subject, *JsonPayload);
+   if (NatsConnection == nullptr)
+   {
+      UE_LOG(LogNatsClient, Warning, TEXT("PublishJson failed: not connected. Subject=%s"), *Subject);
+      return;
+   }
+
+   FTCHARToUTF8 SubjectUtf8(*Subject);
+   FTCHARToUTF8 PayloadUtf8(*JsonPayload);
+   natsStatus Status = natsConnection_PublishString(
+      static_cast<natsConnection*>(NatsConnection),
+      SubjectUtf8.Get(),
+      PayloadUtf8.Get());
+
+   if (Status != NATS_OK)
+   {
+      UE_LOG(LogNatsClient, Error, TEXT("PublishJson failed for [%s]: %s"), *Subject, *NatsStatusToString(Status));
+   }
 #endif
 }
 
@@ -88,9 +182,24 @@ void UNatsClientSubsystem::PublishBytes(const FString& Subject, const TArray<uin
 	UE_LOG(LogNatsClient, Warning, TEXT("PublishBytes: nats.c not available. Subject=%s"), *Subject);
 	return;
 #else
-	// TODO: implement with nats.c
-	// natsConnection_Publish((natsConnection*)NatsConnection,
-	//     TCHAR_TO_UTF8(*Subject), Payload.GetData(), Payload.Num());
+   if (NatsConnection == nullptr)
+   {
+      UE_LOG(LogNatsClient, Warning, TEXT("PublishBytes failed: not connected. Subject=%s"), *Subject);
+      return;
+   }
+
+   FTCHARToUTF8 SubjectUtf8(*Subject);
+   const void* DataPtr = Payload.Num() > 0 ? static_cast<const void*>(Payload.GetData()) : nullptr;
+   natsStatus Status = natsConnection_Publish(
+      static_cast<natsConnection*>(NatsConnection),
+      SubjectUtf8.Get(),
+      DataPtr,
+      Payload.Num());
+
+   if (Status != NATS_OK)
+   {
+      UE_LOG(LogNatsClient, Error, TEXT("PublishBytes failed for [%s]: %s"), *Subject, *NatsStatusToString(Status));
+   }
 #endif
 }
 
@@ -108,26 +217,62 @@ void UNatsClientSubsystem::RequestJson(
 	Callback.ExecuteIfBound(false, EmptyReply);
 	return;
 #else
-	// TODO: implement with nats.c
-	// natsMsg* replyMsg = nullptr;
-	// int64_t timeoutMs = static_cast<int64_t>(TimeoutSeconds * 1000.0f);
-	// natsStatus s = natsConnection_RequestString(&replyMsg, (natsConnection*)NatsConnection,
-	//     TCHAR_TO_UTF8(*Subject), TCHAR_TO_UTF8(*JsonPayload), timeoutMs);
-	// FNatsMessage Reply;
-	// bool bOk = (s == NATS_OK);
-	// if (bOk)
-	// {
-	//     Reply.Subject = UTF8_TO_TCHAR(natsMsg_GetSubject(replyMsg));
-	//     const char* data = natsMsg_GetData(replyMsg);
-	//     int dataLen = natsMsg_GetDataLength(replyMsg);
-	//     Reply.Payload.Append((const uint8*)data, dataLen);
-	//     natsMsg_Destroy(replyMsg);
-	// }
-	// AsyncTask(ENamedThreads::GameThread, [Callback, bOk, Reply]()
-	// {
-	//     Callback.ExecuteIfBound(bOk, Reply);
-	// });
-	UE_LOG(LogNatsClient, Verbose, TEXT("RequestJson [%s] (stub)"), *Subject);
+   if (NatsConnection == nullptr)
+   {
+      UE_LOG(LogNatsClient, Warning, TEXT("RequestJson failed: not connected. Subject=%s"), *Subject);
+      FNatsMessage EmptyReply;
+      Callback.ExecuteIfBound(false, EmptyReply);
+      return;
+   }
+
+   const int64 TimeoutMs = FMath::Max<int64>(1, static_cast<int64>(TimeoutSeconds * 1000.0f));
+   FTCHARToUTF8 SubjectUtf8(*Subject);
+   FTCHARToUTF8 PayloadUtf8(*JsonPayload);
+
+   natsMsg* ReplyMsg = nullptr;
+   const natsStatus Status = natsConnection_RequestString(
+      &ReplyMsg,
+      static_cast<natsConnection*>(NatsConnection),
+      SubjectUtf8.Get(),
+      PayloadUtf8.Get(),
+      TimeoutMs);
+
+   FNatsMessage Reply;
+   const bool bOk = (Status == NATS_OK && ReplyMsg != nullptr);
+   if (bOk)
+   {
+      const char* ReplySubject = natsMsg_GetSubject(ReplyMsg);
+      const char* ReplyTo = natsMsg_GetReply(ReplyMsg);
+      const char* ReplyData = natsMsg_GetData(ReplyMsg);
+      const int32 ReplyDataLen = natsMsg_GetDataLength(ReplyMsg);
+
+      if (ReplySubject != nullptr)
+      {
+         Reply.Subject = UTF8_TO_TCHAR(ReplySubject);
+      }
+      if (ReplyTo != nullptr)
+      {
+         Reply.ReplyTo = UTF8_TO_TCHAR(ReplyTo);
+      }
+      if (ReplyData != nullptr && ReplyDataLen > 0)
+      {
+         Reply.Payload.Append(reinterpret_cast<const uint8*>(ReplyData), ReplyDataLen);
+      }
+   }
+   else
+   {
+      UE_LOG(LogNatsClient, Warning, TEXT("RequestJson failed for [%s]: %s"), *Subject, *NatsStatusToString(Status));
+   }
+
+   if (ReplyMsg != nullptr)
+   {
+      natsMsg_Destroy(ReplyMsg);
+   }
+
+   AsyncTask(ENamedThreads::GameThread, [Callback, bOk, Reply]() mutable
+   {
+      Callback.ExecuteIfBound(bOk, Reply);
+   });
 #endif
 }
 
@@ -141,17 +286,40 @@ FNatsSubscriptionHandle UNatsClientSubsystem::Subscribe(const FString& Subject, 
 	UE_LOG(LogNatsClient, Warning, TEXT("Subscribe: nats.c not available. Subject=%s"), *Subject);
 	return Handle;
 #else
-	Handle.Id = NextSubscriptionId++;
-	FSubscriptionEntry Entry;
-	Entry.Subject = Subject;
-	Entry.Delegate = Delegate;
-	// TODO: implement with nats.c
-	// natsSubscription* sub = nullptr;
-	// natsConnection_Subscribe(&sub, (natsConnection*)NatsConnection,
-	//     TCHAR_TO_UTF8(*Subject), &UNatsClientSubsystem::NatsMsgHandler, this);
-	// Entry.NativeSubscription = sub;
-	Subscriptions.Add(Handle.Id, MoveTemp(Entry));
-	UE_LOG(LogNatsClient, Log, TEXT("Subscribe [%s] id=%lld (stub)"), *Subject, Handle.Id);
+   if (NatsConnection == nullptr)
+   {
+      UE_LOG(LogNatsClient, Warning, TEXT("Subscribe failed: not connected. Subject=%s"), *Subject);
+      return Handle;
+   }
+
+   natsSubscription* NativeSubscription = nullptr;
+   FTCHARToUTF8 SubjectUtf8(*Subject);
+
+   auto NativeHandler = +[](natsConnection* InConn, natsSubscription* InSub, natsMsg* InMsg, void* InUserData)
+   {
+      UNatsClientSubsystem::NatsMsgHandler(InConn, InSub, InMsg, InUserData);
+   };
+
+   const natsStatus Status = natsConnection_Subscribe(
+      &NativeSubscription,
+      static_cast<natsConnection*>(NatsConnection),
+      SubjectUtf8.Get(),
+      NativeHandler,
+      this);
+
+   if (Status != NATS_OK || NativeSubscription == nullptr)
+   {
+      UE_LOG(LogNatsClient, Error, TEXT("Subscribe failed for [%s]: %s"), *Subject, *NatsStatusToString(Status));
+      return Handle;
+   }
+
+   Handle.Id = NextSubscriptionId++;
+   FSubscriptionEntry Entry;
+   Entry.Subject = Subject;
+   Entry.Delegate = Delegate;
+   Entry.NativeSubscription = NativeSubscription;
+   Subscriptions.Add(Handle.Id, MoveTemp(Entry));
+
 	return Handle;
 #endif
 }
@@ -166,8 +334,12 @@ void UNatsClientSubsystem::Unsubscribe(const FNatsSubscriptionHandle& Handle)
 	if (FSubscriptionEntry* Entry = Subscriptions.Find(Handle.Id))
 	{
 #if !NATS_CLIENT_NOT_AVAILABLE
-		// natsSubscription_Unsubscribe((natsSubscription*)Entry->NativeSubscription);
-		// natsSubscription_Destroy((natsSubscription*)Entry->NativeSubscription);
+		if (Entry->NativeSubscription != nullptr)
+		{
+		 natsSubscription_Unsubscribe(static_cast<natsSubscription*>(Entry->NativeSubscription));
+		 natsSubscription_Destroy(static_cast<natsSubscription*>(Entry->NativeSubscription));
+		 Entry->NativeSubscription = nullptr;
+		}
 #endif
 		Subscriptions.Remove(Handle.Id);
 	}
@@ -177,19 +349,52 @@ void UNatsClientSubsystem::Unsubscribe(const FNatsSubscriptionHandle& Handle)
 
 void UNatsClientSubsystem::NatsMsgHandler(void* NatsConn, void* NatsSub, void* NatsMsg, void* UserData)
 {
-	// Called on nats.c internal thread — must marshal to game thread.
-	// UNatsClientSubsystem* Self = static_cast<UNatsClientSubsystem*>(UserData);
-	// const char* subj = natsMsg_GetSubject((natsMsg*)NatsMsg);
-	// const char* data = natsMsg_GetData((natsMsg*)NatsMsg);
-	// int dataLen = natsMsg_GetDataLength((natsMsg*)NatsMsg);
-	// FNatsMessage Msg;
-	// Msg.Subject = UTF8_TO_TCHAR(subj);
-	// Msg.Payload.Append((const uint8*)data, dataLen);
-	// natsMsg_Destroy((natsMsg*)NatsMsg);
-	// AsyncTask(ENamedThreads::GameThread, [Self, Msg]()
-	// {
-	//     for (auto& Pair : Self->Subscriptions)
-	//         if (Pair.Value.Subject == Msg.Subject || /* wildcard match */)
-	//             Pair.Value.Delegate.Broadcast(Msg);
-	// });
+   (void)NatsConn;
+
+   if (UserData == nullptr || NatsMsg == nullptr)
+   {
+      return;
+   }
+
+   UNatsClientSubsystem* Self = static_cast<UNatsClientSubsystem*>(UserData);
+   natsMsg* NativeMsg = static_cast<natsMsg*>(NatsMsg);
+
+   FNatsMessage Message;
+   const char* Subject = natsMsg_GetSubject(NativeMsg);
+   const char* ReplyTo = natsMsg_GetReply(NativeMsg);
+   const char* Data = natsMsg_GetData(NativeMsg);
+   const int32 DataLen = natsMsg_GetDataLength(NativeMsg);
+
+   if (Subject != nullptr)
+   {
+      Message.Subject = UTF8_TO_TCHAR(Subject);
+   }
+   if (ReplyTo != nullptr)
+   {
+      Message.ReplyTo = UTF8_TO_TCHAR(ReplyTo);
+   }
+   if (Data != nullptr && DataLen > 0)
+   {
+      Message.Payload.Append(reinterpret_cast<const uint8*>(Data), DataLen);
+   }
+
+   natsMsg_Destroy(NativeMsg);
+
+   void* NativeSub = NatsSub;
+   AsyncTask(ENamedThreads::GameThread, [Self, NativeSub, Message]() mutable
+   {
+      if (!IsValid(Self))
+      {
+         return;
+      }
+
+      for (const TPair<int64, FSubscriptionEntry>& Pair : Self->Subscriptions)
+      {
+         if (Pair.Value.NativeSubscription == NativeSub)
+         {
+            Pair.Value.Delegate.ExecuteIfBound(Message);
+            break;
+         }
+      }
+   });
 }

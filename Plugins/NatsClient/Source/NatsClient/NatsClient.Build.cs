@@ -1,5 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+using System;
 using System.IO;
 using UnrealBuildTool;
 
@@ -38,8 +39,10 @@ public class NatsClient : ModuleRules
 		string ThirdPartyPath = Path.Combine(ModuleDirectory, "ThirdParty", "nats.c");
 		string IncludePath = Path.Combine(ThirdPartyPath, "include");
 		string LibPath = Path.Combine(ThirdPartyPath, "lib", Target.Platform.ToString());
+		bool bHasInclude = Directory.Exists(IncludePath);
+		bool bHasLibrary = false;
 
-		if (Directory.Exists(IncludePath))
+		if (bHasInclude)
 		{
 			PublicIncludePaths.Add(IncludePath);
 		}
@@ -48,22 +51,58 @@ public class NatsClient : ModuleRules
 		{
 			if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
-				PublicAdditionalLibraries.Add(Path.Combine(LibPath, "nats_static.lib"));
+				string LibraryPath = Path.Combine(LibPath, "nats_static.lib");
+				if (File.Exists(LibraryPath))
+				{
+					PublicAdditionalLibraries.Add(LibraryPath);
+					bHasLibrary = true;
+				}
 			}
 			else if (Target.Platform == UnrealTargetPlatform.Mac)
 			{
-				PublicAdditionalLibraries.Add(Path.Combine(LibPath, "libnats_static.a"));
+				string LibraryPath = Path.Combine(LibPath, "libnats_static.a");
+				if (File.Exists(LibraryPath))
+				{
+					PublicAdditionalLibraries.Add(LibraryPath);
+					bHasLibrary = true;
+				}
 			}
 			else if (Target.Platform == UnrealTargetPlatform.Linux)
 			{
-				PublicAdditionalLibraries.Add(Path.Combine(LibPath, "libnats_static.a"));
+				string LibraryPath = Path.Combine(LibPath, "libnats_static.a");
+				if (File.Exists(LibraryPath))
+				{
+					PublicAdditionalLibraries.Add(LibraryPath);
+					bHasLibrary = true;
+				}
 			}
 		}
-		else
+
+		bool bNatsAvailable = bHasInclude && bHasLibrary;
+		bool bNatsRequired = string.Equals(
+			Environment.GetEnvironmentVariable("NATS_CLIENT_REQUIRED"),
+			"1",
+			StringComparison.OrdinalIgnoreCase);
+
+		if (bNatsRequired && !bNatsAvailable)
+		{
+			throw new BuildException(
+				"NatsClient: NATS is required (NATS_CLIENT_REQUIRED=1) but vendor artifacts are missing for platform '{0}'. " +
+				"Expected include at '{1}' and static library under '{2}'.",
+				Target.Platform,
+				IncludePath,
+				LibPath);
+		}
+
+		if (!bNatsAvailable)
 		{
 			// nats.c not yet vendored — plugin will compile but NATS calls will be no-ops.
 			// Run: Plugins/NatsClient/Source/NatsClient/ThirdParty/fetch_nats.sh
 			PublicDefinitions.Add("NATS_CLIENT_NOT_AVAILABLE=1");
+		}
+		else
+		{
+			PublicDefinitions.Add("NATS_CLIENT_NOT_AVAILABLE=0");
 		}
 	}
 }
