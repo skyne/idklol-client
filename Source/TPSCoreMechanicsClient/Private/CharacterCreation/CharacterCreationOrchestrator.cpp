@@ -1,16 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CharacterCreation/CharacterCreationOrchestrator.h"
+#include "ServerConnection/ServerConnectionSubsystem.h"
 
 #include "CharacterCreation/CharacterCreation.h"
 #include "CharacterCreation/CharacterSelection.h"
 #include "CharacterCreation/CharacterCreationHUD.h"
 #include "CharacterCreation/CharacterSelectionHUD.h"
-#include "CharacterCreation/CharacterCreationGameModeBase.h"
 #include "CharacterCreation/SelectedCharacterSubsystem.h"
 #include "Characters/CharactersSubsystem.h"
 #include "Characters/CharacterGrpcMapper.h"
-#include "Kismet/GameplayStatics.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 
 ACharacterCreationOrchestrator::ACharacterCreationOrchestrator()
@@ -196,86 +195,47 @@ void ACharacterCreationOrchestrator::HandleRequestCreateNew()
 void ACharacterCreationOrchestrator::HandleCharacterSelectedForPlay(FString CharacterId)
 {
 	LOG("[CharacterCreationOrchestrator] Character selected for play: %s", *CharacterId);
-	
-	// Get the character data from the CharactersSubsystem
+
 	UCharactersSubsystem* CharactersSubsystem = GetGameInstance()->GetSubsystem<UCharactersSubsystem>();
 	if (!CharactersSubsystem || !CharactersSubsystem->IsConnected())
 	{
-		LOG("[CharacterCreationOrchestrator] Cannot get character data - not connected to service");
+		LOG("[CharacterCreationOrchestrator] Cannot get character data — not connected to character service");
 		return;
 	}
-	
-	// Get the character list from the selection actor
-	if (!CharacterSelectionActor)
-	{
-		LOG("[CharacterCreationOrchestrator] CharacterSelectionActor is null");
-		return;
-	}
-	
-	// Find the selected character in the cached list
-	FGrpcCharactersCharacter SelectedCharacterData;
-	bool bFoundCharacter = false;
-	
-	// We need to get the character list - it's cached in the actor but not exposed
-	// Let's request it from the server
+
+	// Fetch the full character list so we can cache the selected character locally in
+	// USelectedCharacterSubsystem (used to pre-render appearance before server replication arrives).
 	auto Future = CharactersSubsystem->ListCreatedCharactersAsync();
-	
 	Future.Next([this, CharacterId](const FGrpcCharactersListCreatedCharactersResponse& Response)
 	{
 		AsyncTask(ENamedThreads::GameThread, [this, CharacterId, Response]()
 		{
-			// Find the character with matching ID
-			const FGrpcCharactersCharacter* FoundCharacter = Response.Characters.FindByPredicate(
-				[&CharacterId](const FGrpcCharactersCharacter& Character)
+			// Cache the character data for local pre-render (best-effort, non-blocking).
+			const FGrpcCharactersCharacter* Found = Response.Characters.FindByPredicate(
+				[&CharacterId](const FGrpcCharactersCharacter& C) { return C.CharacterId == CharacterId; });
+
+			if (Found)
+			{
+				if (USelectedCharacterSubsystem* Sel = GetGameInstance()->GetSubsystem<USelectedCharacterSubsystem>())
 				{
-					return Character.CharacterId == CharacterId;
+					Sel->SetSelectedCharacter(FCharacterGrpcMapper::ToNative(*Found));
+					LOG("[CharacterCreationOrchestrator] Cached selected character: %s", *Found->Name);
 				}
-			);
-			
-			if (!FoundCharacter)
-			{
-				LOG("[CharacterCreationOrchestrator] Could not find character with ID: %s", *CharacterId);
-				return;
 			}
-			
-			// Store the selected character in the subsystem
-			USelectedCharacterSubsystem* SelectedCharacterSubsystem = GetGameInstance()->GetSubsystem<USelectedCharacterSubsystem>();
-			if (SelectedCharacterSubsystem)
+			else
 			{
-				SelectedCharacterSubsystem->SetSelectedCharacter(FCharacterGrpcMapper::ToNative(*FoundCharacter));
-				LOG("[CharacterCreationOrchestrator] Stored selected character: %s", *FoundCharacter->Name);
-			}
-			
-			// Get the game world map from the game mode
-			ACharacterCreationGameModeBase* GameMode = Cast<ACharacterCreationGameModeBase>(GetWorld()->GetAuthGameMode());
-			if (!GameMode)
-			{
-				LOG("[CharacterCreationOrchestrator] GameMode is not ACharacterCreationGameModeBase");
-				return;
-			}
-			
-			FString TransitionURL = GameMode->GetGameWorldTransitionURL();
-			if (TransitionURL.IsEmpty())
-			{
-				LOG("[CharacterCreationOrchestrator] GameWorldMap is not set in GameMode");
-				return;
+				LOG_WARNING("[CharacterCreationOrchestrator] Character %s not found in list — connecting anyway", *CharacterId);
 			}
 
-			// Append CharacterId so the game server can fetch character data via NATS in PostLogin
-			if (SelectedCharacterSubsystem)
+			// Initiate travel to the game server (handles auth token + server address).
+			if (UServerConnectionSubsystem* Conn = GetGameInstance()->GetSubsystem<UServerConnectionSubsystem>())
 			{
-				const FString CharacterId = SelectedCharacterSubsystem->GetSelectedCharacter().CharacterId;
-				if (!CharacterId.IsEmpty())
-				{
-					const TCHAR* Sep = TransitionURL.Contains(TEXT("?")) ? TEXT("&") : TEXT("?");
-					TransitionURL = FString::Printf(TEXT("%s%sCharacterId=%s"), *TransitionURL, Sep, *CharacterId);
-				}
+				Conn->ConnectToServer(CharacterId);
 			}
-			
-			LOG("[CharacterCreationOrchestrator] Transitioning to game world with URL: %s", *TransitionURL);
-			
-			// Load the game world map with game mode override
-			UGameplayStatics::OpenLevel(this, FName(*TransitionURL));
+			else
+			{
+				LOG_ERROR("[CharacterCreationOrchestrator] UServerConnectionSubsystem not available");
+			}
 		});
 	});
 }

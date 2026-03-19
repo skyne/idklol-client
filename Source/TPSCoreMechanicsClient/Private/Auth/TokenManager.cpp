@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Auth/TokenManager.h"
+#include "Auth/JwtClaimsHelper.h"
 #include "Misc/Base64.h"
 #include "Misc/SecureHash.h"
-#include "Serialization/JsonSerializer.h"
-#include "Dom/JsonObject.h"
 
 void UTokenManager::SetTokens(const FString& InAccessToken, const FString& InRefreshToken, int32 ExpiresInSeconds)
 {
@@ -123,70 +122,13 @@ void UTokenManager::ClearTokens()
 
 bool UTokenManager::ParseJWTExpiration(const FString& JWTToken, int64& OutExpirationTimestamp)
 {
-	// JWT format: header.payload.signature
-	TArray<FString> Parts;
-	JWTToken.ParseIntoArray(Parts, TEXT("."));
-
-	if (Parts.Num() != 3)
+	if (!TPSCoreAuth::ExtractJwtExpirationClaim(JWTToken, OutExpirationTimestamp))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[TokenManager] Invalid JWT format (expected 3 parts, got %d)"), Parts.Num());
+		UE_LOG(LogTemp, Warning, TEXT("[TokenManager] Failed to extract JWT expiration claim"));
 		return false;
 	}
-
-	// Decode the payload (second part)
-	FString DecodedPayload;
-	if (!Base64Decode(Parts[1], DecodedPayload))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TokenManager] Failed to decode JWT payload"));
-		return false;
-	}
-
-	// Parse JSON
-	TSharedPtr<FJsonObject> JsonObject;
-	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(DecodedPayload);
-	
-	if (!FJsonSerializer::Deserialize(Reader, JsonObject) || !JsonObject.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TokenManager] Failed to parse JWT payload JSON"));
-		return false;
-	}
-
-	// Extract 'exp' claim
-	if (!JsonObject->HasField(TEXT("exp")))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TokenManager] JWT payload missing 'exp' claim"));
-		return false;
-	}
-
-	OutExpirationTimestamp = static_cast<int64>(JsonObject->GetNumberField(TEXT("exp")));
 	
 	UE_LOG(LogTemp, Log, TEXT("[TokenManager] Parsed JWT expiration: %lld"), OutExpirationTimestamp);
-	return true;
-}
-
-bool UTokenManager::Base64Decode(const FString& EncodedString, FString& OutDecodedString)
-{
-	// JWT uses Base64 URL encoding, need to convert to standard Base64
-	FString StandardBase64 = EncodedString;
-	StandardBase64.ReplaceInline(TEXT("-"), TEXT("+"));
-	StandardBase64.ReplaceInline(TEXT("_"), TEXT("/"));
-
-	// Add padding if needed
-	int32 PaddingNeeded = (4 - (StandardBase64.Len() % 4)) % 4;
-	for (int32 i = 0; i < PaddingNeeded; i++)
-	{
-		StandardBase64.AppendChar('=');
-	}
-
-	// Decode
-	TArray<uint8> DecodedData;
-	if (!FBase64::Decode(StandardBase64, DecodedData))
-	{
-		return false;
-	}
-
-	// Convert to string
-	OutDecodedString = FString(UTF8_TO_TCHAR(DecodedData.GetData()));
 	return true;
 }
 

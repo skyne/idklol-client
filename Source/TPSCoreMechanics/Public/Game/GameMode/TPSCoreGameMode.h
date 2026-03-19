@@ -21,9 +21,15 @@ public:
 	virtual void BeginPlay() override;
 
 	/**
-	 * Extracts CharacterId from URL options and stores it for use in PostLogin.
-	 * Called before the pawn is spawned.
+	 * Validates AuthToken from travel options before accepting the connection.
+	 *
+	 * NOTE: this currently validates payload shape/claims only (email extraction),
+	 * not cryptographic signature verification.
 	 */
+	virtual void PreLogin(const FString& Options, const FString& Address,
+		const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
+
+	/** Extracts CharacterId (and OwnerEmail from JWT claims) and stores them for PostLogin. */
 	virtual APlayerController* Login(
 		UPlayer* NewPlayer,
 		ENetRole InRemoteRole,
@@ -74,4 +80,7 @@ private:
 
 	/** Temporary: CharacterId stored during Login, consumed in PostLogin. */
 	TMap<FObjectKey, FString> PendingCharacterIds;
+
+	/** Email from the connecting player's JWT, stored during Login, consumed in PostLogin. */
+	TMap<FObjectKey, FString> PendingOwnerEmails;
 };

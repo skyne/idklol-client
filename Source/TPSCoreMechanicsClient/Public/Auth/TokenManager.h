@@ -47,9 +47,6 @@ public:
 	bool ParseJWTExpiration(const FString& JWTToken, int64& OutExpirationTimestamp);
 
 protected:
-	/** Base64 decode a string */
-	static bool Base64Decode(const FString& EncodedString, FString& OutDecodedString);
-
 	/** Encrypt data using project-specific key */
 	static FString EncryptString(const FString& PlainText);
 

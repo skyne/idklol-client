@@ -84,4 +84,14 @@ struct TPSCOREMECHANICS_API FCharacterData
 
 	UPROPERTY(BlueprintReadWrite, Category = "Character")
 	FString CreatedAt = TEXT("");
+
+	/**
+	 * Keycloak user email that owns this character.
+	 * Populated by UServerCharacterLoaderSubsystem from the NATS characters.get response.
+	 * Used by ATPSCoreGameMode::PostLogin to verify the connecting player's JWT email
+	 * matches the character's registered owner before allowing play.
+	 * Empty string = ownership check skipped (e.g. old server binary without the field).
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = "Character")
+	FString OwnerEmail = TEXT("");
 };
