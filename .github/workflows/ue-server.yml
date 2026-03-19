@@ -19,9 +19,11 @@
 #
 # REQUIRED SECRETS
 # ----------------
-#   - EPIC_GHCR_TOKEN: GitHub PAT with read:packages scope, from an account
-#     that has accepted Epic's EULA at https://github.com/EpicGames/Signup
-#   - GITHUB_TOKEN: Automatic, used to push to this repo's GHCR
+#   - EPIC_GHCR_TOKEN: GitHub PAT with package read/write access, from an
+#     account that has accepted Epic's EULA at
+#     https://github.com/EpicGames/Signup
+#     This token is used for both pulling Epic's private base image and
+#     pushing this repo's GHCR image.
 #
 # IMAGE TAG STRATEGY
 # ------------------
@@ -82,15 +84,20 @@ jobs:
         with:
           driver-opts: network=host
 
-      # ── Pull Epic base image (needs separate auth) ──────────────────────
-      # Epic's private GHCR and our push target share ghcr.io, so we can't
-      # hold both credentials at once.  Pull the base image first with the
-      # Epic token, then switch to GITHUB_TOKEN for the push.
-      - name: Pull Epic UE base image
-        run: |
-          echo "${{ secrets.EPIC_GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ghcr.io/epicgames/unreal-engine:dev-5.5
-          docker logout ghcr.io
+      # ── Log in to GHCR for both base-image pulls and final push ─────────
+      # Buildx resolves the Dockerfile FROM image inside its own builder, so
+      # a standalone docker pull is not enough. Keep the Epic PAT active for
+      # the build itself so the builder can read the private UE image.
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.EPIC_GHCR_TOKEN }}
+
+      # ── Validate Epic base image access early ────────────────────────────
+      - name: Validate Epic UE base image access
+        run: docker pull ghcr.io/epicgames/unreal-engine:dev-5.5
 
       # ── Docker metadata (tags + labels) ──────────────────────────────────
       - name: Docker metadata
@@ -116,18 +123,9 @@ jobs:
             echo "push=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # ── Log in to GHCR ────────────────────────────────────────────────────
-      - name: Log in to GitHub Container Registry
-        if: steps.push-check.outputs.push == 'true'
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       # ── Build (and optionally push) Docker image ─────────────────────────
-      # The Dockerfile handles both building UE server and packaging into runtime image
-      # network=host lets buildx access the pre-pulled Epic image from the host daemon
+      # The Dockerfile handles both building UE server and packaging into runtime image.
+      # The active GHCR login also needs read access to the Epic base image.
       - name: Build & push Docker image
         uses: docker/build-push-action@v6
         with:
