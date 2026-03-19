@@ -3,6 +3,7 @@
 #include "ServerConnection/ServerConnectionSubsystem.h"
 #include "Auth/KeycloakAuthService.h"
 #include "CharacterCreation/CharacterCreationGameModeBase.h"
+#include "GenericPlatform/GenericPlatformHttp.h"
 #include "Kismet/GameplayStatics.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 
@@ -30,6 +31,15 @@ void UServerConnectionSubsystem::ConnectToServer(const FString& CharacterId)
 		if (Auth->HasValidTokens())
 		{
 			AuthToken = Auth->GetValidAccessToken();
+
+			// Server-side PreLogin expects the raw JWT as URL option value.
+			if (AuthToken.StartsWith(TEXT("Bearer "), ESearchCase::IgnoreCase))
+			{
+				AuthToken.RightChopInline(7);
+			}
+
+			AuthToken.TrimStartAndEndInline();
+			AuthToken = FGenericPlatformHttp::UrlEncode(AuthToken);
 		}
 		else
 		{
@@ -58,11 +68,11 @@ void UServerConnectionSubsystem::ConnectToServer(const FString& CharacterId)
 			return;
 		}
 
-		const TCHAR* Sep = MapURL.Contains(TEXT("?")) ? TEXT("&") : TEXT("?");
-		MapURL = FString::Printf(TEXT("%s%sCharacterId=%s"), *MapURL, Sep, *CharacterId);
+		// Unreal travel URLs use '?' as option delimiter (not '&').
+		MapURL = FString::Printf(TEXT("%s?CharacterId=%s"), *MapURL, *CharacterId);
 		if (!AuthToken.IsEmpty())
 		{
-			MapURL = FString::Printf(TEXT("%s&AuthToken=%s"), *MapURL, *AuthToken);
+			MapURL = FString::Printf(TEXT("%s?AuthToken=%s"), *MapURL, *AuthToken);
 		}
 
 		LOG("[ServerConnectionSubsystem] OpenLevel → %s", *MapURL);
@@ -74,7 +84,7 @@ void UServerConnectionSubsystem::ConnectToServer(const FString& CharacterId)
 		FString URL = FString::Printf(TEXT("%s?CharacterId=%s"), *ServerAddress, *CharacterId);
 		if (!AuthToken.IsEmpty())
 		{
-			URL = FString::Printf(TEXT("%s&AuthToken=%s"), *URL, *AuthToken);
+			URL = FString::Printf(TEXT("%s?AuthToken=%s"), *URL, *AuthToken);
 		}
 
 		APlayerController* PC = GetGameInstance()->GetFirstLocalPlayerController();

@@ -4,6 +4,41 @@
 
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 
+namespace
+{
+template <typename TResponse>
+class TSafeGrpcPromise
+{
+public:
+	TFuture<TResponse> GetFuture()
+	{
+		return Promise.GetFuture();
+	}
+
+	void TrySetValue(TResponse Response)
+	{
+		FScopeLock Lock(&Mutex);
+		if (bIsCompleted)
+		{
+			return;
+		}
+
+		bIsCompleted = true;
+		Promise.SetValue(MoveTemp(Response));
+	}
+
+	~TSafeGrpcPromise()
+	{
+		TrySetValue(TResponse{});
+	}
+
+private:
+	TPromise<TResponse> Promise;
+	FCriticalSection Mutex;
+	bool bIsCompleted = false;
+};
+}
+
 void UCharactersSubsystem::OnServiceConnected(UObject* InService, UObject* InClient)
 {
 	UCharacterService* CharacterService = GetService();
@@ -34,11 +69,11 @@ void UCharactersSubsystem::OnServiceDisconnected()
 TFuture<FGrpcCharactersCharacterCreationCatalog> UCharactersSubsystem::GetCharacterCreationOptionCatalogAsync()
 {
 	LOG_DEBUG("[CharactersSubsystem] Requesting character creation catalog");
-	auto Promise = MakeShared<TPromise<FGrpcCharactersCharacterCreationCatalog>>();
+	auto Promise = MakeShared<TSafeGrpcPromise<FGrpcCharactersCharacterCreationCatalog>>();
 	TFuture<FGrpcCharactersCharacterCreationCatalog> Future = Promise->GetFuture();
 	if (ConnectionStatus != EGrpcConnectionStatus::Connected)
 	{
-		Promise->SetValue({});
+		Promise->TrySetValue({});
 		return Future;
 	}
 	UCharacterService* CharacterService = GetService();
@@ -52,7 +87,7 @@ TFuture<FGrpcCharactersCharacterCreationCatalog> UCharactersSubsystem::GetCharac
 			if (GrpcResult.Code == EGrpcResultCode::Ok)
 			{
 				LOG_DEBUG("[CharactersSubsystem] Received character creation catalog");
-				Promise->SetValue(Response);
+				Promise->TrySetValue(Response);
 			}
 			else
 			{
@@ -60,7 +95,7 @@ TFuture<FGrpcCharactersCharacterCreationCatalog> UCharactersSubsystem::GetCharac
 					static_cast<int32>(GrpcResult.Code),
 					*GrpcResult.GetMessageString()					
 				);
-				Promise->SetValue({});
+				Promise->TrySetValue({});
 			}
 		}, MetaData);
 	
@@ -70,13 +105,13 @@ TFuture<FGrpcCharactersCharacterCreationCatalog> UCharactersSubsystem::GetCharac
 TFuture<FGrpcCharactersCreateCharacterResponse> UCharactersSubsystem::CreateCharacterAsync(const FGrpcCharactersCreateCharacterRequest& Request)
 {
 	LOG("[CharactersSubsystem] Creating character: %s", *Request.Name);
-	auto Promise = MakeShared<TPromise<FGrpcCharactersCreateCharacterResponse>>();
+	auto Promise = MakeShared<TSafeGrpcPromise<FGrpcCharactersCreateCharacterResponse>>();
 	TFuture<FGrpcCharactersCreateCharacterResponse> Future = Promise->GetFuture();
 	
 	if (ConnectionStatus != EGrpcConnectionStatus::Connected)
 	{
 		LOG("[CharactersSubsystem] Cannot create character - not connected to service");
-		Promise->SetValue({});
+		Promise->TrySetValue({});
 		return Future;
 	}
 	
@@ -94,7 +129,7 @@ TFuture<FGrpcCharactersCreateCharacterResponse> UCharactersSubsystem::CreateChar
 			if (GrpcResult.Code == EGrpcResultCode::Ok)
 			{
 				LOG("[CharactersSubsystem] Character created successfully: %s", *Response.CharacterId);
-				Promise->SetValue(Response);
+				Promise->TrySetValue(Response);
 			}
 			else
 			{
@@ -102,7 +137,7 @@ TFuture<FGrpcCharactersCreateCharacterResponse> UCharactersSubsystem::CreateChar
 					static_cast<int32>(GrpcResult.Code),
 					*GrpcResult.GetMessageString()					
 				);
-				Promise->SetValue({});
+				Promise->TrySetValue({});
 			}
 		}, MetaData);
 	
@@ -112,13 +147,13 @@ TFuture<FGrpcCharactersCreateCharacterResponse> UCharactersSubsystem::CreateChar
 TFuture<FGrpcCharactersListCreatedCharactersResponse> UCharactersSubsystem::ListCreatedCharactersAsync()
 {
 	LOG_DEBUG("[CharactersSubsystem] Requesting list of created characters");
-	auto Promise = MakeShared<TPromise<FGrpcCharactersListCreatedCharactersResponse>>();
+	auto Promise = MakeShared<TSafeGrpcPromise<FGrpcCharactersListCreatedCharactersResponse>>();
 	TFuture<FGrpcCharactersListCreatedCharactersResponse> Future = Promise->GetFuture();
 	
 	if (ConnectionStatus != EGrpcConnectionStatus::Connected)
 	{
 		LOG("[CharactersSubsystem] Cannot list characters - not connected to service");
-		Promise->SetValue({});
+		Promise->TrySetValue({});
 		return Future;
 	}
 	
@@ -133,7 +168,7 @@ TFuture<FGrpcCharactersListCreatedCharactersResponse> UCharactersSubsystem::List
 			if (GrpcResult.Code == EGrpcResultCode::Ok)
 			{
 				LOG_DEBUG("[CharactersSubsystem] Received %d characters", Response.Characters.Num());
-				Promise->SetValue(Response);
+				Promise->TrySetValue(Response);
 			}
 			else
 			{
@@ -141,7 +176,7 @@ TFuture<FGrpcCharactersListCreatedCharactersResponse> UCharactersSubsystem::List
 					static_cast<int32>(GrpcResult.Code),
 					*GrpcResult.GetMessageString()					
 				);
-				Promise->SetValue({});
+				Promise->TrySetValue({});
 			}
 		}, MetaData);
 	
