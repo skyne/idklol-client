@@ -139,6 +139,8 @@ protected:
 	}
 
 public:
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+
 	// USubsystem interface
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;

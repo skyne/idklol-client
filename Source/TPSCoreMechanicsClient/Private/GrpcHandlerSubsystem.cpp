@@ -9,6 +9,11 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
+bool UGrpcHandlerSubsystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	return !IsRunningDedicatedServer();
+}
+
 void UGrpcHandlerSubsystem::SetConnectionStatus(EGrpcConnectionStatus NewStatus)
 {
 	if (ConnectionStatus != NewStatus)

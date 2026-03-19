@@ -19,6 +19,11 @@
 			"Name": "TPSCoreMechanicsClient",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
+			"TargetAllowList": [
+				"Game",
+				"Client",
+				"Editor"
+			],
 			"AdditionalDependencies": [
 				"Engine",
 				"TPSCoreMechanics",
