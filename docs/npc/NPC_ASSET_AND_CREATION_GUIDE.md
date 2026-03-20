@@ -41,7 +41,12 @@ Recommended assets:
 The server resolves actor class by **ID** into:
 - `/Game/Characters/NPC/<ActorClassId>.<ActorClassId>_C`
 
-So if your class id is `BP_NPC_Blacksmith`, make sure this asset exists:
+Important:
+- Your Blueprint asset name is `BP_NPC_Blacksmith` (no `_C` in the asset name).
+- `_C` is the generated Blueprint class object suffix used in class paths.
+- If you set `actor_class_id` directly, use `BP_NPC_Blacksmith` (no `_C`).
+
+So if your class id is `BP_NPC_Blacksmith`, the class object path should resolve to:
 - `/Game/Characters/NPC/BP_NPC_Blacksmith.BP_NPC_Blacksmith_C`
 
 ## 3) Keep base behavior in `ANPCCharacter`
@@ -65,7 +70,12 @@ Your BP should derive from `ANPCCharacter` so replicated NPC metadata initialize
    - at least one spawn point with `zone_id`
 4. Fill visual fields (current backend contract):
    - `skeletal_mesh_path` (example: `/Game/Characters/NPC/SKM_Blacksmith_M.SKM_Blacksmith_M`)
-   - `actor_class_path` (example: `/Game/Characters/NPC/BP_NPC_Blacksmith.BP_NPC_Blacksmith_C`)
+  - `actor_class_path` (example: `/Game/Characters/NPC/BP_NPC_Blacksmith.BP_NPC_Blacksmith_C`)
+
+  Notes:
+  - The current UE parser derives `actor_class_id` from `actor_class_path`.
+  - It accepts both `...BP_NPC_Blacksmith.BP_NPC_Blacksmith` and `...BP_NPC_Blacksmith.BP_NPC_Blacksmith_C`.
+  - Using the `_C` class-object form is the clearest/canonical convention.
 5. Set spawn points (`x`,`y`,`z` in cm, `yaw` in degrees)
 6. Save
 
@@ -141,7 +151,7 @@ Expected behavior:
 
 - [ ] Skeletal mesh asset added under `/Game/Characters/NPC/`
 - [ ] NPC BP class derives from `ANPCCharacter`
-- [ ] `actor_class_path` points to `/Game/Characters/NPC/<Name>.<Name>_C`
+- [ ] `actor_class_path` points to `/Game/Characters/NPC/<Name>.<Name>_C` (or `<Name>.<Name>`)
 - [ ] NPC definition saved in WebAdmin `/admin/npcs`
 - [ ] At least one spawn point with correct `zone_id`
 - [ ] Verified with `idk.npc.lookup` and `idk.npc.spawn`
