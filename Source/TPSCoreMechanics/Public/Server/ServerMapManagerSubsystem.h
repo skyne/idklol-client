@@ -13,10 +13,13 @@
  *
  * On startup it:
  * 1. Reads -InstanceId=<id> from the command line (falls back to a generated GUID).
- * 2. Subscribes to "server.<InstanceId>.map" — payload: {"map":"/Game/Maps/Zone1"}
+ * 2. Subscribes to map/status subject templates from
+ *    /Script/TPSCoreMechanics.TPSNatsSubjectsConfig
+ *    (defaults: "server.<InstanceId>.map" and "server.<InstanceId>.status").
+ *    Map payload: {"map":"/Game/Maps/Zone1"}
  *    → calls GetWorld()->ServerTravel(MapURL)
- * 3. Subscribes to "server.<InstanceId>.status"
- *    → replies with {"map":"<current>","players":<n>,"uptime":<s>}
+ * 3. Status subject reply
+ *    → replies with {"instance":"<id>","map":"<current>","players":<n>}
  *
  * Only active on dedicated server (ShouldCreateSubsystem guard).
  */

@@ -63,6 +63,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Character Appearance")
 	void InitializeFromCharacterData(const FCharacterData& CharacterData);
 
+	UFUNCTION(BlueprintPure, Category="Character")
+	const FCharacterData& GetCharacterData() const { return CurrentCharacterData; }
+
+	UFUNCTION(BlueprintPure, Category="Character")
+	const FString& GetCharacterId() const { return CurrentCharacterData.CharacterId; }
+
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
@@ -103,4 +109,7 @@ private:
 	void OnCharacterMeshLoaded(TSoftObjectPtr<USkeletalMesh> LoadedMeshPtr, ECharacterSkinColor SkinColor);
 
 	void ApplyCharacterAppearance(ECharacterGender Gender, ECharacterSkinColor SkinColor);
+
+	UPROPERTY()
+	FCharacterData CurrentCharacterData;
 };

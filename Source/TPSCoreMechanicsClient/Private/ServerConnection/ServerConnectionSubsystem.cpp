@@ -5,11 +5,19 @@
 #include "CharacterCreation/CharacterCreationGameModeBase.h"
 #include "GenericPlatform/GenericPlatformHttp.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 
 void UServerConnectionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
+	FString OverrideServerAddress;
+	if (FParse::Value(FCommandLine::Get(), TEXT("ServerAddress="), OverrideServerAddress) && !OverrideServerAddress.IsEmpty())
+	{
+		ServerAddress = OverrideServerAddress;
+	}
 
 	LOG("[ServerConnectionSubsystem] Initialized (ServerAddress=%s, OpenLevelFallback=%s)",
 		*ServerAddress, bUseOpenLevelFallback ? TEXT("true") : TEXT("false"));

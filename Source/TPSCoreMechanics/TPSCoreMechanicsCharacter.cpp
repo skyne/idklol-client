@@ -232,6 +232,7 @@ void ATPSCoreMechanicsCharacter::Look(const FInputActionValue& Value)
 
 void ATPSCoreMechanicsCharacter::InitializeFromCharacterData(const FCharacterData& CharacterData)
 {
+	CurrentCharacterData = CharacterData;
 	ApplyCharacterAppearance(CharacterData.Gender, CharacterData.SkinColor);
 }
 

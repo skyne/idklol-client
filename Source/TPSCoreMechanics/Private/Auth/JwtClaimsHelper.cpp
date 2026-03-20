@@ -1,7 +1,7 @@
 #include "Auth/JwtClaimsHelper.h"
 
+#include "Helpers/JsonObjectUtils.h"
 #include "Misc/Base64.h"
-#include "Serialization/JsonSerializer.h"
 #include "Dom/JsonObject.h"
 
 namespace
@@ -34,8 +34,7 @@ namespace
 		DecodedBytes.Add(0);
 		const FString PayloadJson = UTF8_TO_TCHAR(reinterpret_cast<const ANSICHAR*>(DecodedBytes.GetData()));
 
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(PayloadJson);
-		return FJsonSerializer::Deserialize(Reader, OutClaims) && OutClaims.IsValid();
+		return TPSCoreJson::DeserializeObject(PayloadJson, OutClaims);
 	}
 }
 

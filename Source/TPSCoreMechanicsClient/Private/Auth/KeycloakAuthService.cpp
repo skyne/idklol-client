@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Auth/KeycloakAuthService.h"
+#include "Helpers/JsonObjectUtils.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
-#include "Serialization/JsonSerializer.h"
 #include "Dom/JsonObject.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 
 void UKeycloakAuthService::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -12,6 +14,22 @@ void UKeycloakAuthService::Initialize(FSubsystemCollectionBase& Collection)
 
 	// Create token manager
 	TokenManager = NewObject<UTokenManager>(this);
+
+	FString OverrideValue;
+	if (FParse::Value(FCommandLine::Get(), TEXT("KeycloakUrl="), OverrideValue) && !OverrideValue.IsEmpty())
+	{
+		KeycloakUrl = OverrideValue;
+	}
+
+	if (FParse::Value(FCommandLine::Get(), TEXT("KeycloakRealm="), OverrideValue) && !OverrideValue.IsEmpty())
+	{
+		RealmName = OverrideValue;
+	}
+
+	if (FParse::Value(FCommandLine::Get(), TEXT("KeycloakClientId="), OverrideValue) && !OverrideValue.IsEmpty())
+	{
+		ClientId = OverrideValue;
+	}
 
 	// Log config values for debugging
 	UE_LOG(LogTemp, Log, TEXT("[KeycloakAuth] Configuration loaded:"));
@@ -184,9 +202,8 @@ bool UKeycloakAuthService::SetTokensFromJson(const FString& JsonResponse)
 
 	// Parse JSON response
 	TSharedPtr<FJsonObject> JsonObject;
-	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonResponse);
 
-	if (!FJsonSerializer::Deserialize(Reader, JsonObject) || !JsonObject.IsValid())
+	if (!TPSCoreJson::DeserializeObject(JsonResponse, JsonObject))
 	{
 		UE_LOG(LogTemp, Error, TEXT("[KeycloakAuth] Failed to parse JSON response"));
 		return false;
@@ -359,9 +376,8 @@ void UKeycloakAuthService::OnRefreshTokenResponse(FHttpRequestPtr Request, FHttp
 
 	// Parse JSON response
 	TSharedPtr<FJsonObject> JsonObject;
-	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseBody);
 
-	if (!FJsonSerializer::Deserialize(Reader, JsonObject) || !JsonObject.IsValid())
+	if (!TPSCoreJson::DeserializeObject(ResponseBody, JsonObject))
 	{
 		UE_LOG(LogTemp, Error, TEXT("[KeycloakAuth] Failed to parse token response JSON"));
 		OnTokenRefreshed.Broadcast(false);

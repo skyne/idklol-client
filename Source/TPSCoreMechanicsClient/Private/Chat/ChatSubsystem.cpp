@@ -94,6 +94,7 @@ void UChatSubsystem::NewChatMessage(FString Message)
 		
 		// Get character name from SelectedCharacterSubsystem
 		FString SenderName = TEXT("Unknown");
+		FGrpcMetaData MetaData = FGrpcMetaData();
 		if (UGameInstance* GameInstance = GetGameInstance())
 		{
 			if (USelectedCharacterSubsystem* SelectedCharacterSubsystem = GameInstance->GetSubsystem<USelectedCharacterSubsystem>())
@@ -102,6 +103,10 @@ void UChatSubsystem::NewChatMessage(FString Message)
 				{
 					FCharacterData SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
 					SenderName = SelectedCharacter.Name;
+					if (!SelectedCharacter.CharacterId.IsEmpty())
+					{
+						MetaData.MetaData.Add("x-character-id", SelectedCharacter.CharacterId);
+					}
 				}
 			}
 		}
@@ -111,7 +116,6 @@ void UChatSubsystem::NewChatMessage(FString Message)
 		ChatMessage.Timestamp = "NOW";
 		ChatMessage.Message = Message;
 		ChatMessage.Sender = SenderName;
-		FGrpcMetaData MetaData = FGrpcMetaData();
 		MetaData.MetaData.Add("authorization", GetValidAuthToken());
 		ChatClient->Message(Context, ChatMessage, MetaData);
 	}

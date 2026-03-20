@@ -2,10 +2,10 @@
 
 #include "Server/ServerCharacterLoaderSubsystem.h"
 #include "NatsClientSubsystem.h"
+#include "Config/TPSNatsSubjectsConfig.h"
+#include "Helpers/JsonObjectUtils.h"
 #include "Json.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
-
-const TCHAR* UServerCharacterLoaderSubsystem::CharactersGetSubject = TEXT("characters.get");
 
 bool UServerCharacterLoaderSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -45,9 +45,8 @@ void UServerCharacterLoaderSubsystem::FetchCharacter(const FString& CharacterId,
 		// Parse JSON response into FCharacterData
 		const FString Json = Reply.PayloadAsString();
 		TSharedPtr<FJsonObject> JsonObj;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Json);
 
-		if (!FJsonSerializer::Deserialize(Reader, JsonObj) || !JsonObj.IsValid())
+		if (!TPSCoreJson::DeserializeObject(Json, JsonObj))
 		{
 			LOG_ERROR("[ServerCharacterLoaderSubsystem] FetchCharacter failed to parse JSON for %s: %s", *CharacterId, *Json);
 			Callback.ExecuteIfBound(false, FCharacterData{});
@@ -74,5 +73,5 @@ void UServerCharacterLoaderSubsystem::FetchCharacter(const FString& CharacterId,
 		Callback.ExecuteIfBound(true, Data);
 	});
 
-	Nats->RequestJson(CharactersGetSubject, Payload, DefaultTimeoutSeconds, ReplyDelegate);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().CharactersGetSubject, Payload, DefaultTimeoutSeconds, ReplyDelegate);
 }

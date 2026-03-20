@@ -74,6 +74,14 @@ struct TPSCOREMECHANICS_API FNpcMeta
 	UPROPERTY(BlueprintReadOnly, Category = "NPC")
 	FString ModelId;
 
+	/** Optional skeletal mesh asset id under the fixed NPC mesh folder (e.g. "SKM_Guard_M"). */
+	UPROPERTY(BlueprintReadOnly, Category = "NPC")
+	FString SkeletalMeshId;
+
+	/** Optional actor class asset id under the fixed NPC actor folder (e.g. "BP_Guard_NPC"). */
+	UPROPERTY(BlueprintReadOnly, Category = "NPC")
+	FString ActorClassId;
+
 	UPROPERTY(BlueprintReadOnly, Category = "NPC")
 	FString Faction;
 
@@ -120,6 +128,12 @@ struct TPSCOREMECHANICS_API FNpcReplicatedData
 	/** Resolved by the client to select the actual skeletal mesh. */
 	UPROPERTY(BlueprintReadOnly, Category = "NPC")
 	FString ModelId;
+
+	UPROPERTY(BlueprintReadOnly, Category = "NPC")
+	FString SkeletalMeshId;
+
+	UPROPERTY(BlueprintReadOnly, Category = "NPC")
+	FString ActorClassId;
 
 	UPROPERTY(BlueprintReadOnly, Category = "NPC")
 	float InteractionRadius = 300.f;

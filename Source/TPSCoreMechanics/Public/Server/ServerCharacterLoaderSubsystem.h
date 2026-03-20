@@ -15,7 +15,8 @@ DECLARE_DELEGATE_TwoParams(FOnCharacterLoaded, bool /*bSuccess*/, const FCharact
  * authoritatively on the server so replication distributes appearance to all clients.
  *
  * Only active on dedicated server (guarded by IsRunningDedicatedServer() in Initialize).
- * NATS subject convention: "characters.get" — request payload: {"id":"<CharacterId>"}
+ * NATS subject is configured in /Script/TPSCoreMechanics.TPSNatsSubjectsConfig
+ * (CharactersGetSubject="characters.get" by default) — request payload: {"id":"<CharacterId>"}
  */
 UCLASS()
 class TPSCOREMECHANICS_API UServerCharacterLoaderSubsystem : public UGameInstanceSubsystem
@@ -36,5 +37,4 @@ public:
 
 private:
 	static constexpr float DefaultTimeoutSeconds = 5.0f;
-	static const TCHAR* CharactersGetSubject;
 };

@@ -25,6 +25,8 @@ void ANPCCharacter::InitializeFromNpcMeta(const FNpcMeta& Meta, const FNpcSpawnP
 	NpcData.Role              = Meta.Role;
 	NpcData.Faction           = Meta.Faction;
 	NpcData.ModelId           = Meta.ModelId;
+	NpcData.SkeletalMeshId    = Meta.SkeletalMeshId;
+	NpcData.ActorClassId      = Meta.ActorClassId;
 	NpcData.InteractionRadius = Meta.BehaviorConfig.InteractionRadius;
 
 	// Also fire on the server so server-side logic (AI, etc.) can react.

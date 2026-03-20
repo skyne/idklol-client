@@ -11,6 +11,9 @@
 		{
 			"name": "UE5",
 			"path": "../../UnrealEngine5.5.4"
+		},
+		{
+			"path": "../idklol-infra"
 		}
 	],
 	"settings": {

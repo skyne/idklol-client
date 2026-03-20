@@ -2,12 +2,45 @@
 
 #include "GrpcHandlerSubsystem.h"
 #include "Auth/KeycloakAuthService.h"
+#include "TurboLinkGrpcConfig.h"
 #include "TurboLinkGrpcUtilities.h"
 #include "TurboLinkGrpcManager.h"
 #include "TurboLinkGrpcService.h"
 #include "Misc/CommandLine.h"
 #include "Misc/FileHelper.h"
+#include "Misc/Parse.h"
 #include "Misc/Paths.h"
+
+namespace
+{
+void ApplyGrpcEndpointOverrides(const TCHAR* CommandLine)
+{
+	UTurboLinkGrpcConfig* Config = GetMutableDefault<UTurboLinkGrpcConfig>();
+	if (!Config)
+	{
+		return;
+	}
+
+	FString OverrideValue;
+	if (FParse::Value(CommandLine, TEXT("GrpcDefaultEndpoint="), OverrideValue) && !OverrideValue.IsEmpty())
+	{
+		Config->DefaultEndPoint = OverrideValue;
+		UE_LOG(LogTemp, Log, TEXT("[GrpcHandlerSubsystem] Override GrpcDefaultEndpoint=%s"), *OverrideValue);
+	}
+
+	if (FParse::Value(CommandLine, TEXT("GrpcChatEndpoint="), OverrideValue) && !OverrideValue.IsEmpty())
+	{
+		Config->ServiceEndPoint.FindOrAdd(TEXT("ChatService")) = OverrideValue;
+		UE_LOG(LogTemp, Log, TEXT("[GrpcHandlerSubsystem] Override ChatService endpoint=%s"), *OverrideValue);
+	}
+
+	if (FParse::Value(CommandLine, TEXT("GrpcCharacterEndpoint="), OverrideValue) && !OverrideValue.IsEmpty())
+	{
+		Config->ServiceEndPoint.FindOrAdd(TEXT("CharacterService")) = OverrideValue;
+		UE_LOG(LogTemp, Log, TEXT("[GrpcHandlerSubsystem] Override CharacterService endpoint=%s"), *OverrideValue);
+	}
+}
+}
 
 bool UGrpcHandlerSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -35,6 +68,8 @@ void UGrpcHandlerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Collection.InitializeDependency(UTurboLinkGrpcManager::StaticClass());
 	Collection.InitializeDependency(UKeycloakAuthService::StaticClass());
 	Super::Initialize(Collection);
+
+	ApplyGrpcEndpointOverrides(FCommandLine::Get());
 
 	// Get KeycloakAuthService for automatic token refresh
 	AuthService = GetGameInstance()->GetSubsystem<UKeycloakAuthService>();
@@ -341,6 +376,12 @@ FString UGrpcHandlerSubsystem::GetAuthTokenValue() const
 	}
 	
 	// Fallback to default
+	if (DefaultAuthToken.IsEmpty())
+	{
+		UE_LOG(LogTemp, Log, TEXT("[%s] No auth token configured"), *GetLogPrefix());
+		return FString();
+	}
+
 	FString BearerToken = FString::Printf(TEXT("Bearer %s"), *DefaultAuthToken);
 	UE_LOG(LogTemp, Warning, TEXT("[%s] Using fallback default token"), *GetLogPrefix());
 	return BearerToken;
