@@ -104,6 +104,8 @@ jobs:
           fi
 
       # ── Restore gitignored TurboLink third-party binaries ───────────────
+      # The zip is cached on the runner at $HOME/.cache/turbolink/ using a
+      # version-derived filename so re-downloads only happen when the URL changes.
       - name: Ensure TurboLink third-party libraries are available
         shell: bash
         run: |
@@ -133,13 +135,27 @@ jobs:
           command -v curl >/dev/null 2>&1 || { echo "curl is required on the runner"; exit 1; }
           command -v unzip >/dev/null 2>&1 || { echo "unzip is required on the runner"; exit 1; }
 
-          archive_path="$RUNNER_TEMP/turbolink-libraries.zip"
+          # Persistent runner-local cache keyed by <release-tag>-<filename>
+          # so the cached file is automatically replaced when the URL changes.
+          url_version=$(basename "$(dirname "$TURBOLINK_LIBRARIES_URL")")
+          url_basename=$(basename "$TURBOLINK_LIBRARIES_URL")
+          cache_dir="$HOME/.cache/turbolink"
+          archive_path="$cache_dir/${url_version}-${url_basename}"
+          mkdir -p "$cache_dir"
+
+          if [[ -f "$archive_path" ]]; then
+            echo "Using cached TurboLink libraries: $archive_path"
+          else
+            echo "Downloading TurboLink libraries to runner cache..."
+            tmp_archive="${archive_path}.tmp"
+            curl -L --fail --retry 3 --retry-all-errors "$TURBOLINK_LIBRARIES_URL" -o "$tmp_archive"
+            mv "$tmp_archive" "$archive_path"
+            echo "Cached at: $archive_path"
+          fi
+
           extract_root="$RUNNER_TEMP/turbolink-libraries"
-
-          rm -rf "$archive_path" "$extract_root"
+          rm -rf "$extract_root"
           mkdir -p "$extract_root"
-
-          curl -L --fail --retry 3 --retry-all-errors "$TURBOLINK_LIBRARIES_URL" -o "$archive_path"
           unzip -q "$archive_path" -d "$extract_root"
 
           marker_file=$(find "$extract_root" -type f -path '*/grpc/lib/linux/Release/libgrpc++.a' -print -quit)

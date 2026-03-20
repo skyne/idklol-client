@@ -12,6 +12,7 @@
 class UInventoryComponent;
 class ANPCCharacter;
 class UNpcInteractionPromptWidget;
+class UNpcInteractionResultWidget;
 
 
 UCLASS()
@@ -42,6 +43,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "NPC|Interaction")
 	void SetNpcPromptEnabled(bool bEnabled);
 
+	UFUNCTION(Server, Reliable)
+	void ServerInteractWithNpc(ANPCCharacter* Npc);
+
+	UFUNCTION(Client, Reliable)
+	void ClientHandleNpcInteraction(const FString& NpcId, const FString& NpcName, const FString& NpcRole);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated)
 	TObjectPtr<UInventoryComponent> InventoryComponent;
@@ -65,7 +72,13 @@ private:
 	float NpcPromptSearchInterval = 0.10f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
-	float NpcPromptVerticalWorldOffset = 110.f;
+	float NpcPromptVerticalWorldOffset = 35.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
+	FVector2D NpcPromptPlayerScreenOffset = FVector2D(260.f, 72.f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float NpcPromptScreenEdgePadding = 12.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
 	FText NpcPromptLabel = FText::FromString(TEXT("Interact"));
@@ -73,8 +86,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
 	TSubclassOf<UNpcInteractionPromptWidget> NpcInteractionPromptWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
+	TSubclassOf<UUserWidget> NpcMerchantWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
+	TSubclassOf<UUserWidget> NpcDialogueWidgetClass;
+
 	UPROPERTY(Transient)
 	TObjectPtr<UNpcInteractionPromptWidget> NpcInteractionPromptWidget;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> ActiveNpcInteractionWidget;
 
 	UPROPERTY(Transient)
 	TWeakObjectPtr<ANPCCharacter> ActiveNearbyNpc;
@@ -83,9 +105,13 @@ private:
 
 	void TickNpcPrompt(float DeltaSeconds);
 	void HandleNpcInteractInput();
+	void HandleNpcInteractionCloseInput();
 	void EnsureNpcPromptWidget();
 	void HideNpcPromptWidget();
+	void CloseActiveNpcInteractionWidget();
 	void UpdateNpcPromptWidgetFor(ANPCCharacter* Npc);
+	void ShowNpcInteractionWidget(const FString& NpcId, const FString& NpcName, const FString& NpcRole, const FText& Message);
+	static FText BuildNpcInteractionMessage(const FString& NpcName, const FString& NpcRole);
 	ANPCCharacter* FindNearestNpcInRange(const FVector& PlayerLocation) const;
 	static float GetInteractionRadiusForNpc(const ANPCCharacter* Npc);
 };

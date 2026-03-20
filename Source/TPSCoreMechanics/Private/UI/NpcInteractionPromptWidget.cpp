@@ -41,7 +41,10 @@ void UNpcInteractionPromptWidget::NativeConstruct()
 
 	SetPromptText(DefaultPromptText);
 	SetAlignmentInViewport(FVector2D(0.5f, 1.0f));
-	SetDesiredSizeInViewport(FVector2D(140.f, 36.f));
+	if (bUseFixedViewportSize)
+	{
+		SetDesiredSizeInViewport(FixedViewportSize);
+	}
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 

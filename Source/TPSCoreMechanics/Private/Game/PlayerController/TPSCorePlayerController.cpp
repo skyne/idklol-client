@@ -7,6 +7,7 @@
 #include "Inventory/InventoryComponent.h"
 #include "NPC/NPCCharacter.h"
 #include "UI/NpcInteractionPromptWidget.h"
+#include "UI/NpcInteractionResultWidget.h"
 #include "EngineUtils.h"
 #include "InputCoreTypes.h"
 #include "Net/UnrealNetwork.h"
@@ -34,6 +35,7 @@ void ATPSCorePlayerController::BeginPlay()
 void ATPSCorePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	HideNpcPromptWidget();
+	CloseActiveNpcInteractionWidget();
 	ActiveNearbyNpc.Reset();
 
 	Super::EndPlay(EndPlayReason);
@@ -53,6 +55,7 @@ void ATPSCorePlayerController::SetupInputComponent()
 	if (InputComponent)
 	{
 		InputComponent->BindKey(EKeys::E, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractInput);
+		InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractionCloseInput);
 	}
 }
 
@@ -175,6 +178,12 @@ void ATPSCorePlayerController::HandleNpcInteractInput()
 		return;
 	}
 
+	if (IsValid(ActiveNpcInteractionWidget) && ActiveNpcInteractionWidget->GetVisibility() != ESlateVisibility::Collapsed)
+	{
+		CloseActiveNpcInteractionWidget();
+		return;
+	}
+
 	APawn* ControlledPawn = GetPawn();
 	ANPCCharacter* Npc = ActiveNearbyNpc.Get();
 	if (!IsValid(ControlledPawn) || !IsValid(Npc))
@@ -196,6 +205,51 @@ void ATPSCorePlayerController::HandleNpcInteractInput()
 		*NpcData.NpcId,
 		*NpcData.DisplayName,
 		Distance);
+
+	ServerInteractWithNpc(Npc);
+}
+
+void ATPSCorePlayerController::HandleNpcInteractionCloseInput()
+{
+	CloseActiveNpcInteractionWidget();
+}
+
+void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacter* Npc)
+{
+	if (!IsValid(Npc))
+	{
+		return;
+	}
+
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+	{
+		return;
+	}
+
+	const float AllowedRadius = GetInteractionRadiusForNpc(Npc);
+	const float Distance = FVector::Distance(ControlledPawn->GetActorLocation(), Npc->GetActorLocation());
+	if (Distance > AllowedRadius)
+	{
+		return;
+	}
+
+	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
+	ClientHandleNpcInteraction(NpcData.NpcId, NpcData.DisplayName, NpcData.Role);
+}
+
+void ATPSCorePlayerController::ClientHandleNpcInteraction_Implementation(
+	const FString& NpcId,
+	const FString& NpcName,
+	const FString& NpcRole)
+{
+	if (IsValid(ActiveNpcInteractionWidget) && ActiveNpcInteractionWidget->GetVisibility() != ESlateVisibility::Collapsed)
+	{
+		return;
+	}
+
+	const FText Message = BuildNpcInteractionMessage(NpcName, NpcRole);
+	ShowNpcInteractionWidget(NpcId, NpcName, NpcRole, Message);
 }
 
 void ATPSCorePlayerController::EnsureNpcPromptWidget()
@@ -222,6 +276,17 @@ void ATPSCorePlayerController::HideNpcPromptWidget()
 	}
 }
 
+void ATPSCorePlayerController::CloseActiveNpcInteractionWidget()
+{
+	if (!IsValid(ActiveNpcInteractionWidget))
+	{
+		return;
+	}
+
+	ActiveNpcInteractionWidget->RemoveFromParent();
+	ActiveNpcInteractionWidget = nullptr;
+}
+
 void ATPSCorePlayerController::UpdateNpcPromptWidgetFor(ANPCCharacter* Npc)
 {
 	if (!IsValid(Npc))
@@ -230,12 +295,32 @@ void ATPSCorePlayerController::UpdateNpcPromptWidgetFor(ANPCCharacter* Npc)
 		return;
 	}
 
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn))
+	{
+		HideNpcPromptWidget();
+		return;
+	}
+
 	FVector2D ScreenPosition;
-	const FVector WorldAnchor = Npc->GetActorLocation() + FVector(0.f, 0.f, NpcPromptVerticalWorldOffset);
+	const FVector WorldAnchor = ControlledPawn->GetActorLocation() + FVector(0.f, 0.f, NpcPromptVerticalWorldOffset);
 	if (!ProjectWorldLocationToScreen(WorldAnchor, ScreenPosition, true))
 	{
 		HideNpcPromptWidget();
 		return;
+	}
+
+	ScreenPosition += NpcPromptPlayerScreenOffset;
+
+	int32 ViewportWidth = 0;
+	int32 ViewportHeight = 0;
+	GetViewportSize(ViewportWidth, ViewportHeight);
+	if (ViewportWidth > 0 && ViewportHeight > 0)
+	{
+		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, NpcPromptScreenEdgePadding,
+			static_cast<float>(ViewportWidth) - NpcPromptScreenEdgePadding);
+		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, NpcPromptScreenEdgePadding,
+			static_cast<float>(ViewportHeight) - NpcPromptScreenEdgePadding);
 	}
 
 	EnsureNpcPromptWidget();
@@ -247,6 +332,85 @@ void ATPSCorePlayerController::UpdateNpcPromptWidgetFor(ANPCCharacter* Npc)
 	NpcInteractionPromptWidget->SetPromptText(NpcPromptLabel);
 	NpcInteractionPromptWidget->SetPromptScreenPosition(ScreenPosition);
 	NpcInteractionPromptWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
+void ATPSCorePlayerController::ShowNpcInteractionWidget(
+	const FString& NpcId,
+	const FString& NpcName,
+	const FString& NpcRole,
+	const FText& Message)
+{
+	if (IsValid(ActiveNpcInteractionWidget))
+	{
+		ActiveNpcInteractionWidget->RemoveFromParent();
+		ActiveNpcInteractionWidget = nullptr;
+	}
+
+	TSubclassOf<UUserWidget> WidgetClass;
+	if (NpcRole.Equals(TEXT("merchant"), ESearchCase::IgnoreCase) && NpcMerchantWidgetClass)
+	{
+		WidgetClass = NpcMerchantWidgetClass;
+	}
+	else if (NpcDialogueWidgetClass)
+	{
+		WidgetClass = NpcDialogueWidgetClass;
+	}
+	else
+	{
+		WidgetClass = UNpcInteractionResultWidget::StaticClass();
+	}
+
+	if (!WidgetClass)
+	{
+		return;
+	}
+
+	UUserWidget* Widget = CreateWidget<UUserWidget>(this, WidgetClass);
+	if (!IsValid(Widget))
+	{
+		return;
+	}
+
+	if (UNpcInteractionResultWidget* ResultWidget = Cast<UNpcInteractionResultWidget>(Widget))
+	{
+		ResultWidget->SetContext(FText::FromString(NpcName), Message);
+	}
+	else if (UFunction* SetContextFunction = Widget->FindFunction(TEXT("SetNpcInteractionContext")))
+	{
+		struct FNpcInteractionContextParams
+		{
+			FString InNpcId;
+			FString InNpcName;
+			FString InNpcRole;
+			FText InMessage;
+		};
+
+		FNpcInteractionContextParams Params;
+		Params.InNpcId = NpcId;
+		Params.InNpcName = NpcName;
+		Params.InNpcRole = NpcRole;
+		Params.InMessage = Message;
+		Widget->ProcessEvent(SetContextFunction, &Params);
+	}
+
+	Widget->AddToViewport(30);
+	Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+	ActiveNpcInteractionWidget = Widget;
+}
+
+FText ATPSCorePlayerController::BuildNpcInteractionMessage(const FString& NpcName, const FString& NpcRole)
+{
+	if (NpcRole.Equals(TEXT("merchant"), ESearchCase::IgnoreCase))
+	{
+		return FText::FromString(FString::Printf(TEXT("%s opens their wares."), *NpcName));
+	}
+
+	if (!NpcRole.IsEmpty())
+	{
+		return FText::FromString(FString::Printf(TEXT("%s (%s): Greetings, traveler."), *NpcName, *NpcRole));
+	}
+
+	return FText::FromString(FString::Printf(TEXT("%s: Greetings, traveler."), *NpcName));
 }
 
 ANPCCharacter* ATPSCorePlayerController::FindNearestNpcInRange(const FVector& PlayerLocation) const

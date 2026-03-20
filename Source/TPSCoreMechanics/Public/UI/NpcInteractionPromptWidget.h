@@ -27,6 +27,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
 	FText DefaultPromptText = FText::FromString(TEXT("Interact"));
 
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
+	bool bUseFixedViewportSize = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction", meta = (EditCondition = "bUseFixedViewportSize", EditConditionHides))
+	FVector2D FixedViewportSize = FVector2D(140.f, 36.f);
+
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UButton> PromptButton;
 

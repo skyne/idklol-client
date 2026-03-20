@@ -7,6 +7,8 @@
 #include "NPC/NpcTypes.h"
 #include "NPCCharacter.generated.h"
 
+class UAnimInstance;
+
 /**
  * ANPCCharacter — server-spawned, fully replicated NPC actor.
  *
@@ -42,17 +44,19 @@ protected:
 	/**
 	 * Fired on server (from InitializeFromNpcMeta) and on each client as soon
 	 * as replicated data arrives or updates.
-	 *
-	 * The base C++ implementation automatically applies the skeletal mesh from
-	 * SkeletalMeshId (looked up under /Game/Characters/NPC/Meshes/). Override
-	 * in Blueprint to add nameplate widgets, animations, etc. — call the parent
-	 * node to keep mesh assignment working.
+	 * Override in Blueprint to apply skeletal mesh, nameplate, etc.
 	 */
-	UFUNCTION(BlueprintNativeEvent, Category = "NPC")
+	UFUNCTION(BlueprintImplementableEvent, Category = "NPC")
 	void OnNpcInitialized(const FNpcReplicatedData& Data);
-	virtual void OnNpcInitialized_Implementation(const FNpcReplicatedData& Data);
+
+	/** Applied when NPC has no AnimClass set yet; assign in BP defaults (e.g. ABP_Quinn). */
+	UPROPERTY(EditDefaultsOnly, Category = "NPC|Animation")
+	TSubclassOf<UAnimInstance> DefaultNpcAnimClass;
 
 private:
+	void ApplyDefaultMeshIfNeeded();
+	void ApplyDefaultAnimationIfNeeded();
+
 	UPROPERTY(ReplicatedUsing = OnRep_NpcData)
 	FNpcReplicatedData NpcData;
 
