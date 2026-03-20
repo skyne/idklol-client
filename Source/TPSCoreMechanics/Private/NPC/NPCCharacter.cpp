@@ -2,8 +2,15 @@
 
 #include "NPC/NPCCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Engine/SkeletalMesh.h"
+#include "Components/SkeletalMeshComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogNPCCharacter, Log, All);
+
+namespace
+{
+	constexpr TCHAR NpcMeshFolder[] = TEXT("/Game/Characters/NPC");
+}
 
 ANPCCharacter::ANPCCharacter()
 {
@@ -53,4 +60,29 @@ void ANPCCharacter::BeginPlay()
 void ANPCCharacter::OnRep_NpcData()
 {
 	OnNpcInitialized(NpcData);
+}
+
+void ANPCCharacter::OnNpcInitialized_Implementation(const FNpcReplicatedData& Data)
+{
+	// Dedicated servers don't render meshes.
+	if (IsNetMode(NM_DedicatedServer) || Data.SkeletalMeshId.IsEmpty())
+	{
+		return;
+	}
+
+	const FString MeshPath = FString::Printf(TEXT("%s/%s.%s"),
+		NpcMeshFolder, *Data.SkeletalMeshId, *Data.SkeletalMeshId);
+
+	if (USkeletalMesh* Mesh = LoadObject<USkeletalMesh>(nullptr, *MeshPath))
+	{
+		GetMesh()->SetSkeletalMeshAsset(Mesh);
+		UE_LOG(LogNPCCharacter, Log, TEXT("NPC '%s': applied mesh '%s'"),
+			*Data.NpcId, *Data.SkeletalMeshId);
+	}
+	else
+	{
+		UE_LOG(LogNPCCharacter, Warning,
+			TEXT("NPC '%s': could not load mesh '%s' (path '%s')"),
+			*Data.NpcId, *Data.SkeletalMeshId, *MeshPath);
+	}
 }

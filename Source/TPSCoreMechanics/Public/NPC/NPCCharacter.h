@@ -42,10 +42,15 @@ protected:
 	/**
 	 * Fired on server (from InitializeFromNpcMeta) and on each client as soon
 	 * as replicated data arrives or updates.
-	 * Override in Blueprint to apply skeletal mesh, nameplate, etc.
+	 *
+	 * The base C++ implementation automatically applies the skeletal mesh from
+	 * SkeletalMeshId (looked up under /Game/Characters/NPC/Meshes/). Override
+	 * in Blueprint to add nameplate widgets, animations, etc. — call the parent
+	 * node to keep mesh assignment working.
 	 */
-	UFUNCTION(BlueprintImplementableEvent, Category = "NPC")
+	UFUNCTION(BlueprintNativeEvent, Category = "NPC")
 	void OnNpcInitialized(const FNpcReplicatedData& Data);
+	virtual void OnNpcInitialized_Implementation(const FNpcReplicatedData& Data);
 
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_NpcData)
