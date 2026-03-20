@@ -5,14 +5,55 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Inventory/InventoryComponent.h"
+#include "NPC/NPCCharacter.h"
+#include "UI/NpcInteractionPromptWidget.h"
+#include "EngineUtils.h"
+#include "InputCoreTypes.h"
 #include "Net/UnrealNetwork.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
 ATPSCorePlayerController::ATPSCorePlayerController()
 {
 	bReplicates = true;
+	PrimaryActorTick.bCanEverTick = true;
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
 	InventoryComponent->SetIsReplicated(true);
+
+	NpcInteractionPromptWidgetClass = UNpcInteractionPromptWidget::StaticClass();
+}
+
+void ATPSCorePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	NpcPromptSearchElapsed = NpcPromptSearchInterval;
+}
+
+void ATPSCorePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	HideNpcPromptWidget();
+	ActiveNearbyNpc.Reset();
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void ATPSCorePlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	TickNpcPrompt(DeltaSeconds);
+}
+
+void ATPSCorePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (InputComponent)
+	{
+		InputComponent->BindKey(EKeys::E, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractInput);
+	}
 }
 
 UInventoryComponent* ATPSCorePlayerController::GetInventoryComponent_Implementation()
@@ -82,4 +123,175 @@ void ATPSCorePlayerController::CreateInventoryWidget()
 
 		InventoryWidget->AddToViewport();
 	}
+}
+
+void ATPSCorePlayerController::SetNpcPromptEnabled(bool bEnabled)
+{
+	bNpcPromptEnabled = bEnabled;
+	if (!bNpcPromptEnabled)
+	{
+		HideNpcPromptWidget();
+		ActiveNearbyNpc.Reset();
+	}
+}
+
+void ATPSCorePlayerController::TickNpcPrompt(float DeltaSeconds)
+{
+	if (!bNpcPromptEnabled || !IsLocalController())
+	{
+		HideNpcPromptWidget();
+		ActiveNearbyNpc.Reset();
+		return;
+	}
+
+	APawn* ControlledPawn = GetPawn();
+	if (!IsValid(ControlledPawn) || !IsValid(GetWorld()))
+	{
+		HideNpcPromptWidget();
+		ActiveNearbyNpc.Reset();
+		return;
+	}
+
+	NpcPromptSearchElapsed += DeltaSeconds;
+	if (NpcPromptSearchElapsed >= NpcPromptSearchInterval)
+	{
+		NpcPromptSearchElapsed = 0.f;
+		ActiveNearbyNpc = FindNearestNpcInRange(ControlledPawn->GetActorLocation());
+	}
+
+	if (!ActiveNearbyNpc.IsValid())
+	{
+		HideNpcPromptWidget();
+		return;
+	}
+
+	UpdateNpcPromptWidgetFor(ActiveNearbyNpc.Get());
+}
+
+void ATPSCorePlayerController::HandleNpcInteractInput()
+{
+	if (!bNpcPromptEnabled || !IsLocalController())
+	{
+		return;
+	}
+
+	APawn* ControlledPawn = GetPawn();
+	ANPCCharacter* Npc = ActiveNearbyNpc.Get();
+	if (!IsValid(ControlledPawn) || !IsValid(Npc))
+	{
+		return;
+	}
+
+	const float AllowedRadius = GetInteractionRadiusForNpc(Npc);
+	const float Distance = FVector::Distance(ControlledPawn->GetActorLocation(), Npc->GetActorLocation());
+	if (Distance > AllowedRadius)
+	{
+		return;
+	}
+
+	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
+	UE_LOG(LogTPSCorePlayerController, Log,
+		TEXT("NPC interaction happened: player='%s' npc_id='%s' npc_name='%s' distance=%.1f"),
+		*GetNameSafe(ControlledPawn),
+		*NpcData.NpcId,
+		*NpcData.DisplayName,
+		Distance);
+}
+
+void ATPSCorePlayerController::EnsureNpcPromptWidget()
+{
+	if (IsValid(NpcInteractionPromptWidget) || !NpcInteractionPromptWidgetClass)
+	{
+		return;
+	}
+
+	if (UNpcInteractionPromptWidget* PromptWidget = CreateWidget<UNpcInteractionPromptWidget>(this, NpcInteractionPromptWidgetClass))
+	{
+		NpcInteractionPromptWidget = PromptWidget;
+		NpcInteractionPromptWidget->SetPromptText(NpcPromptLabel);
+		NpcInteractionPromptWidget->SetVisibility(ESlateVisibility::Collapsed);
+		NpcInteractionPromptWidget->AddToViewport();
+	}
+}
+
+void ATPSCorePlayerController::HideNpcPromptWidget()
+{
+	if (IsValid(NpcInteractionPromptWidget))
+	{
+		NpcInteractionPromptWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void ATPSCorePlayerController::UpdateNpcPromptWidgetFor(ANPCCharacter* Npc)
+{
+	if (!IsValid(Npc))
+	{
+		HideNpcPromptWidget();
+		return;
+	}
+
+	FVector2D ScreenPosition;
+	const FVector WorldAnchor = Npc->GetActorLocation() + FVector(0.f, 0.f, NpcPromptVerticalWorldOffset);
+	if (!ProjectWorldLocationToScreen(WorldAnchor, ScreenPosition, true))
+	{
+		HideNpcPromptWidget();
+		return;
+	}
+
+	EnsureNpcPromptWidget();
+	if (!IsValid(NpcInteractionPromptWidget))
+	{
+		return;
+	}
+
+	NpcInteractionPromptWidget->SetPromptText(NpcPromptLabel);
+	NpcInteractionPromptWidget->SetPromptScreenPosition(ScreenPosition);
+	NpcInteractionPromptWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
+ANPCCharacter* ATPSCorePlayerController::FindNearestNpcInRange(const FVector& PlayerLocation) const
+{
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		return nullptr;
+	}
+
+	ANPCCharacter* BestNpc = nullptr;
+	float BestDistanceSq = TNumericLimits<float>::Max();
+
+	for (TActorIterator<ANPCCharacter> It(World); It; ++It)
+	{
+		ANPCCharacter* Candidate = *It;
+		if (!IsValid(Candidate))
+		{
+			continue;
+		}
+
+		const float InteractionRadius = GetInteractionRadiusForNpc(Candidate);
+		if (InteractionRadius <= 0.f)
+		{
+			continue;
+		}
+
+		const float DistanceSq = FVector::DistSquared(PlayerLocation, Candidate->GetActorLocation());
+		if (DistanceSq <= FMath::Square(InteractionRadius) && DistanceSq < BestDistanceSq)
+		{
+			BestDistanceSq = DistanceSq;
+			BestNpc = Candidate;
+		}
+	}
+
+	return BestNpc;
+}
+
+float ATPSCorePlayerController::GetInteractionRadiusForNpc(const ANPCCharacter* Npc)
+{
+	if (!IsValid(Npc))
+	{
+		return 0.f;
+	}
+
+	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
+	return FMath::Max(50.f, NpcData.InteractionRadius);
 }

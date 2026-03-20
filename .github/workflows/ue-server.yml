@@ -251,4 +251,4 @@ jobs:
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/skyne/idklol-infra/actions/workflows/promote-ue-image.yml/dispatches \
-            -d "{\"ref\":\"main\",\"inputs\":{\"ue_sha\":\"${UE_SHA}\",\"tfvars_file\":\"prod.tfvars\",\"automerge\":\"${automerge}\"}}"
+            -d "{\"ref\":\"main\",\"inputs\":{\"ue_sha\":\"${UE_SHA}\",\"tfvars_file\":\"prod.public.tfvars\",\"automerge\":\"${automerge}\"}}"
