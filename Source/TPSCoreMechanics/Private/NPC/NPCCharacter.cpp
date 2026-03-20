@@ -11,7 +11,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogNPCCharacter, Log, All);
 
 namespace
 {
-	FString ExtractAssetIdFromObjectPath(const FString& ObjectPath)
+	FString ExtractNpcAssetIdFromObjectPath(const FString& ObjectPath)
 	{
 		if (ObjectPath.IsEmpty())
 		{
@@ -88,7 +88,7 @@ namespace
 	TSubclassOf<UAnimInstance> ResolveFallbackAnimClass(const FNpcReplicatedData& Data)
 	{
 		const FString RawId = !Data.SkeletalMeshId.IsEmpty() ? Data.SkeletalMeshId : Data.ModelId;
-		const FString AssetId = ExtractAssetIdFromObjectPath(RawId);
+		const FString AssetId = ExtractNpcAssetIdFromObjectPath(RawId);
 
 		TArray<FString> Candidates;
 		AddAnimBlueprintCandidatesFromAssetId(AssetId, Candidates);
@@ -185,7 +185,7 @@ void ANPCCharacter::ApplyDefaultMeshIfNeeded()
 	}
 
 	const FString RawId = !NpcData.SkeletalMeshId.IsEmpty() ? NpcData.SkeletalMeshId : NpcData.ModelId;
-	const FString AssetId = ExtractAssetIdFromObjectPath(RawId);
+	const FString AssetId = ExtractNpcAssetIdFromObjectPath(RawId);
 
 	if (AssetId.IsEmpty())
 	{
