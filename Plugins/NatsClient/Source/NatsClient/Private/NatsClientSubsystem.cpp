@@ -33,6 +33,39 @@ void UNatsClientSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	UE_LOG(LogNatsClient, Log, TEXT("NatsClientSubsystem initialized"));
+
+	// Auto-connect on dedicated server (or editor, for dev console commands).
+	// Client processes must call Connect() explicitly.
+	const bool bShouldAutoConnect = IsRunningDedicatedServer()
+#if WITH_EDITOR
+		|| GIsEditor
+#endif
+		;
+
+	if (!bShouldAutoConnect)
+	{
+		return;
+	}
+
+	// 1. Prefer -NATSUrl= on the command line (set by Docker / launch script).
+	FString Url;
+	if (!FParse::Value(FCommandLine::Get(), TEXT("NATSUrl="), Url) || Url.IsEmpty())
+	{
+		// 2. Fall back to [NatsClient] DefaultUrl in the game ini.
+		GConfig->GetString(TEXT("NatsClient"), TEXT("DefaultUrl"), Url, GGameIni);
+	}
+
+	if (Url.IsEmpty())
+	{
+		UE_LOG(LogNatsClient, Warning, TEXT("Auto-connect skipped: no NATS URL (set -NATSUrl= or [NatsClient] DefaultUrl in ini)"));
+		return;
+	}
+
+	FString Credentials;
+	GConfig->GetString(TEXT("NatsClient"), TEXT("CredentialsOrNKey"), Credentials, GGameIni);
+
+	UE_LOG(LogNatsClient, Log, TEXT("Auto-connecting to NATS: %s"), *Url);
+	Connect(Url, Credentials);
 }
 
 void UNatsClientSubsystem::Deinitialize()
