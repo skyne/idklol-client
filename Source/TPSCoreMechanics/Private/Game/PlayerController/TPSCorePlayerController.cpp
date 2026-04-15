@@ -29,6 +29,10 @@ ATPSCorePlayerController::ATPSCorePlayerController()
 	NpcInteractionPromptWidgetClass = UNpcInteractionPromptWidget::StaticClass();
 }
 
+ATPSCorePlayerController::~ATPSCorePlayerController()
+{
+}
+
 void ATPSCorePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
