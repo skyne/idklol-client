@@ -15,7 +15,7 @@
 #include "InputCoreTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "NatsClientSubsystem.h"
-#if WITH_CLIENT
+#if !UE_SERVER
 #include "Chat/ChatSubsystem.h"
 #endif
 
@@ -238,7 +238,7 @@ static void GatherNearbyPlayerControllers(
 	}
 
 	const FVector NpcLocation = Npc->GetActorLocation();
-	for (FConstPlayerControllerIterator It(World); It; ++It)
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
 	{
 		ATPSCorePlayerController* PlayerController = Cast<ATPSCorePlayerController>(*It);
 		if (!PlayerController)
@@ -422,7 +422,7 @@ void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
 	const FString& Sender,
 	const FString& Message)
 {
-#if WITH_CLIENT
+#if !UE_SERVER
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		if (UChatSubsystem* ChatSubsystem = GameInstance->GetSubsystem<UChatSubsystem>())
