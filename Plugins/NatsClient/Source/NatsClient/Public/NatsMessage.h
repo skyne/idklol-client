@@ -30,7 +30,16 @@ struct NATSCLIENT_API FNatsMessage
 	/** Convenience: interpret Payload as UTF-8 string. */
 	FString PayloadAsString() const
 	{
-		return FString(UTF8_TO_TCHAR(reinterpret_cast<const char*>(Payload.GetData())));
+		if (Payload.Num() == 0)
+		{
+			return FString();
+		}
+
+		const ANSICHAR* PayloadData = reinterpret_cast<const ANSICHAR*>(Payload.GetData());
+		FUTF8ToTCHAR Utf8ToTCHAR(PayloadData, Payload.Num());
+		FString Result;
+		Result.AppendChars(Utf8ToTCHAR.Get(), Utf8ToTCHAR.Length());
+		return Result;
 	}
 };
 
