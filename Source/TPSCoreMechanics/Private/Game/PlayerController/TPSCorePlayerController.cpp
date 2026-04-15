@@ -15,9 +15,6 @@
 #include "InputCoreTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "NatsClientSubsystem.h"
-#if !UE_SERVER
-#include "Chat/ChatSubsystem.h"
-#endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
@@ -418,20 +415,7 @@ void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
 	ShowNpcInteractionWidget(NpcId, NpcName, TEXT(""), FText::FromString(Message));
 }
 
-void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
-	const FString& Sender,
-	const FString& Message)
-{
-#if !UE_SERVER
-	if (UGameInstance* GameInstance = GetGameInstance())
-	{
-		if (UChatSubsystem* ChatSubsystem = GameInstance->GetSubsystem<UChatSubsystem>())
-		{
-			ChatSubsystem->SendChatMessage(Message, Sender);
-		}
-	}
-#endif
-}
+
 
 void ATPSCorePlayerController::EnsureNpcPromptWidget()
 {
