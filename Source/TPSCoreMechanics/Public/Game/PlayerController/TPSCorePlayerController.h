@@ -49,6 +49,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientHandleNpcInteraction(const FString& NpcId, const FString& NpcName, const FString& NpcRole);
 
+	UFUNCTION(Client, Reliable)
+	void ClientShowNpcInteractionResponse(const FString& NpcId, const FString& NpcName, const FString& Message);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSendNpcChatMessage(const FString& Sender, const FString& Message);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated)
 	TObjectPtr<UInventoryComponent> InventoryComponent;

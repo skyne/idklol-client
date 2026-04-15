@@ -4,13 +4,18 @@
 #include "Game/PlayerController/TPSCorePlayerController.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Config/TPSNatsSubjectsConfig.h"
+#include "Helpers/JsonObjectUtils.h"
 #include "Inventory/InventoryComponent.h"
 #include "NPC/NPCCharacter.h"
 #include "UI/NpcInteractionPromptWidget.h"
 #include "UI/NpcInteractionResultWidget.h"
 #include "EngineUtils.h"
+#include "GameFramework/PlayerState.h"
 #include "InputCoreTypes.h"
 #include "Net/UnrealNetwork.h"
+#include "NatsClientSubsystem.h"
+#include "Chat/ChatSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
@@ -214,6 +219,45 @@ void ATPSCorePlayerController::HandleNpcInteractionCloseInput()
 	CloseActiveNpcInteractionWidget();
 }
 
+static void GatherNearbyPlayerControllers(
+	ANPCCharacter* Npc,
+	float Radius,
+	TArray<TWeakObjectPtr<ATPSCorePlayerController>>& OutControllers)
+{
+	if (!IsValid(Npc))
+	{
+		return;
+	}
+
+	UWorld* World = Npc->GetWorld();
+	if (!IsValid(World))
+	{
+		return;
+	}
+
+	const FVector NpcLocation = Npc->GetActorLocation();
+	for (FConstPlayerControllerIterator It(World); It; ++It)
+	{
+		ATPSCorePlayerController* PlayerController = Cast<ATPSCorePlayerController>(*It);
+		if (!PlayerController)
+		{
+			continue;
+		}
+
+		APawn* Pawn = PlayerController->GetPawn();
+		if (!IsValid(Pawn))
+		{
+			continue;
+		}
+
+		const float Distance = FVector::Distance(NpcLocation, Pawn->GetActorLocation());
+		if (Distance <= Radius)
+		{
+			OutControllers.Add(PlayerController);
+		}
+	}
+}
+
 void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacter* Npc)
 {
 	if (!IsValid(Npc))
@@ -235,7 +279,114 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	}
 
 	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
-	ClientHandleNpcInteraction(NpcData.NpcId, NpcData.DisplayName, NpcData.Role);
+
+	UNatsClientSubsystem* Nats = GetGameInstance()->GetSubsystem<UNatsClientSubsystem>();
+	if (!Nats || !Nats->IsConnected())
+	{
+		UE_LOG(LogTPSCorePlayerController, Warning,
+			TEXT("ServerInteractWithNpc: NATS not connected, falling back to local greeting"));
+		ClientHandleNpcInteraction(NpcData.NpcId, NpcData.DisplayName, NpcData.Role);
+		return;
+	}
+
+	TArray<TWeakObjectPtr<ATPSCorePlayerController>> NearbyPlayers;
+	GatherNearbyPlayerControllers(Npc, AllowedRadius * 2.0f, NearbyPlayers);
+
+	FString PlayerId = TEXT("unknown-player");
+	FString PlayerName = TEXT("unknown-player");
+	if (PlayerState)
+	{
+		PlayerId = PlayerState->GetPlayerName();
+		PlayerName = PlayerState->GetPlayerName();
+	}
+
+	TArray<FString> NearbyPlayerNames;
+	NearbyPlayerNames.Add(PlayerName);
+	for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : NearbyPlayers)
+	{
+		if (ATPSCorePlayerController* PC = WeakPC.Get())
+		{
+			if (PC->PlayerState)
+			{
+				const FString NearbyName = PC->PlayerState->GetPlayerName();
+				if (!NearbyName.IsEmpty() && !NearbyPlayerNames.Contains(NearbyName))
+				{
+					NearbyPlayerNames.Add(NearbyName);
+				}
+			}
+		}
+	}
+
+	const FString PlayerList = FString::Join(NearbyPlayerNames, TEXT(", "));
+	const FString Context = FString::Printf(
+		TEXT("NPC name: %s\nNPC role: %s\nNearby players: %s"),
+		*NpcData.DisplayName,
+		*NpcData.Role,
+		*PlayerList);
+
+	TSharedRef<FJsonObject> RequestObject = MakeShared<FJsonObject>();
+	RequestObject->SetStringField(TEXT("request_id"), FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower));
+	RequestObject->SetStringField(TEXT("npc_id"), NpcData.NpcId);
+	RequestObject->SetStringField(TEXT("npc_name"), NpcData.DisplayName);
+	RequestObject->SetStringField(TEXT("npc_role"), NpcData.Role);
+	RequestObject->SetStringField(TEXT("player_id"), PlayerId);
+	RequestObject->SetStringField(TEXT("player_name"), PlayerName);
+
+	TArray<TSharedPtr<FJsonValue>> PlayerNameValues;
+	for (const FString& NearbyName : NearbyPlayerNames)
+	{
+		PlayerNameValues.Add(MakeShared<FJsonValueString>(NearbyName));
+	}
+	RequestObject->SetArrayField(TEXT("nearby_player_names"), PlayerNameValues);
+
+	RequestObject->SetStringField(TEXT("message"), TEXT("A player interacted with the NPC. Greet all nearby players by name."));
+	RequestObject->SetStringField(TEXT("context"), Context);
+
+	TArray<TWeakObjectPtr<ATPSCorePlayerController>> ReplyTargets = NearbyPlayers;
+
+	TWeakObjectPtr<ATPSCorePlayerController> InitiatingController = this;
+	FOnNatsReply ReplyDelegate;
+	ReplyDelegate.BindLambda([ReplyTargets = MoveTemp(ReplyTargets), NpcData, InitiatingController](bool bSuccess, const FNatsMessage& Reply)
+	{
+		FString ResponseText;
+		if (!bSuccess)
+		{
+			UE_LOG(LogTPSCorePlayerController, Warning,
+				TEXT("NPC interaction request timed out for npc_id=%s"), *NpcData.NpcId);
+		}
+		else
+		{
+			TSharedPtr<FJsonObject> Root;
+			if (TPSCoreJson::DeserializeObject(Reply.PayloadAsString(), Root) && Root.IsValid())
+			{
+				Root->TryGetStringField(TEXT("response"), ResponseText);
+			}
+		}
+
+		if (ResponseText.IsEmpty())
+		{
+			ResponseText = FString::Printf(TEXT("%s: Greetings, traveler."), *NpcData.DisplayName);
+		}
+
+		if (InitiatingController.IsValid())
+		{
+			InitiatingController->ClientSendNpcChatMessage(NpcData.DisplayName, ResponseText);
+		}
+
+		for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : ReplyTargets)
+		{
+			if (ATPSCorePlayerController* PC = WeakPC.Get())
+			{
+				PC->ClientShowNpcInteractionResponse(NpcData.NpcId, NpcData.DisplayName, ResponseText);
+			}
+		}
+	});
+
+	Nats->RequestJson(
+		UTPSNatsSubjectsConfig::Get().NpcInteractionRequestSubject,
+		TPSCoreJson::SerializeObject(RequestObject),
+		5.f,
+		ReplyDelegate);
 }
 
 void ATPSCorePlayerController::ClientHandleNpcInteraction_Implementation(
@@ -250,6 +401,32 @@ void ATPSCorePlayerController::ClientHandleNpcInteraction_Implementation(
 
 	const FText Message = BuildNpcInteractionMessage(NpcName, NpcRole);
 	ShowNpcInteractionWidget(NpcId, NpcName, NpcRole, Message);
+}
+
+void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
+	const FString& NpcId,
+	const FString& NpcName,
+	const FString& Message)
+{
+	if (IsValid(ActiveNpcInteractionWidget) && ActiveNpcInteractionWidget->GetVisibility() != ESlateVisibility::Collapsed)
+	{
+		return;
+	}
+
+	ShowNpcInteractionWidget(NpcId, NpcName, TEXT(""), FText::FromString(Message));
+}
+
+void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
+	const FString& Sender,
+	const FString& Message)
+{
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (UChatSubsystem* ChatSubsystem = GameInstance->GetSubsystem<UChatSubsystem>())
+		{
+			ChatSubsystem->SendChatMessage(Message, Sender);
+		}
+	}
 }
 
 void ATPSCorePlayerController::EnsureNpcPromptWidget()

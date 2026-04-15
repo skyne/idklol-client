@@ -33,7 +33,10 @@ public:
 	// Chat-specific functionality
 	UFUNCTION(BlueprintCallable, Category = "Chat Subsystem")
 	void NewChatMessage(FString Message);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Chat Subsystem")
+	void SendChatMessage(const FString& Message, const FString& SenderOverride = TEXT(""));
+
 	/** Event broadcast when a new chat message is received */
 	UPROPERTY(BlueprintAssignable, Category = "Chat Subsystem")
 	FOnNewMessageReceivedSignature OnNewMessageReceived;

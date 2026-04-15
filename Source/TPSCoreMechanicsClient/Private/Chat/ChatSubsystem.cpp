@@ -79,47 +79,14 @@ void UChatSubsystem::HandleGrpcStateChange(EGrpcServiceState ServiceState)
 
 void UChatSubsystem::NewChatMessage(FString Message)
 {
-	UE_LOG(LogTemp, Log, TEXT("[ChatSubsystem] Sending new message"));
-	
-	// TurboLink / gRPC generally does not use C++ exceptions, so instead of try/catch
-	// we defensively check our tracked connection status and client validity before sending.
-	if (IsConnected())
-	{
-		UChatServiceClient* ChatClient = GetClient();
-		if (!ChatClient)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[ChatSubsystem] Client is not available"));
-			return;
-		}
-		
-		// Get character name from SelectedCharacterSubsystem
-		FString SenderName = TEXT("Unknown");
-		FGrpcMetaData MetaData = FGrpcMetaData();
-		if (UGameInstance* GameInstance = GetGameInstance())
-		{
-			if (USelectedCharacterSubsystem* SelectedCharacterSubsystem = GameInstance->GetSubsystem<USelectedCharacterSubsystem>())
-			{
-				if (SelectedCharacterSubsystem->HasSelectedCharacter())
-				{
-					FCharacterData SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
-					SenderName = SelectedCharacter.Name;
-					if (!SelectedCharacter.CharacterId.IsEmpty())
-					{
-						MetaData.MetaData.Add("x-character-id", SelectedCharacter.CharacterId);
-					}
-				}
-			}
-		}
-		
-		FGrpcContextHandle Context = ChatClient->InitMessage();
-		FGrpcChatChatMessage ChatMessage;
-		ChatMessage.Timestamp = "NOW";
-		ChatMessage.Message = Message;
-		ChatMessage.Sender = SenderName;
-		MetaData.MetaData.Add("authorization", GetValidAuthToken());
-		ChatClient->Message(Context, ChatMessage, MetaData);
-	}
-	else
+	SendChatMessage(Message, TEXT(""));
+}
+
+void UChatSubsystem::SendChatMessage(const FString& Message, const FString& SenderOverride)
+{
+	UE_LOG(LogTemp, Log, TEXT("[ChatSubsystem] Sending chat message"));
+
+	if (!IsConnected())
 	{
 		UE_LOG(
 			LogTemp,
@@ -127,7 +94,46 @@ void UChatSubsystem::NewChatMessage(FString Message)
 			TEXT("[ChatSubsystem] Cannot send chat message: not connected. Status=%d"),
 			static_cast<int32>(ConnectionStatus)
 		);
+		return;
 	}
+
+	UChatServiceClient* ChatClient = GetClient();
+	if (!ChatClient)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ChatSubsystem] Client is not available"));
+		return;
+	}
+
+	FString SenderName = TEXT("Unknown");
+	FGrpcMetaData MetaData = FGrpcMetaData();
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		if (USelectedCharacterSubsystem* SelectedCharacterSubsystem = GameInstance->GetSubsystem<USelectedCharacterSubsystem>())
+		{
+			if (SelectedCharacterSubsystem->HasSelectedCharacter())
+			{
+				FCharacterData SelectedCharacter = SelectedCharacterSubsystem->GetSelectedCharacter();
+				SenderName = SelectedCharacter.Name;
+				if (!SelectedCharacter.CharacterId.IsEmpty())
+				{
+					MetaData.MetaData.Add("x-character-id", SelectedCharacter.CharacterId);
+				}
+			}
+		}
+	}
+
+	if (!SenderOverride.IsEmpty())
+	{
+		SenderName = SenderOverride;
+	}
+
+	FGrpcContextHandle Context = ChatClient->InitMessage();
+	FGrpcChatChatMessage ChatMessage;
+	ChatMessage.Timestamp = "NOW";
+	ChatMessage.Message = Message;
+	ChatMessage.Sender = SenderName;
+	MetaData.MetaData.Add("authorization", GetValidAuthToken());
+	ChatClient->Message(Context, ChatMessage, MetaData);
 }
 
 void UChatSubsystem::TriggerNewMessageReceived(const FString& Timestamp,const FString& Sender,const FString& Message)

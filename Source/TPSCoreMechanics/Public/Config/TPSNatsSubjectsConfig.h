@@ -33,6 +33,12 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "NPC")
 	FString NpcMetaGetSubject = TEXT("npc.meta.get");
 
+	UPROPERTY(Config, EditAnywhere, Category = "NPC")
+	FString NpcInteractionRequestSubject = TEXT("npc.interactions.request");
+
+	UPROPERTY(Config, EditAnywhere, Category = "NPC")
+	FString NpcInteractionResponseSubject = TEXT("npc.interactions.response");
+
 	UPROPERTY(Config, EditAnywhere, Category = "Server")
 	FString ServerMapSubjectTemplate = TEXT("server.%s.map");
 
