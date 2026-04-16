@@ -293,17 +293,8 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 
 	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
 
-	UNatsClientSubsystem* Nats = GetGameInstance()->GetSubsystem<UNatsClientSubsystem>();
-	if (!Nats || !Nats->IsConnected())
-	{
-		UE_LOG(LogTPSCorePlayerController, Warning,
-			TEXT("ServerInteractWithNpc: NATS not connected, falling back to local greeting"));
-		ClientHandleNpcInteraction(NpcData.NpcId, NpcData.DisplayName, NpcData.Role);
-		return;
-	}
-
 	TArray<TWeakObjectPtr<ATPSCorePlayerController>> NearbyPlayers;
-	GatherNearbyPlayerControllers(Npc, AllowedRadius * 2.0f, NearbyPlayers);
+	GatherNearbyPlayerControllers(Npc, AllowedRadius, NearbyPlayers);
 
 	FString PlayerId = TEXT("unknown-player");
 	FString PlayerName = TEXT("unknown-player");
@@ -319,6 +310,11 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	{
 		if (ATPSCorePlayerController* PC = WeakPC.Get())
 		{
+			if (PC == this)
+			{
+				continue;
+			}
+
 			if (PC->PlayerState)
 			{
 				const FString NearbyName = PC->PlayerState->GetPlayerName();
@@ -355,7 +351,45 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	RequestObject->SetStringField(TEXT("message"), TEXT("A player interacted with the NPC. Greet all nearby players by name."));
 	RequestObject->SetStringField(TEXT("context"), Context);
 
-	TArray<TWeakObjectPtr<ATPSCorePlayerController>> ReplyTargets = NearbyPlayers;
+	TArray<TWeakObjectPtr<ATPSCorePlayerController>> ReplyTargets;
+	for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : NearbyPlayers)
+	{
+		if (ATPSCorePlayerController* PC = WeakPC.Get(); PC && PC != this)
+		{
+			ReplyTargets.Add(PC);
+		}
+	}
+
+	const FString InitiatorMessageText = FString::Printf(TEXT("Hello, %s."), *NpcData.DisplayName);
+	ClientSendNpcChatMessage(PlayerName, InitiatorMessageText);
+	for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : ReplyTargets)
+	{
+		if (ATPSCorePlayerController* PC = WeakPC.Get())
+		{
+			PC->ClientSendNpcChatMessage(PlayerName, InitiatorMessageText);
+		}
+	}
+
+	UNatsClientSubsystem* Nats = GetGameInstance()->GetSubsystem<UNatsClientSubsystem>();
+	if (!Nats || !Nats->IsConnected())
+	{
+		UE_LOG(LogTPSCorePlayerController, Warning,
+			TEXT("ServerInteractWithNpc: NATS not connected, falling back to local greeting"));
+
+		const FString FallbackResponseText = FString::Printf(TEXT("%s: Greetings, traveler."), *NpcData.DisplayName);
+		ClientSendNpcChatMessage(NpcData.DisplayName, FallbackResponseText);
+		ClientShowNpcInteractionResponse(NpcData.NpcId, NpcData.DisplayName, FallbackResponseText);
+
+		for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : ReplyTargets)
+		{
+			if (ATPSCorePlayerController* PC = WeakPC.Get())
+			{
+				PC->ClientSendNpcChatMessage(NpcData.DisplayName, FallbackResponseText);
+				PC->ClientShowNpcInteractionResponse(NpcData.NpcId, NpcData.DisplayName, FallbackResponseText);
+			}
+		}
+		return;
+	}
 
 	TWeakObjectPtr<ATPSCorePlayerController> InitiatingController = this;
 	FOnNatsReply ReplyDelegate;
@@ -384,12 +418,14 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 		if (InitiatingController.IsValid())
 		{
 			InitiatingController->ClientSendNpcChatMessage(NpcData.DisplayName, ResponseText);
+			InitiatingController->ClientShowNpcInteractionResponse(NpcData.NpcId, NpcData.DisplayName, ResponseText);
 		}
 
 		for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : ReplyTargets)
 		{
 			if (ATPSCorePlayerController* PC = WeakPC.Get())
 			{
+				PC->ClientSendNpcChatMessage(NpcData.DisplayName, ResponseText);
 				PC->ClientShowNpcInteractionResponse(NpcData.NpcId, NpcData.DisplayName, ResponseText);
 			}
 		}

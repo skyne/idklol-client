@@ -12,7 +12,7 @@ void ATPSCorePlayerControllerClient::ClientSendNpcChatMessage_Implementation(con
     {
         if (UChatSubsystem* ChatSubsystem = GameInstance->GetSubsystem<UChatSubsystem>())
         {
-            ChatSubsystem->SendChatMessage(Message, Sender);
+            ChatSubsystem->TriggerNewMessageReceived(TEXT("NOW"), Sender, Message);
         }
     }
 }
