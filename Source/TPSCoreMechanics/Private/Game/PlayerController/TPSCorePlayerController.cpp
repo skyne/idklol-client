@@ -60,6 +60,7 @@ void ATPSCorePlayerController::SetupInputComponent()
 
 	if (InputComponent)
 	{
+		InputComponent->BindKey(EKeys::F, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractInput);
 		InputComponent->BindKey(EKeys::E, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractInput);
 		InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractionCloseInput);
 	}

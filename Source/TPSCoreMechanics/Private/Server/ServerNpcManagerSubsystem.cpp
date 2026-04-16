@@ -14,6 +14,7 @@
 #include "HAL/IConsoleManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/Guid.h"
+#include "Components/CapsuleComponent.h"
 #include "UObject/UObjectGlobals.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogServerNpcManager, Log, All);
@@ -21,6 +22,9 @@ DEFINE_LOG_CATEGORY_STATIC(LogServerNpcManager, Log, All);
 namespace
 {
 	constexpr TCHAR NpcActorClassFolder[] = TEXT("/Game/Characters/NPC");
+	constexpr float NpcGroundTraceHeightAbove = 1000.f;
+	constexpr float NpcGroundTraceDepthBelow = 10000.f;
+	constexpr float NpcGroundClearance = 2.f;
 
 	FString BuildNpcActorClassPathFromId(const FString& ActorClassId)
 	{
@@ -55,6 +59,51 @@ namespace
 		}
 
 		return AssetName;
+	}
+
+	float ResolveNpcCapsuleHalfHeight(const TSubclassOf<ANPCCharacter> NpcClass)
+	{
+		const ANPCCharacter* NpcClassDefault = NpcClass ? NpcClass->GetDefaultObject<ANPCCharacter>() : nullptr;
+		if (NpcClassDefault)
+		{
+			if (const UCapsuleComponent* CapsuleComponent = NpcClassDefault->GetCapsuleComponent())
+			{
+				return CapsuleComponent->GetScaledCapsuleHalfHeight();
+			}
+		}
+
+		return 88.f;
+	}
+
+	bool ResolveGroundedNpcSpawnLocation(
+		UWorld* World,
+		const FVector& RawLocation,
+		const TSubclassOf<ANPCCharacter> NpcClass,
+		FVector& OutGroundedLocation)
+	{
+		if (!World)
+		{
+			return false;
+		}
+
+		const FVector TraceStart = RawLocation + FVector(0.f, 0.f, NpcGroundTraceHeightAbove);
+		const FVector TraceEnd = RawLocation - FVector(0.f, 0.f, NpcGroundTraceDepthBelow);
+
+		FCollisionObjectQueryParams ObjectQueryParams;
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+		FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(GroundedNpcSpawn), true);
+		QueryParams.bTraceComplex = true;
+
+		FHitResult Hit;
+		if (!World->LineTraceSingleByObjectType(Hit, TraceStart, TraceEnd, ObjectQueryParams, QueryParams))
+		{
+			return false;
+		}
+
+		OutGroundedLocation = Hit.ImpactPoint + FVector(0.f, 0.f, ResolveNpcCapsuleHalfHeight(NpcClass) + NpcGroundClearance);
+		return true;
 	}
 
 	TSubclassOf<ANPCCharacter> ResolveNpcClass(UWorld* World, const FNpcMeta& Meta)
@@ -522,16 +571,20 @@ void UServerNpcManagerSubsystem::SpawnNpcFromMeta(UWorld* World, const FNpcMeta&
 		return;
 	}
 
-	// Snap spawn location to ground using a downward trace
+	const TSubclassOf<ANPCCharacter> NpcClass = ResolveNpcClass(World, Meta);
+
 	FVector RawLocation(SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z);
-	FVector TraceStart = RawLocation + FVector(0.f, 0.f, 200.f);
-	FVector TraceEnd = RawLocation - FVector(0.f, 0.f, 2000.f);
-	FHitResult Hit;
-	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(GroundedNpcSpawn), false);
 	FVector GroundedLocation = RawLocation;
-	if (World->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_WorldStatic, QueryParams))
+	const bool bFoundGround = ResolveGroundedNpcSpawnLocation(World, RawLocation, NpcClass, GroundedLocation);
+	if (!bFoundGround)
 	{
-		GroundedLocation = Hit.ImpactPoint + FVector(0.f, 0.f, 2.f); // Slight offset above ground
+		UE_LOG(LogServerNpcManager, Warning,
+			TEXT("SpawnNpcFromMeta: no ground hit for NPC '%s' (%s) near [%.1f, %.1f, %.1f], using raw spawn location"),
+			*Meta.DisplayName,
+			*Meta.NpcId,
+			RawLocation.X,
+			RawLocation.Y,
+			RawLocation.Z);
 	}
 
 	const FRotator Rotation(0.f, SpawnPoint.Yaw, 0.f);
@@ -540,7 +593,6 @@ void UServerNpcManagerSubsystem::SpawnNpcFromMeta(UWorld* World, const FNpcMeta&
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	const TSubclassOf<ANPCCharacter> NpcClass = ResolveNpcClass(World, Meta);
 	ANPCCharacter* NPC = World->SpawnActor<ANPCCharacter>(NpcClass, SpawnTransform, Params);
 	if (!NPC)
 	{

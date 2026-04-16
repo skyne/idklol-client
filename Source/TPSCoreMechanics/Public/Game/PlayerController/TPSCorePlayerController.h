@@ -92,7 +92,7 @@ private:
 	float NpcPromptScreenEdgePadding = 12.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
-	FText NpcPromptLabel = FText::FromString(TEXT("Interact"));
+	FText NpcPromptLabel = FText::FromString(TEXT("Press F to interact"));
 
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
 	TSubclassOf<UNpcInteractionPromptWidget> NpcInteractionPromptWidgetClass;
