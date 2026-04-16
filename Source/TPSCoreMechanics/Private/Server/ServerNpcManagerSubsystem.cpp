@@ -522,9 +522,20 @@ void UServerNpcManagerSubsystem::SpawnNpcFromMeta(UWorld* World, const FNpcMeta&
 		return;
 	}
 
-	const FVector Location(SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z);
+	// Snap spawn location to ground using a downward trace
+	FVector RawLocation(SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z);
+	FVector TraceStart = RawLocation + FVector(0.f, 0.f, 200.f);
+	FVector TraceEnd = RawLocation - FVector(0.f, 0.f, 2000.f);
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(GroundedNpcSpawn), false);
+	FVector GroundedLocation = RawLocation;
+	if (World->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_WorldStatic, QueryParams))
+	{
+		GroundedLocation = Hit.ImpactPoint + FVector(0.f, 0.f, 2.f); // Slight offset above ground
+	}
+
 	const FRotator Rotation(0.f, SpawnPoint.Yaw, 0.f);
-	const FTransform SpawnTransform(Rotation, Location);
+	const FTransform SpawnTransform(Rotation, GroundedLocation);
 
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -543,8 +554,8 @@ void UServerNpcManagerSubsystem::SpawnNpcFromMeta(UWorld* World, const FNpcMeta&
 	SpawnedNpcs.FindOrAdd(TWeakObjectPtr<UWorld>(World)).Add(NPC);
 
 	UE_LOG(LogServerNpcManager, Log,
-		TEXT("Spawned NPC '%s' (%s) at [%.1f, %.1f, %.1f]"),
-		*Meta.DisplayName, *Meta.NpcId, SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z);
+		TEXT("Spawned NPC '%s' (%s) at [%.1f, %.1f, %.1f] (grounded at [%.1f, %.1f, %.1f])"),
+		*Meta.DisplayName, *Meta.NpcId, SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z, GroundedLocation.X, GroundedLocation.Y, GroundedLocation.Z);
 }
 
 UWorld* UServerNpcManagerSubsystem::ResolveTargetWorld(const FString& MapOrZoneId)

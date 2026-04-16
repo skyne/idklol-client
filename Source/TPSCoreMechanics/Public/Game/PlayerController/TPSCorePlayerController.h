@@ -55,6 +55,11 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientSendNpcChatMessage(const FString& Sender, const FString& Message);
 
+	virtual void ClientSendNpcChatMessage_Implementation(const FString& Sender, const FString& Message);
+
+protected:
+
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Replicated)
 	TObjectPtr<UInventoryComponent> InventoryComponent;

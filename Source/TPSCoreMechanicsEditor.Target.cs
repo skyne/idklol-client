@@ -11,5 +11,11 @@ public class TPSCoreMechanicsEditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
 		ExtraModuleNames.AddRange(new string[] { "TPSCoreMechanics", "TPSCoreMechanicsClient" });
+
+		if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			bOverrideBuildEnvironment = true;
+			AdditionalCompilerArguments += " -Wno-deprecated-literal-operator -Wno-deprecated-builtins";
+		}
 	}
 }

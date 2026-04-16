@@ -14,5 +14,11 @@ public class TPSCoreMechanicsServerTarget : TargetRules
 		// Server builds only the shared gameplay module.
 		// TPSCoreMechanicsClient (gRPC, character creation, UI, auth) is excluded.
 		ExtraModuleNames.Add("TPSCoreMechanics");
+
+		if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			bOverrideBuildEnvironment = true;
+			AdditionalCompilerArguments += " -Wno-deprecated-literal-operator -Wno-deprecated-builtins";
+		}
 	}
 }

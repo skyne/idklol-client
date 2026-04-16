@@ -418,37 +418,14 @@ void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
 }
 
 void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
+
 	const FString& Sender,
 	const FString& Message)
-{
-#if !UE_SERVER
-	if (UGameInstance* GameInstance = GetGameInstance())
 	{
-		static UClass* ChatSubsystemClass = nullptr;
-		if (!ChatSubsystemClass)
-		{
-			ChatSubsystemClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Script/TPSCoreMechanicsClient.UChatSubsystem"));
-		}
-
-		if (ChatSubsystemClass)
-		{
-			if (UObject* ChatSubsystem = GameInstance->GetSubsystemBase(ChatSubsystemClass))
-			{
-				if (UFunction* SendFunction = ChatSubsystem->FindFunction(TEXT("SendChatMessage")))
-				{
-					struct FSendChatMessageParams
-					{
-						FString Message;
-						FString SenderOverride;
-					};
-					FSendChatMessageParams Params{ Message, Sender };
-					ChatSubsystem->ProcessEvent(SendFunction, &Params);
-				}
-			}
-		}
+		// Intentionally left blank in core module. Implement in client module subclass.
 	}
-#endif
-}
+
+
 
 void ATPSCorePlayerController::EnsureNpcPromptWidget()
 {
