@@ -40,12 +40,12 @@ void UNpcInteractionResultWidget::NativeConstruct()
 
 		if (IsValid(RootPanel) && IsValid(Container))
 		{
-			if (UCanvasPanelSlot* Slot = RootPanel->AddChildToCanvas(Container))
+			if (UCanvasPanelSlot* CanvasSlot = RootPanel->AddChildToCanvas(Container))
 			{
-				Slot->SetAnchors(FAnchors(0.5f, 1.0f, 0.5f, 1.0f));
-				Slot->SetAlignment(FVector2D(0.5f, 1.0f));
-				Slot->SetPosition(FVector2D(0.f, -90.f));
-				Slot->SetAutoSize(true);
+				CanvasSlot->SetAnchors(FAnchors(0.5f, 1.0f, 0.5f, 1.0f));
+				CanvasSlot->SetAlignment(FVector2D(0.5f, 1.0f));
+				CanvasSlot->SetPosition(FVector2D(0.f, -90.f));
+				CanvasSlot->SetAutoSize(true);
 			}
 		}
 	}
