@@ -15,6 +15,8 @@
 #include "InputCoreTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "NatsClientSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
@@ -27,10 +29,6 @@ ATPSCorePlayerController::ATPSCorePlayerController()
 	InventoryComponent->SetIsReplicated(true);
 
 	NpcInteractionPromptWidgetClass = UNpcInteractionPromptWidget::StaticClass();
-}
-
-ATPSCorePlayerController::~ATPSCorePlayerController()
-{
 }
 
 void ATPSCorePlayerController::BeginPlay()
@@ -419,7 +417,38 @@ void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
 	ShowNpcInteractionWidget(NpcId, NpcName, TEXT(""), FText::FromString(Message));
 }
 
+void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
+	const FString& Sender,
+	const FString& Message)
+{
+#if !UE_SERVER
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		static UClass* ChatSubsystemClass = nullptr;
+		if (!ChatSubsystemClass)
+		{
+			ChatSubsystemClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Script/TPSCoreMechanicsClient.UChatSubsystem"));
+		}
 
+		if (ChatSubsystemClass)
+		{
+			if (UObject* ChatSubsystem = GameInstance->GetSubsystemBase(ChatSubsystemClass))
+			{
+				if (UFunction* SendFunction = ChatSubsystem->FindFunction(TEXT("SendChatMessage")))
+				{
+					struct FSendChatMessageParams
+					{
+						FString Message;
+						FString SenderOverride;
+					};
+					FSendChatMessageParams Params{ Message, Sender };
+					ChatSubsystem->ProcessEvent(SendFunction, &Params);
+				}
+			}
+		}
+	}
+#endif
+}
 
 void ATPSCorePlayerController::EnsureNpcPromptWidget()
 {
