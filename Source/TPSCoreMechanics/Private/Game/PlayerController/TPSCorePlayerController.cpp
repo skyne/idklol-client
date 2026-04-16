@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Config/TPSNatsSubjectsConfig.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Helpers/JsonObjectUtils.h"
 #include "Inventory/InventoryComponent.h"
 #include "NPC/NPCCharacter.h"
@@ -19,6 +20,16 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
+
+namespace
+{
+	float GetConfiguredNatsRequestTimeoutSeconds()
+	{
+		float TimeoutSeconds = 60.0f;
+		GConfig->GetFloat(TEXT("NatsClient"), TEXT("RequestTimeoutSeconds"), TimeoutSeconds, GGameIni);
+		return FMath::Max(1.0f, TimeoutSeconds);
+	}
+}
 
 ATPSCorePlayerController::ATPSCorePlayerController()
 {
@@ -387,7 +398,7 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	Nats->RequestJson(
 		UTPSNatsSubjectsConfig::Get().NpcInteractionRequestSubject,
 		TPSCoreJson::SerializeObject(RequestObject),
-		5.f,
+		GetConfiguredNatsRequestTimeoutSeconds(),
 		ReplyDelegate);
 }
 

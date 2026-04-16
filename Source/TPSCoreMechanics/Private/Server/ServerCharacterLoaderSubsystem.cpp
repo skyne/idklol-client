@@ -5,7 +5,18 @@
 #include "Config/TPSNatsSubjectsConfig.h"
 #include "Helpers/JsonObjectUtils.h"
 #include "Json.h"
+#include "Misc/ConfigCacheIni.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
+
+namespace
+{
+	float GetConfiguredNatsRequestTimeoutSeconds()
+	{
+		float TimeoutSeconds = 60.0f;
+		GConfig->GetFloat(TEXT("NatsClient"), TEXT("RequestTimeoutSeconds"), TimeoutSeconds, GGameIni);
+		return FMath::Max(1.0f, TimeoutSeconds);
+	}
+}
 
 bool UServerCharacterLoaderSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
@@ -73,5 +84,5 @@ void UServerCharacterLoaderSubsystem::FetchCharacter(const FString& CharacterId,
 		Callback.ExecuteIfBound(true, Data);
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().CharactersGetSubject, Payload, DefaultTimeoutSeconds, ReplyDelegate);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().CharactersGetSubject, Payload, GetConfiguredNatsRequestTimeoutSeconds(), ReplyDelegate);
 }

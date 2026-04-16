@@ -36,5 +36,4 @@ public:
 	void FetchCharacter(const FString& CharacterId, FOnCharacterLoaded Callback);
 
 private:
-	static constexpr float DefaultTimeoutSeconds = 5.0f;
 };

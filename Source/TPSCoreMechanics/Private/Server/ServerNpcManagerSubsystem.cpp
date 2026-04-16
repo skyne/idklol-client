@@ -14,6 +14,7 @@
 #include "HAL/IConsoleManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/Guid.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Components/CapsuleComponent.h"
 #include "UObject/UObjectGlobals.h"
 
@@ -25,6 +26,13 @@ namespace
 	constexpr float NpcGroundTraceHeightAbove = 1000.f;
 	constexpr float NpcGroundTraceDepthBelow = 10000.f;
 	constexpr float NpcGroundClearance = 2.f;
+
+	float GetConfiguredNatsRequestTimeoutSeconds()
+	{
+		float TimeoutSeconds = 60.0f;
+		GConfig->GetFloat(TEXT("NatsClient"), TEXT("RequestTimeoutSeconds"), TimeoutSeconds, GGameIni);
+		return FMath::Max(1.0f, TimeoutSeconds);
+	}
 
 	FString BuildNpcActorClassPathFromId(const FString& ActorClassId)
 	{
@@ -396,7 +404,7 @@ void UServerNpcManagerSubsystem::LoadNpcsForZone(UWorld* World, const FString& Z
 		UE_LOG(LogServerNpcManager, Log, TEXT("LoadNpcsForZone '%s': spawned %d NPC actors"), *ZoneId, WorldNpcs.Num());
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaByZoneSubject, Payload, NatsTimeoutSeconds, Reply);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaByZoneSubject, Payload, GetConfiguredNatsRequestTimeoutSeconds(), Reply);
 }
 
 #if WITH_EDITOR
@@ -487,7 +495,7 @@ void UServerNpcManagerSubsystem::EditorLookupNpcs(const FString& Filter)
 		UE_LOG(LogServerNpcManager, Log, TEXT("EditorLookupNpcs: %d matches"), MatchCount);
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaListSubject, TEXT("{}"), NatsTimeoutSeconds, Reply);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaListSubject, TEXT("{}"), GetConfiguredNatsRequestTimeoutSeconds(), Reply);
 }
 
 void UServerNpcManagerSubsystem::EditorSpawnNpcById(const FString& NpcId)
@@ -771,7 +779,7 @@ void UServerNpcManagerSubsystem::RequestAndSpawnNpc(
 		SpawnNpcFromMeta(TargetWorld, Meta, SpawnPoint);
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaGetSubject, Payload, NatsTimeoutSeconds, Reply);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaGetSubject, Payload, GetConfiguredNatsRequestTimeoutSeconds(), Reply);
 }
 
 void UServerNpcManagerSubsystem::HandlePlayerContextRequest(const FNatsMessage& Message)

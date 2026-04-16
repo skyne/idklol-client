@@ -77,5 +77,4 @@ private:
 	UFUNCTION()
 	void HandlePlayerContextRequest(const FNatsMessage& Message);
 
-	static constexpr float NatsTimeoutSeconds = 5.f;
 };
