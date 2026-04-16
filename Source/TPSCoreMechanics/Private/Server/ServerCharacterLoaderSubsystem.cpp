@@ -10,7 +10,7 @@
 
 namespace
 {
-	float GetConfiguredNatsRequestTimeoutSeconds()
+	float GetCharacterLoaderNatsRequestTimeoutSeconds()
 	{
 		float TimeoutSeconds = 60.0f;
 		GConfig->GetFloat(TEXT("NatsClient"), TEXT("RequestTimeoutSeconds"), TimeoutSeconds, GGameIni);
@@ -84,5 +84,5 @@ void UServerCharacterLoaderSubsystem::FetchCharacter(const FString& CharacterId,
 		Callback.ExecuteIfBound(true, Data);
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().CharactersGetSubject, Payload, GetConfiguredNatsRequestTimeoutSeconds(), ReplyDelegate);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().CharactersGetSubject, Payload, GetCharacterLoaderNatsRequestTimeoutSeconds(), ReplyDelegate);
 }

@@ -23,7 +23,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
 namespace
 {
-	float GetConfiguredNatsRequestTimeoutSeconds()
+	float GetPlayerControllerNatsRequestTimeoutSeconds()
 	{
 		float TimeoutSeconds = 60.0f;
 		GConfig->GetFloat(TEXT("NatsClient"), TEXT("RequestTimeoutSeconds"), TimeoutSeconds, GGameIni);
@@ -434,7 +434,7 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	Nats->RequestJson(
 		UTPSNatsSubjectsConfig::Get().NpcInteractionRequestSubject,
 		TPSCoreJson::SerializeObject(RequestObject),
-		GetConfiguredNatsRequestTimeoutSeconds(),
+		GetPlayerControllerNatsRequestTimeoutSeconds(),
 		ReplyDelegate);
 }
 

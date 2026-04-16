@@ -27,7 +27,7 @@ namespace
 	constexpr float NpcGroundTraceDepthBelow = 10000.f;
 	constexpr float NpcGroundClearance = 2.f;
 
-	float GetConfiguredNatsRequestTimeoutSeconds()
+	float GetNpcManagerNatsRequestTimeoutSeconds()
 	{
 		float TimeoutSeconds = 60.0f;
 		GConfig->GetFloat(TEXT("NatsClient"), TEXT("RequestTimeoutSeconds"), TimeoutSeconds, GGameIni);
@@ -404,7 +404,7 @@ void UServerNpcManagerSubsystem::LoadNpcsForZone(UWorld* World, const FString& Z
 		UE_LOG(LogServerNpcManager, Log, TEXT("LoadNpcsForZone '%s': spawned %d NPC actors"), *ZoneId, WorldNpcs.Num());
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaByZoneSubject, Payload, GetConfiguredNatsRequestTimeoutSeconds(), Reply);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaByZoneSubject, Payload, GetNpcManagerNatsRequestTimeoutSeconds(), Reply);
 }
 
 #if WITH_EDITOR
@@ -495,7 +495,7 @@ void UServerNpcManagerSubsystem::EditorLookupNpcs(const FString& Filter)
 		UE_LOG(LogServerNpcManager, Log, TEXT("EditorLookupNpcs: %d matches"), MatchCount);
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaListSubject, TEXT("{}"), GetConfiguredNatsRequestTimeoutSeconds(), Reply);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaListSubject, TEXT("{}"), GetNpcManagerNatsRequestTimeoutSeconds(), Reply);
 }
 
 void UServerNpcManagerSubsystem::EditorSpawnNpcById(const FString& NpcId)
@@ -779,7 +779,7 @@ void UServerNpcManagerSubsystem::RequestAndSpawnNpc(
 		SpawnNpcFromMeta(TargetWorld, Meta, SpawnPoint);
 	});
 
-	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaGetSubject, Payload, GetConfiguredNatsRequestTimeoutSeconds(), Reply);
+	Nats->RequestJson(UTPSNatsSubjectsConfig::Get().NpcMetaGetSubject, Payload, GetNpcManagerNatsRequestTimeoutSeconds(), Reply);
 }
 
 void UServerNpcManagerSubsystem::HandlePlayerContextRequest(const FNatsMessage& Message)
