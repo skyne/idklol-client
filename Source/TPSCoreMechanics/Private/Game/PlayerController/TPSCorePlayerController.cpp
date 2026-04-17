@@ -18,6 +18,7 @@
 #include "NatsClientSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "TPSCoreMechanicsCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
@@ -296,42 +297,74 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	TArray<TWeakObjectPtr<ATPSCorePlayerController>> NearbyPlayers;
 	GatherNearbyPlayerControllers(Npc, AllowedRadius, NearbyPlayers);
 
+	auto ResolveControllerIdentity = [](const ATPSCorePlayerController* Controller, FString& OutPlayerId, FString& OutPlayerName)
+	{
+		if (!IsValid(Controller))
+		{
+			return;
+		}
+
+		if (const ATPSCoreMechanicsCharacter* PlayerCharacter = Cast<ATPSCoreMechanicsCharacter>(Controller->GetPawn()))
+		{
+			const FCharacterData& CharacterData = PlayerCharacter->GetCharacterData();
+			if (!CharacterData.CharacterId.IsEmpty())
+			{
+				OutPlayerId = CharacterData.CharacterId;
+			}
+			if (!CharacterData.Name.IsEmpty())
+			{
+				OutPlayerName = CharacterData.Name;
+			}
+		}
+
+		if (Controller->PlayerState)
+		{
+			if (OutPlayerId.IsEmpty() || OutPlayerId.Equals(TEXT("unknown-player"), ESearchCase::CaseSensitive))
+			{
+				OutPlayerId = Controller->PlayerState->GetPlayerName();
+			}
+			if (OutPlayerName.IsEmpty() || OutPlayerName.Equals(TEXT("unknown-player"), ESearchCase::CaseSensitive))
+			{
+				OutPlayerName = Controller->PlayerState->GetPlayerName();
+			}
+		}
+	};
+
 	FString PlayerId = TEXT("unknown-player");
 	FString PlayerName = TEXT("unknown-player");
-	if (PlayerState)
-	{
-		PlayerId = PlayerState->GetPlayerName();
-		PlayerName = PlayerState->GetPlayerName();
-	}
+	ResolveControllerIdentity(this, PlayerId, PlayerName);
 
 	TArray<FString> NearbyPlayerNames;
 	NearbyPlayerNames.Add(PlayerName);
 	for (const TWeakObjectPtr<ATPSCorePlayerController>& WeakPC : NearbyPlayers)
 	{
-		if (ATPSCorePlayerController* PC = WeakPC.Get())
+		if (const ATPSCorePlayerController* PC = WeakPC.Get())
 		{
 			if (PC == this)
 			{
 				continue;
 			}
 
-			if (PC->PlayerState)
+			FString NearbyPlayerId = TEXT("unknown-player");
+			FString NearbyPlayerName = TEXT("unknown-player");
+			ResolveControllerIdentity(PC, NearbyPlayerId, NearbyPlayerName);
+			if (!NearbyPlayerName.IsEmpty() && !NearbyPlayerNames.Contains(NearbyPlayerName))
 			{
-				const FString NearbyName = PC->PlayerState->GetPlayerName();
-				if (!NearbyName.IsEmpty() && !NearbyPlayerNames.Contains(NearbyName))
-				{
-					NearbyPlayerNames.Add(NearbyName);
-				}
+				NearbyPlayerNames.Add(NearbyPlayerName);
 			}
 		}
 	}
 
+	const bool bGroupInteraction = NearbyPlayerNames.Num() > 1;
 	const FString PlayerList = FString::Join(NearbyPlayerNames, TEXT(", "));
+
 	const FString Context = FString::Printf(
-		TEXT("NPC name: %s\nNPC role: %s\nNearby players: %s"),
+		bGroupInteraction
+			? TEXT("NPC name: %s\nNPC role: %s\nNearby players in interaction range: %s")
+			: TEXT("NPC name: %s\nNPC role: %s\nInteracting player: %s"),
 		*NpcData.DisplayName,
 		*NpcData.Role,
-		*PlayerList);
+		bGroupInteraction ? *PlayerList : *PlayerName);
 
 	TSharedRef<FJsonObject> RequestObject = MakeShared<FJsonObject>();
 	RequestObject->SetStringField(TEXT("request_id"), FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower));
@@ -348,7 +381,11 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	}
 	RequestObject->SetArrayField(TEXT("nearby_player_names"), PlayerNameValues);
 
-	RequestObject->SetStringField(TEXT("message"), TEXT("A player interacted with the NPC. Greet all nearby players by name."));
+	RequestObject->SetStringField(
+		TEXT("message"),
+		bGroupInteraction
+			? TEXT("Multiple players are in interaction range. Respond to the whole nearby group and greet the listed players naturally.")
+			: TEXT("A player interacted with the NPC. Respond only to the interacting player by name, using singular second-person language."));
 	RequestObject->SetStringField(TEXT("context"), Context);
 
 	TArray<TWeakObjectPtr<ATPSCorePlayerController>> ReplyTargets;
