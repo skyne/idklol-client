@@ -18,7 +18,7 @@
 #include "NatsClientSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "TPSCoreMechanicsCharacter.h"
+#include "TPSCoreMechanics/TPSCoreMechanicsCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
