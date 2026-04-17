@@ -358,13 +358,17 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	const bool bGroupInteraction = NearbyPlayerNames.Num() > 1;
 	const FString PlayerList = FString::Join(NearbyPlayerNames, TEXT(", "));
 
-	const FString Context = FString::Printf(
-		bGroupInteraction
-			? TEXT("NPC name: %s\nNPC role: %s\nNearby players in interaction range: %s")
-			: TEXT("NPC name: %s\nNPC role: %s\nInteracting player: %s"),
-		*NpcData.DisplayName,
-		*NpcData.Role,
-		bGroupInteraction ? *PlayerList : *PlayerName);
+	const FString Context = bGroupInteraction
+		? FString::Printf(
+			TEXT("NPC name: %s\nNPC role: %s\nNearby players in interaction range: %s"),
+			*NpcData.DisplayName,
+			*NpcData.Role,
+			*PlayerList)
+		: FString::Printf(
+			TEXT("NPC name: %s\nNPC role: %s\nInteracting player: %s"),
+			*NpcData.DisplayName,
+			*NpcData.Role,
+			*PlayerName);
 
 	TSharedRef<FJsonObject> RequestObject = MakeShared<FJsonObject>();
 	RequestObject->SetStringField(TEXT("request_id"), FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower));
