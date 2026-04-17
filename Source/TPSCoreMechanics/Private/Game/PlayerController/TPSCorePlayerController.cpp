@@ -457,6 +457,12 @@ void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
 	const FString& NpcName,
 	const FString& Message)
 {
+	UE_LOG(LogTPSCorePlayerController, Log,
+		TEXT("ClientShowNpcInteractionResponse received: npc_id=%s npc_name=%s message=%s"),
+		*NpcId,
+		*NpcName,
+		*Message);
+
 	if (IsValid(ActiveNpcInteractionWidget) && ActiveNpcInteractionWidget->GetVisibility() != ESlateVisibility::Collapsed)
 	{
 		return;
@@ -470,7 +476,53 @@ void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
 	const FString& Sender,
 	const FString& Message)
 	{
-		// Intentionally left blank in core module. Implement in client module subclass.
+		UE_LOG(LogTPSCorePlayerController, Log,
+			TEXT("ClientSendNpcChatMessage received: sender=%s message=%s"),
+			*Sender,
+			*Message);
+
+		UGameInstance* GameInstance = GetGameInstance();
+		if (!IsValid(GameInstance))
+		{
+			return;
+		}
+
+		UClass* ChatSubsystemClass = FindObject<UClass>(nullptr, TEXT("/Script/TPSCoreMechanicsClient.ChatSubsystem"));
+		if (!ChatSubsystemClass)
+		{
+			UE_LOG(LogTPSCorePlayerController, Verbose,
+				TEXT("ClientSendNpcChatMessage could not find TPSCoreMechanicsClient.ChatSubsystem"));
+			return;
+		}
+
+		UObject* ChatSubsystem = GameInstance->GetSubsystemBase(ChatSubsystemClass);
+		if (!IsValid(ChatSubsystem))
+		{
+			UE_LOG(LogTPSCorePlayerController, Verbose,
+				TEXT("ClientSendNpcChatMessage could not resolve chat subsystem instance"));
+			return;
+		}
+
+		UFunction* TriggerFunction = ChatSubsystem->FindFunction(TEXT("TriggerNewMessageReceived"));
+		if (!TriggerFunction)
+		{
+			UE_LOG(LogTPSCorePlayerController, Warning,
+				TEXT("ClientSendNpcChatMessage could not find TriggerNewMessageReceived on chat subsystem"));
+			return;
+		}
+
+		struct FTriggerNewMessageReceivedParams
+		{
+			FString Timestamp;
+			FString Sender;
+			FString Message;
+		};
+
+		FTriggerNewMessageReceivedParams Params;
+		Params.Timestamp = TEXT("NOW");
+		Params.Sender = Sender;
+		Params.Message = Message;
+		ChatSubsystem->ProcessEvent(TriggerFunction, &Params);
 	}
 
 
