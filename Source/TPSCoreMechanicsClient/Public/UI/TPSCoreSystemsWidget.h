@@ -19,6 +19,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWidgetControllerSet();
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetWidgetController(UWidgetController* InWidgetController);
 
 private:

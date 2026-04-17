@@ -1,9 +1,14 @@
-/.git
-/.idea
-/Content
-/Intermediate
 /Saved
+/TPSCoreMechanics (Mac).xcworkspace
+/Content
+/docs
 /DerivedDataCache
+/.github
+/.git
 /.vscode
+/Intermediate
+/.idea
+/Plugins/NatsClient/Intermediate
+/Plugins/McpAutomationBridge/Intermediate
 /Plugins/TurboLink/Tools
 /Plugins/TurboLink/Intermediate

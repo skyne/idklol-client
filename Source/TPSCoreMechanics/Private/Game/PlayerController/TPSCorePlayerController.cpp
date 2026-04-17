@@ -25,6 +25,44 @@ DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
 
 namespace
 {
+	const FName ChatWindowFocusReason(TEXT("Chat"));
+	const FName NpcInteractionFocusReason(TEXT("NpcInteraction"));
+	const TCHAR* DefaultChatWidgetControllerClassPath = TEXT("/Script/TPSCoreMechanicsClient.ChatWidgetController");
+	const TCHAR* DefaultChatWidgetClassPath = TEXT("/Game/UI/Chat/WBP_ChatWindow.WBP_ChatWindow_C");
+
+	void TryCallNoArgFunction(UObject* Object, const TCHAR* FunctionName)
+	{
+		if (!IsValid(Object))
+		{
+			return;
+		}
+
+		if (UFunction* Function = Object->FindFunction(FunctionName))
+		{
+			Object->ProcessEvent(Function, nullptr);
+		}
+	}
+
+	template <typename ParamType>
+	void TryCallSingleParamFunction(UObject* Object, const TCHAR* FunctionName, const ParamType& Value)
+	{
+		if (!IsValid(Object))
+		{
+			return;
+		}
+
+		if (UFunction* Function = Object->FindFunction(FunctionName))
+		{
+			struct TSingleParam
+			{
+				ParamType Param;
+			};
+
+			TSingleParam Params{ Value };
+			Object->ProcessEvent(Function, &Params);
+		}
+	}
+
 	float GetPlayerControllerNatsRequestTimeoutSeconds()
 	{
 		float TimeoutSeconds = 60.0f;
@@ -49,13 +87,17 @@ void ATPSCorePlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	NpcPromptSearchElapsed = NpcPromptSearchInterval;
+	CreateChatWidget();
 }
 
 void ATPSCorePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	CloseChatWidget();
 	HideNpcPromptWidget();
 	CloseActiveNpcInteractionWidget();
 	ActiveNearbyNpc.Reset();
+	ActiveInteractiveWindowFocusReasons.Empty();
+	RefreshInteractiveWindowFocusState();
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -73,6 +115,7 @@ void ATPSCorePlayerController::SetupInputComponent()
 
 	if (InputComponent)
 	{
+		InputComponent->BindKey(EKeys::T, IE_Pressed, this, &ATPSCorePlayerController::ToggleChatWidget);
 		InputComponent->BindKey(EKeys::F, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractInput);
 		InputComponent->BindKey(EKeys::E, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractInput);
 		InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &ATPSCorePlayerController::HandleNpcInteractionCloseInput);
@@ -101,23 +144,27 @@ UObject* ATPSCorePlayerController::GetInventoryWidgetController()
 	if (!IsValid(InventoryWidgetController))
 	{
 		InventoryWidgetController = NewObject<UObject>(this, InventoryWidgetControllerClass);
-
-		if (UFunction* SetOwningActorFn = InventoryWidgetController->FindFunction(TEXT("SetOwningActor")))
-		{
-			struct FSetOwningActorParams
-			{
-				AActor* InOwningActor;
-			};
-			FSetOwningActorParams Params{ this };
-			InventoryWidgetController->ProcessEvent(SetOwningActorFn, &Params);
-		}
-
-		if (UFunction* BindCallbacksFn = InventoryWidgetController->FindFunction(TEXT("BindCallbacksToDependencies")))
-		{
-			InventoryWidgetController->ProcessEvent(BindCallbacksFn, nullptr);
-		}
+		TryCallSingleParamFunction<AActor*>(InventoryWidgetController, TEXT("SetOwningActor"), this);
+		TryCallNoArgFunction(InventoryWidgetController, TEXT("BindCallbacksToDependencies"));
 	}
 	return InventoryWidgetController;
+}
+
+UObject* ATPSCorePlayerController::GetChatWidgetController()
+{
+	if (!ChatWidgetControllerClass)
+	{
+		ChatWidgetControllerClass = LoadClass<UObject>(nullptr, DefaultChatWidgetControllerClassPath);
+	}
+
+	if (!IsValid(ChatWidgetController) && ChatWidgetControllerClass)
+	{
+		ChatWidgetController = NewObject<UObject>(this, ChatWidgetControllerClass);
+		TryCallSingleParamFunction<AActor*>(ChatWidgetController, TEXT("SetOwningActor"), this);
+		TryCallNoArgFunction(ChatWidgetController, TEXT("BindCallbacksToDependencies"));
+	}
+
+	return ChatWidgetController;
 }
 
 void ATPSCorePlayerController::CreateInventoryWidget()
@@ -125,26 +172,47 @@ void ATPSCorePlayerController::CreateInventoryWidget()
 	if (UUserWidget* Widget = CreateWidget<UUserWidget>(this, InventoryWidgetClass))
 	{
 		InventoryWidget = Widget;
-
-		if (UFunction* SetWidgetControllerFn = InventoryWidget->FindFunction(TEXT("SetWidgetController")))
-		{
-			struct FSetWidgetControllerParams
-			{
-				UObject* InWidgetController;
-			};
-			FSetWidgetControllerParams Params{ GetInventoryWidgetController() };
-			InventoryWidget->ProcessEvent(SetWidgetControllerFn, &Params);
-		}
+		TryCallSingleParamFunction<UObject*>(InventoryWidget, TEXT("SetWidgetController"), GetInventoryWidgetController());
 
 		if (IsValid(InventoryWidgetController))
 		{
-			if (UFunction* BroadcastInitialValuesFn = InventoryWidgetController->FindFunction(TEXT("BradcastInitialValues")))
-			{
-				InventoryWidgetController->ProcessEvent(BroadcastInitialValuesFn, nullptr);
-			}
+			TryCallNoArgFunction(InventoryWidgetController, TEXT("BradcastInitialValues"));
 		}
 
 		InventoryWidget->AddToViewport();
+	}
+}
+
+void ATPSCorePlayerController::CreateChatWidget()
+{
+	if (!IsLocalController() || IsValid(ChatWidget))
+	{
+		return;
+	}
+
+	if (!ChatWidgetClass)
+	{
+		ChatWidgetClass = LoadClass<UUserWidget>(nullptr, DefaultChatWidgetClassPath);
+	}
+
+	if (!ChatWidgetClass)
+	{
+		return;
+	}
+
+	if (UUserWidget* Widget = CreateWidget<UUserWidget>(this, ChatWidgetClass))
+	{
+		ChatWidget = Widget;
+		TryCallSingleParamFunction<UObject*>(ChatWidget, TEXT("SetWidgetController"), GetChatWidgetController());
+
+		if (IsValid(ChatWidgetController))
+		{
+			TryCallNoArgFunction(ChatWidgetController, TEXT("BroadcastInitialValues"));
+		}
+
+		ChatWidget->AddToViewport(ChatWidgetZOrder);
+		ChatWidget->SetVisibility(ESlateVisibility::Collapsed);
+		SyncChatWidgetFocusState();
 	}
 }
 
@@ -230,6 +298,12 @@ void ATPSCorePlayerController::HandleNpcInteractInput()
 
 void ATPSCorePlayerController::HandleNpcInteractionCloseInput()
 {
+	if (IsChatWidgetVisible() || IsChatWindowFocused())
+	{
+		CloseChatWidget();
+		return;
+	}
+
 	CloseActiveNpcInteractionWidget();
 }
 
@@ -522,46 +596,7 @@ void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
 	LOG("ClientSendNpcChatMessage received: sender=%s message=%s",
 		*Sender,
 		*Message);
-
-	UGameInstance* GameInstance = GetGameInstance();
-	if (!IsValid(GameInstance))
-	{
-		return;
-	}
-
-	UClass* ChatSubsystemClass = FindObject<UClass>(nullptr, TEXT("/Script/TPSCoreMechanicsClient.ChatSubsystem"));
-	if (!ChatSubsystemClass)
-	{
-		LOG_WARNING("ClientSendNpcChatMessage could not find TPSCoreMechanicsClient.ChatSubsystem");
-		return;
-	}
-
-	UObject* ChatSubsystem = GameInstance->GetSubsystemBase(ChatSubsystemClass);
-	if (!IsValid(ChatSubsystem))
-	{
-		LOG_WARNING("ClientSendNpcChatMessage could not resolve chat subsystem instance");
-		return;
-	}
-
-	UFunction* TriggerFunction = ChatSubsystem->FindFunction(TEXT("TriggerNewMessageReceived"));
-	if (!TriggerFunction)
-	{
-		LOG_WARNING("ClientSendNpcChatMessage could not find TriggerNewMessageReceived on chat subsystem");
-		return;
-	}
-
-	struct FTriggerNewMessageReceivedParams
-	{
-		FString Timestamp;
-		FString Sender;
-		FString Message;
-	};
-
-	FTriggerNewMessageReceivedParams Params;
-	Params.Timestamp = TEXT("NOW");
-	Params.Sender = Sender;
-	Params.Message = Message;
-	ChatSubsystem->ProcessEvent(TriggerFunction, &Params);
+	OnNpcChatMessageReceived.Broadcast(Sender, Message);
 }
 
 
@@ -594,11 +629,35 @@ void ATPSCorePlayerController::CloseActiveNpcInteractionWidget()
 {
 	if (!IsValid(ActiveNpcInteractionWidget))
 	{
+		SetInteractiveWindowFocusForReason(NpcInteractionFocusReason, false);
 		return;
 	}
 
 	ActiveNpcInteractionWidget->RemoveFromParent();
 	ActiveNpcInteractionWidget = nullptr;
+	SetInteractiveWindowFocusForReason(NpcInteractionFocusReason, false);
+}
+
+void ATPSCorePlayerController::SyncChatWidgetFocusState()
+{
+	if (!IsValid(ChatWidget))
+	{
+		return;
+	}
+
+	const bool bFocused = IsChatWindowFocused();
+	TryCallSingleParamFunction<bool>(ChatWidget, TEXT("SetChatWindowFocused"), bFocused);
+	TryCallSingleParamFunction<bool>(ChatWidget, TEXT("SetWindowActive"), bFocused);
+	TryCallSingleParamFunction<bool>(ChatWidget, TEXT("SetIsEnabled"), true);
+	if (!bFocused && ChatWidget->GetVisibility() != ESlateVisibility::Collapsed)
+	{
+		ChatWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ATPSCorePlayerController::CloseChatWidget()
+{
+	SetChatWidgetVisible(false);
 }
 
 void ATPSCorePlayerController::UpdateNpcPromptWidgetFor(ANPCCharacter* Npc)
@@ -710,6 +769,7 @@ void ATPSCorePlayerController::ShowNpcInteractionWidget(
 	Widget->AddToViewport(30);
 	Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
 	ActiveNpcInteractionWidget = Widget;
+	SetInteractiveWindowFocusForReason(NpcInteractionFocusReason, true);
 }
 
 FText ATPSCorePlayerController::BuildNpcInteractionMessage(const FString& NpcName, const FString& NpcRole)
@@ -772,4 +832,106 @@ float ATPSCorePlayerController::GetInteractionRadiusForNpc(const ANPCCharacter* 
 
 	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
 	return FMath::Max(50.f, NpcData.InteractionRadius);
+}
+
+void ATPSCorePlayerController::SetInteractiveWindowFocusForReason(FName FocusReason, bool bShouldFocus)
+{
+	if (FocusReason.IsNone())
+	{
+		return;
+	}
+
+	const bool bAlreadyFocused = ActiveInteractiveWindowFocusReasons.Contains(FocusReason);
+	if (bShouldFocus == bAlreadyFocused)
+	{
+		return;
+	}
+
+	if (bShouldFocus)
+	{
+		ActiveInteractiveWindowFocusReasons.Add(FocusReason);
+	}
+	else
+	{
+		ActiveInteractiveWindowFocusReasons.Remove(FocusReason);
+	}
+
+	RefreshInteractiveWindowFocusState();
+}
+
+void ATPSCorePlayerController::SetChatWindowFocus(bool bShouldFocus)
+{
+	SetInteractiveWindowFocusForReason(ChatWindowFocusReason, bShouldFocus);
+}
+
+void ATPSCorePlayerController::SetChatWidgetVisible(bool bVisible)
+{
+	if (bVisible)
+	{
+		CreateChatWidget();
+	}
+
+	if (!IsValid(ChatWidget))
+	{
+		if (!bVisible)
+		{
+			SetChatWindowFocus(false);
+		}
+		return;
+	}
+
+	ChatWidget->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+	SetChatWindowFocus(bVisible);
+	SyncChatWidgetFocusState();
+	if (bVisible)
+	{
+		ChatWidget->SetFocus();
+	}
+}
+
+void ATPSCorePlayerController::ToggleChatWidget()
+{
+	SetChatWidgetVisible(!IsChatWidgetVisible());
+}
+
+bool ATPSCorePlayerController::IsChatWidgetVisible() const
+{
+	return IsValid(ChatWidget) && ChatWidget->GetVisibility() != ESlateVisibility::Collapsed;
+}
+
+bool ATPSCorePlayerController::HasInteractiveWindowFocus() const
+{
+	return ActiveInteractiveWindowFocusReasons.Num() > 0;
+}
+
+bool ATPSCorePlayerController::HasInteractiveWindowFocusForReason(FName FocusReason) const
+{
+	return !FocusReason.IsNone() && ActiveInteractiveWindowFocusReasons.Contains(FocusReason);
+}
+
+bool ATPSCorePlayerController::IsChatWindowFocused() const
+{
+	return HasInteractiveWindowFocusForReason(ChatWindowFocusReason);
+}
+
+FName ATPSCorePlayerController::GetPrimaryInteractiveWindowFocusReason() const
+{
+	return ActiveInteractiveWindowFocusReasons.Num() > 0 ? ActiveInteractiveWindowFocusReasons[0] : NAME_None;
+}
+
+void ATPSCorePlayerController::RefreshInteractiveWindowFocusState()
+{
+	const bool bHasFocus = HasInteractiveWindowFocus();
+	const FName FocusReason = GetPrimaryInteractiveWindowFocusReason();
+
+	if (IsLocalController())
+	{
+		bShowMouseCursor = bHasFocus;
+		bEnableClickEvents = bHasFocus;
+		bEnableMouseOverEvents = bHasFocus;
+		SetIgnoreLookInput(bHasFocus);
+	}
+
+	SyncChatWidgetFocusState();
+	OnInteractiveWindowFocusChanged.Broadcast(bHasFocus, FocusReason);
 }

@@ -59,60 +59,53 @@ void ACharacterCreation::HandleServiceConnectionStatusChanged(EGrpcConnectionSta
 		{
 			LOG_DEBUG("[CharacterCreation] Received character creation catalog from service");
 			// Map Races
-			auto Races = FCharacterCreationMapper::MapToStringByteKVP(
+			this->Races = FCharacterCreationMapper::MapToStringByteKVP(
 				Result.Races,
 				[](const auto& Race) { return Race.Name; },
 				[](const auto& Race) { return static_cast<uint8>(Race.Race); }
 			);
-			this->Races = Races;
 			
 			// Map Genders
-			auto Genders = FCharacterCreationMapper::MapToStringByteKVP(
+			this->Genders = FCharacterCreationMapper::MapToStringByteKVP(
 				Result.Genders,
 				[](const auto& Gender) { return Gender.Name; },
 				[](const auto& Gender) { return static_cast<uint8>(Gender.Gender); }
 			);
-			this->Genders = Genders;
 			
 			// Map Skin Colors
-			auto SkinColors = FCharacterCreationMapper::MapToStringByteKVP(
+			this->SkinColors = FCharacterCreationMapper::MapToStringByteKVP(
 				Result.SkinColors,
 				[](const auto& SkinColor) { return SkinColor.Name; },
 				[](const auto& SkinColor) { return static_cast<uint8>(SkinColor.SkinColor); }
 			);
-			this->SkinColors = SkinColors;
 			
 			// Map Classes
-			auto Classes = FCharacterCreationMapper::MapToStringByteKVP(
+			this->Classes = FCharacterCreationMapper::MapToStringByteKVP(
 				Result.Classes,
 				[](const auto& Class) { return Class.Name; },
 				[](const auto& Class) { return static_cast<uint8>(Class.CharacterClass); }
 			);
-			this->Classes = Classes;
 			
 			// Map restriction combinations
-			auto AllowedRaceGenders = FCharacterCreationMapper::MapToRaceGenderCombinations(
+			this->AllowedRaceGenders = FCharacterCreationMapper::MapToRaceGenderCombinations(
 				Result.AllowedRaceGender,
 				[](const auto& Item) { return Item.Race; },
 				[](const auto& Item) { return Item.Gender; }
 			);
-			this->AllowedRaceGenders = AllowedRaceGenders;
 			
-			auto AllowedRaceGenderSkinColors = FCharacterCreationMapper::MapToRaceGenderSkinColorCombinations(
+			this->AllowedRaceGenderSkinColors = FCharacterCreationMapper::MapToRaceGenderSkinColorCombinations(
 				Result.AllowedRaceGenderSkinColor,
 				[](const auto& Item) { return Item.Race; },
 				[](const auto& Item) { return Item.Gender; },
 				[](const auto& Item) { return Item.SkinColor; }
 			);
-			this->AllowedRaceGenderSkinColors = AllowedRaceGenderSkinColors;
 			
-			auto AllowedRaceGenderClasses = FCharacterCreationMapper::MapToRaceGenderClassCombinations(
+			this->AllowedRaceGenderClasses = FCharacterCreationMapper::MapToRaceGenderClassCombinations(
 				Result.AllowedRaceGenderClass,
 				[](const auto& Item) { return Item.Race; },
 				[](const auto& Item) { return Item.Gender; },
 				[](const auto& Item) { return Item.CharacterClass; }
 			);
-			this->AllowedRaceGenderClasses = AllowedRaceGenderClasses;
 			
 			LOG("[CharacterCreation] Catalog mapped - Races: %d, Genders: %d, Classes: %d, SkinColors: %d", 
 				this->Races.Num(), this->Genders.Num(), this->Classes.Num(), this->SkinColors.Num());

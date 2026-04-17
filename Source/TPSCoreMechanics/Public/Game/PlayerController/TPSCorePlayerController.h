@@ -14,6 +14,9 @@ class ANPCCharacter;
 class UNpcInteractionPromptWidget;
 class UNpcInteractionResultWidget;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnNpcChatMessageReceivedSignature, FString, Sender, FString, Message);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInteractiveWindowFocusChangedSignature, bool, bHasInteractiveWindowFocus, FName, FocusReason);
+
 
 UCLASS()
 class TPSCOREMECHANICS_API ATPSCorePlayerController : public APlayerController, public IAbilitySystemInterface,
@@ -36,9 +39,13 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UObject* GetInventoryWidgetController();
+	UObject* GetChatWidgetController();
 
 	UFUNCTION(BlueprintCallable)
 	void CreateInventoryWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void CreateChatWidget();
 
 	UFUNCTION(BlueprintCallable, Category = "NPC|Interaction")
 	void SetNpcPromptEnabled(bool bEnabled);
@@ -56,6 +63,39 @@ public:
 	void ClientSendNpcChatMessage(const FString& Sender, const FString& Message);
 
 	virtual void ClientSendNpcChatMessage_Implementation(const FString& Sender, const FString& Message);
+
+	UFUNCTION(BlueprintCallable, Category = "UI|Focus")
+	void SetInteractiveWindowFocusForReason(FName FocusReason, bool bShouldFocus);
+
+	UFUNCTION(BlueprintCallable, Category = "UI|Focus")
+	void SetChatWindowFocus(bool bShouldFocus);
+
+	UFUNCTION(BlueprintCallable, Category = "UI|Chat")
+	void SetChatWidgetVisible(bool bVisible);
+
+	UFUNCTION(BlueprintCallable, Category = "UI|Chat")
+	void ToggleChatWidget();
+
+	UFUNCTION(BlueprintPure, Category = "UI|Chat")
+	bool IsChatWidgetVisible() const;
+
+	UFUNCTION(BlueprintPure, Category = "UI|Focus")
+	bool HasInteractiveWindowFocus() const;
+
+	UFUNCTION(BlueprintPure, Category = "UI|Focus")
+	bool HasInteractiveWindowFocusForReason(FName FocusReason) const;
+
+	UFUNCTION(BlueprintPure, Category = "UI|Focus")
+	bool IsChatWindowFocused() const;
+
+	UFUNCTION(BlueprintPure, Category = "UI|Focus")
+	FName GetPrimaryInteractiveWindowFocusReason() const;
+
+	UPROPERTY(BlueprintAssignable, Category = "Chat")
+	FOnNpcChatMessageReceivedSignature OnNpcChatMessageReceived;
+
+	UPROPERTY(BlueprintAssignable, Category = "UI|Focus")
+	FOnInteractiveWindowFocusChangedSignature OnInteractiveWindowFocusChanged;
 
 protected:
 
@@ -75,6 +115,21 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Widgets")
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UObject> ChatWidgetController;
+
+	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Widgets")
+	TSubclassOf<UObject> ChatWidgetControllerClass;
+
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UUserWidget> ChatWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Widgets")
+	TSubclassOf<UUserWidget> ChatWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Custom Values|Widgets")
+	int32 ChatWidgetZOrder = 25;
 
 	UPROPERTY(EditDefaultsOnly, Category = "NPC|Interaction")
 	bool bNpcPromptEnabled = true;
@@ -112,13 +167,19 @@ private:
 	UPROPERTY(Transient)
 	TWeakObjectPtr<ANPCCharacter> ActiveNearbyNpc;
 
+	UPROPERTY(Transient)
+	TArray<FName> ActiveInteractiveWindowFocusReasons;
+
 	float NpcPromptSearchElapsed = 0.f;
 
 	void TickNpcPrompt(float DeltaSeconds);
+	void RefreshInteractiveWindowFocusState();
 	void HandleNpcInteractInput();
 	void HandleNpcInteractionCloseInput();
 	void EnsureNpcPromptWidget();
 	void HideNpcPromptWidget();
+	void SyncChatWidgetFocusState();
+	void CloseChatWidget();
 	void CloseActiveNpcInteractionWidget();
 	void UpdateNpcPromptWidgetFor(ANPCCharacter* Npc);
 	void ShowNpcInteractionWidget(const FString& NpcId, const FString& NpcName, const FString& NpcRole, const FText& Message);

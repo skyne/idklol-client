@@ -1,6 +1,34 @@
 #include "Chat/ChatSubsystem.h"
 #include "CharacterCreation/SelectedCharacterSubsystem.h"
 
+void UChatSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			PlayerControllerBindingTimerHandle,
+			this,
+			&UChatSubsystem::EnsureLocalPlayerControllerBinding,
+			0.5f,
+			true);
+	}
+
+	EnsureLocalPlayerControllerBinding();
+}
+
+void UChatSubsystem::Deinitialize()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(PlayerControllerBindingTimerHandle);
+	}
+
+	UnbindLocalPlayerController();
+	Super::Deinitialize();
+}
+
 void UChatSubsystem::OnServiceConnected(UObject* InService, UObject* InClient)
 {
 	UChatService* ChatService = GetService();
@@ -37,7 +65,7 @@ void UChatSubsystem::HandleStreamResponse(FGrpcContextHandle Handle, const FGrpc
 	// as service state change notifications may be delayed.
 	if (GrpcResult.Code == EGrpcResultCode::Ok)
 	{
-		TriggerNewMessageReceived(Response.Timestamp, Response.Sender, Response.Message);
+		TriggerMessageEnvelopeReceived(BuildEnvelopeFromGrpcMessage(Response));
 	}
 	else
 	{
@@ -138,5 +166,110 @@ void UChatSubsystem::SendChatMessage(const FString& Message, const FString& Send
 
 void UChatSubsystem::TriggerNewMessageReceived(const FString& Timestamp,const FString& Sender,const FString& Message)
 {
-	OnNewMessageReceived.Broadcast(Timestamp, Sender, Message);
+	FChatMessageEnvelope Envelope;
+	Envelope.MessageId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
+	Envelope.Timestamp = Timestamp;
+	Envelope.SpeakerDisplayName = Sender;
+	Envelope.PayloadText = Message;
+	Envelope.MessageKind = EChatMessageKind::CharacterSpeech;
+	Envelope.DeliveryScope = EChatDeliveryScope::Global;
+	Envelope.Channel.ChannelId = TEXT("global");
+	Envelope.Channel.DisplayName = TEXT("Global");
+	Envelope.Channel.ChannelType = EChatChannelType::Global;
+	TriggerMessageEnvelopeReceived(Envelope);
+}
+
+void UChatSubsystem::TriggerMessageEnvelopeReceived(const FChatMessageEnvelope& Message)
+{
+	AppendMessageToHistory(Message);
+	OnChatMessageAdded.Broadcast(Message);
+	OnNewMessageReceived.Broadcast(Message.Timestamp, Message.SpeakerDisplayName, Message.PayloadText);
+}
+
+void UChatSubsystem::ResetMessageHistory()
+{
+	MessageHistory.Reset();
+	OnChatHistoryReset.Broadcast();
+}
+
+void UChatSubsystem::GetMessageHistory(TArray<FChatMessageEnvelope>& OutMessages) const
+{
+	OutMessages = MessageHistory;
+}
+
+bool UChatSubsystem::IsChatWindowFocused() const
+{
+	return BoundPlayerController.IsValid() && BoundPlayerController->IsChatWindowFocused();
+}
+
+void UChatSubsystem::HandleNpcChatMessageFromPlayerController(FString Sender, FString Message)
+{
+	TriggerMessageEnvelopeReceived(BuildNpcEnvelope(Sender, Message));
+}
+
+void UChatSubsystem::EnsureLocalPlayerControllerBinding()
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	if (!IsValid(GameInstance))
+	{
+		return;
+	}
+
+	ATPSCorePlayerController* PlayerController = Cast<ATPSCorePlayerController>(GameInstance->GetFirstLocalPlayerController());
+	if (PlayerController == BoundPlayerController.Get())
+	{
+		return;
+	}
+
+	UnbindLocalPlayerController();
+	BoundPlayerController = PlayerController;
+
+	if (BoundPlayerController.IsValid())
+	{
+		BoundPlayerController->OnNpcChatMessageReceived.AddUniqueDynamic(this, &UChatSubsystem::HandleNpcChatMessageFromPlayerController);
+	}
+}
+
+void UChatSubsystem::UnbindLocalPlayerController()
+{
+	if (BoundPlayerController.IsValid())
+	{
+		BoundPlayerController->OnNpcChatMessageReceived.RemoveDynamic(this, &UChatSubsystem::HandleNpcChatMessageFromPlayerController);
+		BoundPlayerController.Reset();
+	}
+}
+
+void UChatSubsystem::AppendMessageToHistory(const FChatMessageEnvelope& Message)
+{
+	MessageHistory.Add(Message);
+}
+
+FChatMessageEnvelope UChatSubsystem::BuildEnvelopeFromGrpcMessage(const FGrpcChatChatMessage& Response) const
+{
+	FChatMessageEnvelope Envelope;
+	Envelope.MessageId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
+	Envelope.Timestamp = Response.Timestamp;
+	Envelope.SpeakerDisplayName = Response.Sender;
+	Envelope.PayloadText = Response.Message;
+	Envelope.MessageKind = EChatMessageKind::CharacterSpeech;
+	Envelope.DeliveryScope = EChatDeliveryScope::Global;
+	Envelope.Channel.ChannelId = TEXT("global");
+	Envelope.Channel.DisplayName = TEXT("Global");
+	Envelope.Channel.ChannelType = EChatChannelType::Global;
+	return Envelope;
+}
+
+FChatMessageEnvelope UChatSubsystem::BuildNpcEnvelope(const FString& Sender, const FString& Message) const
+{
+	FChatMessageEnvelope Envelope;
+	Envelope.MessageId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
+	Envelope.Timestamp = TEXT("NOW");
+	Envelope.SpeakerDisplayName = Sender;
+	Envelope.PayloadText = Message;
+	Envelope.MessageKind = EChatMessageKind::NpcSpeech;
+	Envelope.DeliveryScope = EChatDeliveryScope::Local;
+	Envelope.Channel.ChannelId = TEXT("npc");
+	Envelope.Channel.DisplayName = TEXT("NPC");
+	Envelope.Channel.ChannelType = EChatChannelType::Direct;
+	return Envelope;
 }

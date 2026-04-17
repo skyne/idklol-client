@@ -5,29 +5,19 @@
 			"path": "."
 		},
 		{
-			"name": "idklol-server",
-			"path": "../idklol-server"
-		},
-		{
 			"name": "UE5",
-			"path": "../../UnrealEngine5.5.4"
-		},
-		{
-			"path": "../idklol-infra"
+			"path": "/Users/Shared/Epic Games/UE_5.7"
 		}
 	],
 	"settings": {
 		"typescript.tsc.autoDetect": "off",
 		"npm.autoDetect": "off",
-		"terminal.integrated.env.linux": {
-			"PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
-			"DOTNET_ROOT": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
-			"DOTNET_HOST_PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
+		"terminal.integrated.env.mac": {
+			"PATH": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-x64:${env:PATH}",
+			"DOTNET_ROOT": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-x64",
+			"DOTNET_HOST_PATH": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-x64/dotnet",
 			"DOTNET_MULTILEVEL_LOOKUP": "0",
 			"DOTNET_ROLL_FORWARD": "LatestMajor"
-		},
-		"chat.tools.terminal.autoApprove": {
-			"/.*/": true,
 		}
 	},
 	"extensions": {
@@ -40,718 +30,718 @@
 		"version": "2.0.0",
 		"tasks": [
 			{
-				"label": "TPSCoreMechanics Linux Debug Build",
+				"label": "TPSCoreMechanics Mac Debug Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Debug Rebuild",
+				"label": "TPSCoreMechanics Mac Debug Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics Linux Debug Clean"
+					"TPSCoreMechanics Mac Debug Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Debug Clean",
+				"label": "TPSCoreMechanics Mac Debug Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux DebugGame Build",
+				"label": "TPSCoreMechanics Mac DebugGame Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux DebugGame Rebuild",
+				"label": "TPSCoreMechanics Mac DebugGame Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics Linux DebugGame Clean"
+					"TPSCoreMechanics Mac DebugGame Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux DebugGame Clean",
+				"label": "TPSCoreMechanics Mac DebugGame Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Development Build",
+				"label": "TPSCoreMechanics Mac Development Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Development Rebuild",
+				"label": "TPSCoreMechanics Mac Development Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics Linux Development Clean"
+					"TPSCoreMechanics Mac Development Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Development Clean",
+				"label": "TPSCoreMechanics Mac Development Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Test Build",
+				"label": "TPSCoreMechanics Mac Test Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Test",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Test Rebuild",
+				"label": "TPSCoreMechanics Mac Test Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Test",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics Linux Test Clean"
+					"TPSCoreMechanics Mac Test Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Test Clean",
+				"label": "TPSCoreMechanics Mac Test Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Test",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Shipping Build",
+				"label": "TPSCoreMechanics Mac Shipping Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Shipping",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Shipping Rebuild",
+				"label": "TPSCoreMechanics Mac Shipping Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Shipping",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics Linux Shipping Clean"
+					"TPSCoreMechanics Mac Shipping Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics Linux Shipping Clean",
+				"label": "TPSCoreMechanics Mac Shipping Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
 					"TPSCoreMechanics",
-					"Linux",
+					"Mac",
 					"Shipping",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Debug Build",
+				"label": "TPSCoreMechanicsEditor Mac Debug Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Debug Rebuild",
+				"label": "TPSCoreMechanicsEditor Mac Debug Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics LinuxArm64 Debug Clean"
+					"TPSCoreMechanicsEditor Mac Debug Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Debug Clean",
+				"label": "TPSCoreMechanicsEditor Mac Debug Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 DebugGame Build",
+				"label": "TPSCoreMechanicsEditor Mac DebugGame Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 DebugGame Rebuild",
+				"label": "TPSCoreMechanicsEditor Mac DebugGame Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics LinuxArm64 DebugGame Clean"
+					"TPSCoreMechanicsEditor Mac DebugGame Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 DebugGame Clean",
+				"label": "TPSCoreMechanicsEditor Mac DebugGame Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Development Build",
+				"label": "TPSCoreMechanicsEditor Mac Development Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Development Rebuild",
+				"label": "TPSCoreMechanicsEditor Mac Development Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics LinuxArm64 Development Clean"
+					"TPSCoreMechanicsEditor Mac Development Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Development Clean",
+				"label": "TPSCoreMechanicsEditor Mac Development Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsEditor",
+					"Mac",
 					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Test Build",
+				"label": "TPSCoreMechanicsServer Mac Debug Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"Debug",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"Debug",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanicsServer Mac Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"Debug",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"DebugGame",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"DebugGame",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanicsServer Mac DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"DebugGame",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"Development",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"Development",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"TPSCoreMechanicsServer Mac Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
+					"Development",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
+				}
+			},
+			{
+				"label": "TPSCoreMechanicsServer Mac Test Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+				"args": [
+					"TPSCoreMechanicsServer",
+					"Mac",
 					"Test",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Test Rebuild",
+				"label": "TPSCoreMechanicsServer Mac Test Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsServer",
+					"Mac",
 					"Test",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics LinuxArm64 Test Clean"
+					"TPSCoreMechanicsServer Mac Test Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Test Clean",
+				"label": "TPSCoreMechanicsServer Mac Test Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsServer",
+					"Mac",
 					"Test",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Shipping Build",
+				"label": "TPSCoreMechanicsServer Mac Shipping Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsServer",
+					"Mac",
 					"Shipping",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Shipping Rebuild",
+				"label": "TPSCoreMechanicsServer Mac Shipping Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsServer",
+					"Mac",
 					"Shipping",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"TPSCoreMechanics LinuxArm64 Shipping Clean"
+					"TPSCoreMechanicsServer Mac Shipping Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			},
 			{
-				"label": "TPSCoreMechanics LinuxArm64 Shipping Clean",
+				"label": "TPSCoreMechanicsServer Mac Shipping Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 				"args": [
-					"TPSCoreMechanics",
-					"LinuxArm64",
+					"TPSCoreMechanicsServer",
+					"Mac",
 					"Shipping",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-waitmutex",
 					"-clean"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux Debug Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"TPSCoreMechanicsEditor Linux Debug Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"Debug",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux DebugGame Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux DebugGame Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"TPSCoreMechanicsEditor Linux DebugGame Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux DebugGame Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"DebugGame",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux Development Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"TPSCoreMechanicsEditor Linux Development Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
-				}
-			},
-			{
-				"label": "TPSCoreMechanicsEditor Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"TPSCoreMechanicsEditor",
-					"Linux",
-					"Development",
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "${workspaceFolder:UE5}"
+					"cwd": "/Users/Shared/Epic Games/UE_5.7"
 				}
 			}
 		]
@@ -762,127 +752,161 @@
 			{
 				"name": "Launch TPSCoreMechanics (Debug)",
 				"request": "launch",
-				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-Debug",
-				"preLaunchTask": "TPSCoreMechanics Linux Debug Build",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealGame-Mac-Debug.app/Contents/MacOS/UnrealGame-Mac-Debug",
+				"preLaunchTask": "TPSCoreMechanics Mac Debug Build",
 				"args": [
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanics (DebugGame)",
 				"request": "launch",
-				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-DebugGame",
-				"preLaunchTask": "TPSCoreMechanics Linux DebugGame Build",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealGame-Mac-DebugGame.app/Contents/MacOS/UnrealGame-Mac-DebugGame",
+				"preLaunchTask": "TPSCoreMechanics Mac DebugGame Build",
 				"args": [
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanics (Development)",
 				"request": "launch",
-				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame",
-				"preLaunchTask": "TPSCoreMechanics Linux Development Build",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealGame.app/Contents/MacOS/UnrealGame",
+				"preLaunchTask": "TPSCoreMechanics Mac Development Build",
 				"args": [
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanics (Test)",
 				"request": "launch",
-				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-Test",
-				"preLaunchTask": "TPSCoreMechanics Linux Test Build",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealGame-Mac-Test.app/Contents/MacOS/UnrealGame-Mac-Test",
+				"preLaunchTask": "TPSCoreMechanics Mac Test Build",
 				"args": [
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanics (Shipping)",
 				"request": "launch",
-				"program": "${workspaceFolder:TPSCoreMechanics}/Binaries/Linux/UnrealGame-Linux-Shipping",
-				"preLaunchTask": "TPSCoreMechanics Linux Shipping Build",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealGame-Mac-Shipping.app/Contents/MacOS/UnrealGame-Mac-Shipping",
+				"preLaunchTask": "TPSCoreMechanics Mac Shipping Build",
 				"args": [
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanicsEditor (Debug)",
 				"request": "launch",
-				"program": "${workspaceFolder:UE5}/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
-				"preLaunchTask": "TPSCoreMechanicsEditor Linux Debug Build",
+				"program": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor-Mac-Debug.app/Contents/MacOS/UnrealEditor-Mac-Debug",
+				"preLaunchTask": "TPSCoreMechanicsEditor Mac Debug Build",
 				"args": [
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject"
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject"
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanicsEditor (DebugGame)",
 				"request": "launch",
-				"program": "${workspaceFolder:UE5}/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
-				"preLaunchTask": "TPSCoreMechanicsEditor Linux DebugGame Build",
+				"program": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor-Mac-DebugGame.app/Contents/MacOS/UnrealEditor-Mac-DebugGame",
+				"preLaunchTask": "TPSCoreMechanicsEditor Mac DebugGame Build",
 				"args": [
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject"
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject"
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Launch TPSCoreMechanicsEditor (Development)",
 				"request": "launch",
-				"program": "${workspaceFolder:UE5}/Engine/Binaries/Linux/UnrealEditor",
-				"preLaunchTask": "TPSCoreMechanicsEditor Linux Development Build",
+				"program": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor",
+				"preLaunchTask": "TPSCoreMechanicsEditor Mac Development Build",
 				"args": [
-					"${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject"
+					"/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject"
 				],
-				"cwd": "${workspaceFolder:UE5}",
-				"type": "cppdbg",
-				"visualizerFile": "${workspaceFolder:UE5}/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
+			},
+			{
+				"name": "Launch TPSCoreMechanicsServer (Debug)",
+				"request": "launch",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealServer-Mac-Debug.app/Contents/MacOS/UnrealServer-Mac-Debug",
+				"preLaunchTask": "TPSCoreMechanicsServer Mac Debug Build",
+				"args": [
+				],
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
+			},
+			{
+				"name": "Launch TPSCoreMechanicsServer (DebugGame)",
+				"request": "launch",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealServer-Mac-DebugGame.app/Contents/MacOS/UnrealServer-Mac-DebugGame",
+				"preLaunchTask": "TPSCoreMechanicsServer Mac DebugGame Build",
+				"args": [
+				],
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
+			},
+			{
+				"name": "Launch TPSCoreMechanicsServer (Development)",
+				"request": "launch",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealServer.app/Contents/MacOS/UnrealServer",
+				"preLaunchTask": "TPSCoreMechanicsServer Mac Development Build",
+				"args": [
+				],
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
+			},
+			{
+				"name": "Launch TPSCoreMechanicsServer (Test)",
+				"request": "launch",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealServer-Mac-Test.app/Contents/MacOS/UnrealServer-Mac-Test",
+				"preLaunchTask": "TPSCoreMechanicsServer Mac Test Build",
+				"args": [
+				],
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
+			},
+			{
+				"name": "Launch TPSCoreMechanicsServer (Shipping)",
+				"request": "launch",
+				"program": "/Users/skyne/projects/idklol-client/Binaries/Mac/UnrealServer-Mac-Shipping.app/Contents/MacOS/UnrealServer-Mac-Shipping",
+				"preLaunchTask": "TPSCoreMechanicsServer Mac Shipping Build",
+				"args": [
+				],
+				"cwd": "/Users/Shared/Epic Games/UE_5.7",
+				"type": "lldb"
 			},
 			{
 				"name": "Generate Project Files",
 				"type": "coreclr",
 				"request": "launch",
-				"preLaunchTask": "UnrealBuildTool Linux Development Build",
-				"program": "${workspaceFolder:UE5}/Engine/Build/BatchFiles/RunUBT.bat",
+				"preLaunchTask": "UnrealBuildTool Mac Development Build",
+				"program": "/Users/Shared/Epic Games/UE_5.7/Engine/Build/BatchFiles/RunUBT.bat",
 				"args": [
 					"-projectfiles",
 					"-vscode",
-					"-project=${workspaceFolder:TPSCoreMechanics}/TPSCoreMechanics.uproject",
+					"-project=/Users/skyne/projects/idklol-client/TPSCoreMechanics.uproject",
 					"-game",
 					"-engine",
 					"-dotnet"
 				],
 				"env": {
-					"PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64:${env:PATH}",
-					"DOTNET_ROOT": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64",
-					"DOTNET_HOST_PATH": "${workspaceFolder:UE5}/Engine/Binaries/ThirdParty/DotNet/8.0.300/linux-x64/dotnet",
+					"PATH": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-x64:${env:PATH}",
+					"DOTNET_ROOT": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-x64",
+					"DOTNET_HOST_PATH": "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/ThirdParty/DotNet/8.0.412/mac-x64/dotnet",
 					"DOTNET_MULTILEVEL_LOOKUP": "0",
 					"DOTNET_ROLL_FORWARD": "LatestMajor"
 				},
 				"console": "internalConsole",
 				"internalConsoleOptions": "openOnSessionStart",
 				"stopAtEntry": false,
-				"cwd": "${workspaceFolder:UE5}"
+				"cwd": "/Users/Shared/Epic Games/UE_5.7"
 			}
 		]
 	}

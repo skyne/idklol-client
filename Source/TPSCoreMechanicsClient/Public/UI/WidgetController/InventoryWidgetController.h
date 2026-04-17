@@ -31,10 +31,13 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FScrollBoxResetSignature ScrollBoxResetDelegate;
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void SetOwningActor(AActor* InOwningActor);
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void BindCallbacksToDependencies();
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void BradcastInitialValues();
 
 private:

@@ -2,6 +2,7 @@
 
 #include "Game/GameMode/TPSCoreGameMode.h"
 #include "Auth/JwtClaimsHelper.h"
+#include "Game/PlayerController/TPSCorePlayerController.h"
 #include "TPSCoreMechanics/TPSCoreMechanicsCharacter.h"
 #include "TPSCoreMechanics/TPSCoreMechanics.h"
 #include "Server/ServerCharacterLoaderSubsystem.h"
@@ -13,6 +14,7 @@ ATPSCoreGameMode::ATPSCoreGameMode()
 	// Default pawn class should be ATPSCoreMechanicsCharacter or a subclass
 	// This is required for the character appearance system to work
 	DefaultPawnClass = ATPSCoreMechanicsCharacter::StaticClass();
+	PlayerControllerClass = ATPSCorePlayerController::StaticClass();
 }
 
 void ATPSCoreGameMode::BeginPlay()
