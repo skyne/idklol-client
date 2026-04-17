@@ -6,7 +6,7 @@
 # Stage 2: Package into a lightweight runtime container
 
 # ===== BUILD STAGE =====
-FROM ghcr.io/epicgames/unreal-engine:dev-5.7-slim AS builder
+FROM ghcr.io/epicgames/unreal-engine:dev-slim-5.7 AS builder
 
 # The UE path in Epic's container - typically /home/ue4/UnrealEngine
 ENV UE_ROOT=/home/ue4/UnrealEngine

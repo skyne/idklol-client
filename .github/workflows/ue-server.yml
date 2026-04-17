@@ -97,10 +97,10 @@ jobs:
       # ── Ensure Epic base image is present in host Docker storage ─────────
       - name: Ensure Epic UE base image is available locally
         run: |
-          if docker image inspect ghcr.io/epicgames/unreal-engine:dev-5.7-slim >/dev/null 2>&1; then
+          if docker image inspect ghcr.io/epicgames/unreal-engine:dev-slim-5.7 >/dev/null 2>&1; then
             echo "Epic UE base image already present in host Docker storage"
           else
-            docker pull ghcr.io/epicgames/unreal-engine:dev-5.7-slim
+            docker pull ghcr.io/epicgames/unreal-engine:dev-slim-5.7
           fi
 
       # ── Restore gitignored TurboLink third-party binaries ───────────────
