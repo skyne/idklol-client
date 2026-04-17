@@ -18,6 +18,7 @@
 #include "NatsClientSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "TPSCoreMechanics/TPSCoreMechanics.h"
 #include "TPSCoreMechanics/TPSCoreMechanicsCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSCorePlayerController, Log, All);
@@ -218,8 +219,7 @@ void ATPSCorePlayerController::HandleNpcInteractInput()
 	}
 
 	const FNpcReplicatedData& NpcData = Npc->GetNpcData();
-	UE_LOG(LogTPSCorePlayerController, Log,
-		TEXT("NPC interaction happened: player='%s' npc_id='%s' npc_name='%s' distance=%.1f"),
+	LOG("NPC interaction happened: player='%s' npc_id='%s' npc_name='%s' distance=%.1f",
 		*GetNameSafe(ControlledPawn),
 		*NpcData.NpcId,
 		*NpcData.DisplayName,
@@ -414,8 +414,7 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 	UNatsClientSubsystem* Nats = GetGameInstance()->GetSubsystem<UNatsClientSubsystem>();
 	if (!Nats || !Nats->IsConnected())
 	{
-		UE_LOG(LogTPSCorePlayerController, Warning,
-			TEXT("ServerInteractWithNpc: NATS not connected, falling back to local greeting"));
+		LOG_WARNING("ServerInteractWithNpc: NATS not connected, falling back to local greeting");
 
 		const FString FallbackResponseText = FString::Printf(TEXT("%s: Greetings, traveler."), *NpcData.DisplayName);
 		ClientSendNpcChatMessage(NpcData.DisplayName, FallbackResponseText);
@@ -439,8 +438,7 @@ void ATPSCorePlayerController::ServerInteractWithNpc_Implementation(ANPCCharacte
 		FString ResponseText;
 		if (!bSuccess)
 		{
-			UE_LOG(LogTPSCorePlayerController, Warning,
-				TEXT("NPC interaction request timed out for npc_id=%s"), *NpcData.NpcId);
+			LOG_WARNING("NPC interaction request timed out for npc_id=%s", *NpcData.NpcId);
 		}
 		else
 		{
@@ -498,8 +496,7 @@ void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
 	const FString& NpcName,
 	const FString& Message)
 {
-	UE_LOG(LogTPSCorePlayerController, Log,
-		TEXT("ClientShowNpcInteractionResponse received: npc_id=%s npc_name=%s message=%s"),
+	LOG("ClientShowNpcInteractionResponse received: npc_id=%s npc_name=%s message=%s",
 		*NpcId,
 		*NpcName,
 		*Message);
@@ -513,58 +510,59 @@ void ATPSCorePlayerController::ClientShowNpcInteractionResponse_Implementation(
 }
 
 void ATPSCorePlayerController::ClientSendNpcChatMessage_Implementation(
-
 	const FString& Sender,
 	const FString& Message)
+
+{
+	if (GetNetMode() == NM_DedicatedServer || !IsLocalController())
 	{
-		UE_LOG(LogTPSCorePlayerController, Log,
-			TEXT("ClientSendNpcChatMessage received: sender=%s message=%s"),
-			*Sender,
-			*Message);
-
-		UGameInstance* GameInstance = GetGameInstance();
-		if (!IsValid(GameInstance))
-		{
-			return;
-		}
-
-		UClass* ChatSubsystemClass = FindObject<UClass>(nullptr, TEXT("/Script/TPSCoreMechanicsClient.ChatSubsystem"));
-		if (!ChatSubsystemClass)
-		{
-			UE_LOG(LogTPSCorePlayerController, Verbose,
-				TEXT("ClientSendNpcChatMessage could not find TPSCoreMechanicsClient.ChatSubsystem"));
-			return;
-		}
-
-		UObject* ChatSubsystem = GameInstance->GetSubsystemBase(ChatSubsystemClass);
-		if (!IsValid(ChatSubsystem))
-		{
-			UE_LOG(LogTPSCorePlayerController, Verbose,
-				TEXT("ClientSendNpcChatMessage could not resolve chat subsystem instance"));
-			return;
-		}
-
-		UFunction* TriggerFunction = ChatSubsystem->FindFunction(TEXT("TriggerNewMessageReceived"));
-		if (!TriggerFunction)
-		{
-			UE_LOG(LogTPSCorePlayerController, Warning,
-				TEXT("ClientSendNpcChatMessage could not find TriggerNewMessageReceived on chat subsystem"));
-			return;
-		}
-
-		struct FTriggerNewMessageReceivedParams
-		{
-			FString Timestamp;
-			FString Sender;
-			FString Message;
-		};
-
-		FTriggerNewMessageReceivedParams Params;
-		Params.Timestamp = TEXT("NOW");
-		Params.Sender = Sender;
-		Params.Message = Message;
-		ChatSubsystem->ProcessEvent(TriggerFunction, &Params);
+		return;
 	}
+
+	LOG("ClientSendNpcChatMessage received: sender=%s message=%s",
+		*Sender,
+		*Message);
+
+	UGameInstance* GameInstance = GetGameInstance();
+	if (!IsValid(GameInstance))
+	{
+		return;
+	}
+
+	UClass* ChatSubsystemClass = FindObject<UClass>(nullptr, TEXT("/Script/TPSCoreMechanicsClient.ChatSubsystem"));
+	if (!ChatSubsystemClass)
+	{
+		LOG_WARNING("ClientSendNpcChatMessage could not find TPSCoreMechanicsClient.ChatSubsystem");
+		return;
+	}
+
+	UObject* ChatSubsystem = GameInstance->GetSubsystemBase(ChatSubsystemClass);
+	if (!IsValid(ChatSubsystem))
+	{
+		LOG_WARNING("ClientSendNpcChatMessage could not resolve chat subsystem instance");
+		return;
+	}
+
+	UFunction* TriggerFunction = ChatSubsystem->FindFunction(TEXT("TriggerNewMessageReceived"));
+	if (!TriggerFunction)
+	{
+		LOG_WARNING("ClientSendNpcChatMessage could not find TriggerNewMessageReceived on chat subsystem");
+		return;
+	}
+
+	struct FTriggerNewMessageReceivedParams
+	{
+		FString Timestamp;
+		FString Sender;
+		FString Message;
+	};
+
+	FTriggerNewMessageReceivedParams Params;
+	Params.Timestamp = TEXT("NOW");
+	Params.Sender = Sender;
+	Params.Message = Message;
+	ChatSubsystem->ProcessEvent(TriggerFunction, &Params);
+}
 
 
 
